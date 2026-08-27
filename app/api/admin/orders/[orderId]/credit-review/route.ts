@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { CREDIT_DECISIONS } from '@/lib/credit-risk/types';
-import { getOrderCreditReview, upsertOrderCreditReview } from '@/lib/credit-risk/review-store';
+import { passBlockedReason } from '@/lib/credit-risk/decision';
+import {
+  adminFieldsToKeepOnPull,
+  getOrderCreditReview,
+  upsertOrderCreditReview,
+} from '@/lib/credit-risk/review-store';
 import {
   requestAvsReport,
   requestCreditDataReport,
@@ -58,14 +63,11 @@ export async function PATCH(
     return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
   }
 
-  if (body.decision === 'PASS' && body.flags?.debt_review && !body.hardware_prepaid) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Cannot mark PASS while debt review is flagged unless hardware is prepaid.',
-      },
-      { status: 422 }
-    );
+  const passBlock = body.decision === 'PASS'
+    ? passBlockedReason(body.flags, Boolean(body.hardware_prepaid))
+    : null;
+  if (passBlock) {
+    return NextResponse.json({ success: false, error: passBlock }, { status: 422 });
   }
 
   try {
@@ -145,6 +147,7 @@ export async function POST(
       flags = { ...flags, ...avs.flags };
     }
 
+    const existing = await getOrderCreditReview(supabase, orderId);
     const review = await upsertOrderCreditReview(supabase, {
       consumer_order_id: orderId,
       flags,
@@ -155,6 +158,7 @@ export async function POST(
       updated_by: authResult.adminUser.email,
       package_price: Number(order.package_price) || 0,
       router_included: Boolean(order.router_included),
+      ...adminFieldsToKeepOnPull(existing),
     });
 
     return NextResponse.json({ success: true, data: review });

@@ -88,6 +88,22 @@ export async function requestCreditDataReport(params: {
   return { raw, flags, decision: deriveCreditDecision(flags) };
 }
 
+export function parseAvsToken(value: string): boolean | null {
+  const v = value.trim().toLowerCase();
+  if (/^(yes|true|1|valid)$/.test(v)) return true;
+  if (/^(no|false|0|invalid)$/.test(v)) return false;
+  return null;
+}
+
+export function parseAvsFlagsFromReport(raw: string): Pick<CreditFlags, 'avs_acc_exists' | 'avs_id_match'> {
+  const acc = /acc(?:ount)?\s*exists[^a-z0-9]*(yes|true|1|no|false|0|valid|invalid)/i.exec(raw);
+  const idMatch = /id\s*match[^a-z0-9]*(yes|true|1|no|false|0|valid|invalid)/i.exec(raw);
+  return {
+    avs_acc_exists: acc ? parseAvsToken(acc[1]) : null,
+    avs_id_match: idMatch ? parseAvsToken(idMatch[1]) : null,
+  };
+}
+
 export async function requestAvsReport(params: {
   idNumber: string;
   accountNumber: string;
@@ -95,13 +111,8 @@ export async function requestAvsReport(params: {
 }): Promise<{ raw: string; flags: Pick<CreditFlags, 'avs_acc_exists' | 'avs_id_match'> }> {
   const inner = `<tem:IdNumber>${escapeXml(params.idNumber)}</tem:IdNumber><tem:AccountNumber>${escapeXml(params.accountNumber)}</tem:AccountNumber>`;
   const raw = await callNiws('RequestAVSReport', inner);
-  const acc = /acc(?:ount)?\s*exists[^<]*(yes|true|1)/i.exec(raw);
-  const idMatch = /id\s*match[^<]*(yes|true|1)/i.exec(raw);
   return {
     raw,
-    flags: {
-      avs_acc_exists: acc ? /yes|true|1/i.test(acc[1]) : null,
-      avs_id_match: idMatch ? /yes|true|1/i.test(idMatch[1]) : null,
-    },
+    flags: parseAvsFlagsFromReport(raw),
   };
 }
