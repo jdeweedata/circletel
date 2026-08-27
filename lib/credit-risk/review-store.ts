@@ -2,7 +2,10 @@ import { buildCreditReview, buildQuoteCreditReview } from './decision';
 import type { CreditReviewInput, OrderCreditReview, QuoteCreditReview } from './types';
 
 export function adminFieldsToKeepOnPull(
-  existing?: OrderCreditReview | null
+  existing?: Pick<
+    OrderCreditReview,
+    'hardware_prepaid' | 'private_note' | 'override_reason' | 'override_by' | 'override_signoffs'
+  > | null
 ): Pick<
   CreditReviewInput,
   'hardware_prepaid' | 'private_note' | 'override_reason' | 'override_by' | 'override_signoffs'

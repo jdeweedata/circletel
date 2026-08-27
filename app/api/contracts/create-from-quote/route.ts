@@ -15,8 +15,7 @@ import type { ContractCreateRequest } from '@/lib/contracts/types';
 import { apiLogger } from '@/lib/logging';
 import {
   formalContractBlockedReason,
-  quoteIncludesCpe,
-  resolveBusinessQuoteKind,
+  quoteKindFromQuote,
 } from '@/lib/credit-risk/business-gate';
 import { getQuoteCreditReview } from '@/lib/credit-risk/review-store';
 
@@ -118,24 +117,7 @@ export async function POST(request: NextRequest) {
       .select('product_category, service_type, service_name')
       .eq('quote_id', quoteId);
 
-    const creditReview = await getQuoteCreditReview(supabase, quoteId);
-    const quoteKind = resolveBusinessQuoteKind({
-      includesCpe: quoteIncludesCpe(quoteItems),
-      onAccount: String(quote.customer_type || '').toLowerCase().includes('account'),
-      contractTerm: quote.contract_term,
-    });
-    const creditBlock = formalContractBlockedReason({
-      quoteKind,
-      review: creditReview,
-    });
-    if (creditBlock) {
-      return NextResponse.json(
-        { success: false, error: creditBlock },
-        { status: 422 }
-      );
-    }
-
-    // 6. Check if contract already exists for this quote
+    // Existing contracts stay fetchable even if a later review is UNCHECKED.
     const { data: existingContract } = await supabase
       .from('contracts')
       .select('id, contract_number, pdf_url, status')
@@ -153,6 +135,23 @@ export async function POST(request: NextRequest) {
           status: existingContract.status,
         },
       });
+    }
+
+    const creditReview = await getQuoteCreditReview(supabase, quoteId);
+    const quoteKind = quoteKindFromQuote({
+      customerType: quote.customer_type,
+      contractTerm: quote.contract_term,
+      items: quoteItems,
+    });
+    const creditBlock = formalContractBlockedReason({
+      quoteKind,
+      review: creditReview,
+    });
+    if (creditBlock) {
+      return NextResponse.json(
+        { success: false, error: creditBlock },
+        { status: 422 }
+      );
     }
 
     // 7. Create contract from quote

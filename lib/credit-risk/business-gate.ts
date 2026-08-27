@@ -32,6 +32,41 @@ export function resolveBusinessQuoteKind(input: {
   return 'skip';
 }
 
+export function inferPrepaidSimOnly(input: {
+  customerType?: string | null;
+  items?: Array<{
+    product_category?: string | null;
+    service_type?: string | null;
+    service_name?: string | null;
+  }> | null;
+}): boolean {
+  if (quoteIncludesCpe(input.items)) return false;
+  const type = String(input.customerType || '').toLowerCase();
+  if (/\bprepaid\b|sim[\s-]?only/.test(type)) return true;
+  const haystack = (input.items || [])
+    .map((item) => [item.product_category, item.service_type, item.service_name].filter(Boolean).join(' '))
+    .join(' ')
+    .toLowerCase();
+  return /sim[\s-]?only/.test(haystack);
+}
+
+export function quoteKindFromQuote(input: {
+  customerType?: string | null;
+  contractTerm?: number | null;
+  items?: Array<{
+    product_category?: string | null;
+    service_type?: string | null;
+    service_name?: string | null;
+  }> | null;
+}): BusinessQuoteKind {
+  return resolveBusinessQuoteKind({
+    includesCpe: quoteIncludesCpe(input.items),
+    onAccount: String(input.customerType || '').toLowerCase().includes('account'),
+    prepaidSimOnly: inferPrepaidSimOnly(input),
+    contractTerm: input.contractTerm,
+  });
+}
+
 export function shouldPullCompanyCredit(input: {
   signedAt?: string | null;
   termsAccepted?: boolean;

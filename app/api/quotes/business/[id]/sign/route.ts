@@ -4,13 +4,13 @@ import { validateSignQuoteRequest, canSignQuote } from '@/lib/quotes/quote-valid
 import type { SignQuoteRequest } from '@/lib/quotes/types';
 import { apiLogger } from '@/lib/logging';
 import {
-  quoteIncludesCpe,
-  resolveBusinessQuoteKind,
+  quoteKindFromQuote,
   resolveCompanyCreditPulls,
 } from '@/lib/credit-risk/business-gate';
 import { toCustomerCreditFields } from '@/lib/credit-risk/customer-outcome';
 import { upsertQuoteCreditReview } from '@/lib/credit-risk/review-store';
-import { riskServiceKeyConfigured, requestCompanyCreditReport } from '@/lib/credit-risk/netcash-risk-client';
+import { riskServiceKeyConfigured } from '@/lib/credit-risk/netcash-risk-client';
+import { runSignedQuoteCompanyPull } from '@/lib/credit-risk/quote-company-pull';
 
 /**
  * POST /api/quotes/business/:id/sign
@@ -135,10 +135,10 @@ export async function POST(
       .select('product_category, service_type, service_name')
       .eq('quote_id', id);
 
-    const quoteKind = resolveBusinessQuoteKind({
-      includesCpe: quoteIncludesCpe(quoteItems),
-      onAccount: String(updatedQuote.customer_type || '').toLowerCase().includes('account'),
+    const quoteKind = quoteKindFromQuote({
+      customerType: updatedQuote.customer_type,
       contractTerm: updatedQuote.contract_term,
+      items: quoteItems,
     });
     const pulls = resolveCompanyCreditPulls({
       signedAt: signature.signed_at,
@@ -160,10 +160,13 @@ export async function POST(
       });
 
       if (riskServiceKeyConfigured() && updatedQuote.registration_number) {
-        requestCompanyCreditReport({
+        // Sign stays unblocked. Persist the company result when the poll lands.
+        runSignedQuoteCompanyPull({
+          supabase,
+          quoteId: id,
           registrationNumber: String(updatedQuote.registration_number),
           accountReference: updatedQuote.quote_number || id,
-          instruction: 'CD32',
+          purpose: pulls.join(','),
         }).catch((pullError) => {
           apiLogger.error('CD32 pull failed after quote sign', {
             quoteId: id,

@@ -15,8 +15,7 @@ import type { ManagedServiceContractInput } from '@/lib/contracts/types'
 import type { ContractWizardState } from '@/components/admin/contracts/wizard/hooks/useContractWizard'
 import {
   formalContractBlockedReason,
-  quoteIncludesCpe,
-  resolveBusinessQuoteKind,
+  quoteKindFromQuote,
 } from '@/lib/credit-risk/business-gate'
 import { getQuoteCreditReview } from '@/lib/credit-risk/review-store'
 
@@ -135,10 +134,10 @@ export async function POST(request: NextRequest) {
         .eq('quote_id', state.selectedQuoteId)
       const creditReview = await getQuoteCreditReview(supabase, state.selectedQuoteId)
       const creditBlock = formalContractBlockedReason({
-        quoteKind: resolveBusinessQuoteKind({
-          includesCpe: quoteIncludesCpe(quoteItems),
-          onAccount: String(quote?.customer_type || '').toLowerCase().includes('account'),
+        quoteKind: quoteKindFromQuote({
+          customerType: quote?.customer_type,
           contractTerm: quote?.contract_term ?? parseTermMonths(terms.term),
+          items: quoteItems,
         }),
         review: creditReview,
       })
