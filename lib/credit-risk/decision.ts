@@ -4,6 +4,7 @@ import type {
   CreditReviewInput,
   OrderCreditReview,
   PackageExposure,
+  QuoteCreditReview,
 } from './types';
 
 export function hasHardLegalFlag(flags: CreditFlags): boolean {
@@ -105,6 +106,9 @@ export function creditDecisionLabel(decision?: CreditDecision | null): string {
 }
 
 export function buildCreditReview(input: CreditReviewInput): OrderCreditReview {
+  if (!input.consumer_order_id) {
+    throw new Error('consumer_order_id is required');
+  }
   const flags = input.flags ?? {};
   const decision = input.decision ?? deriveCreditDecision(flags);
   const hardwarePrepaid = Boolean(input.hardware_prepaid);
@@ -112,6 +116,38 @@ export function buildCreditReview(input: CreditReviewInput): OrderCreditReview {
 
   return {
     consumer_order_id: input.consumer_order_id,
+    decision,
+    bureau: input.bureau ?? null,
+    report_id: input.report_id ?? null,
+    transaction_id: input.transaction_id ?? null,
+    purpose: input.purpose ?? null,
+    requested_at: input.requested_at ?? null,
+    flags,
+    financed_router_allowed: allowsFinancedRouter(decision, hardwarePrepaid),
+    term_24_month_allowed: allows24MonthTerm(decision, hardwarePrepaid),
+    hardware_prepaid: hardwarePrepaid,
+    alternatives: recommendedAlternatives(decision, exposure),
+    private_note: input.private_note ?? null,
+    pdf_storage_path: input.pdf_storage_path ?? null,
+    override_reason: input.override_reason ?? null,
+    override_by: input.override_by ?? null,
+    override_signoffs: input.override_signoffs ?? null,
+    reviewed_by: input.reviewed_by ?? null,
+    updated_by: input.updated_by ?? null,
+  };
+}
+
+export function buildQuoteCreditReview(input: CreditReviewInput): QuoteCreditReview {
+  if (!input.business_quote_id) {
+    throw new Error('business_quote_id is required');
+  }
+  const flags = input.flags ?? {};
+  const decision = input.decision ?? deriveCreditDecision(flags);
+  const hardwarePrepaid = Boolean(input.hardware_prepaid);
+  const exposure = packageExposure(input.package_price, input.router_included);
+
+  return {
+    business_quote_id: input.business_quote_id,
     decision,
     bureau: input.bureau ?? null,
     report_id: input.report_id ?? null,

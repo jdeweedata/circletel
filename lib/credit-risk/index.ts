@@ -4,6 +4,7 @@ export * from './checkout-gates';
 export * from './review-store';
 export * from './consumer-gate';
 export * from './customer-outcome';
+export * from './business-gate';
 export {
   CREDIT_APPLICATION_REASON_CODE,
   defaultSoftwareVendorKey,

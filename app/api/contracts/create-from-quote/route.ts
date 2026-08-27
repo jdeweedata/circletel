@@ -13,6 +13,12 @@ import { generateContractPDF } from '@/lib/contracts/pdf-generator';
 import { createZohoSyncService } from '@/lib/integrations/zoho/sync-service';
 import type { ContractCreateRequest } from '@/lib/contracts/types';
 import { apiLogger } from '@/lib/logging';
+import {
+  formalContractBlockedReason,
+  quoteIncludesCpe,
+  resolveBusinessQuoteKind,
+} from '@/lib/credit-risk/business-gate';
+import { getQuoteCreditReview } from '@/lib/credit-risk/review-store';
 
 /**
  * Create contract from approved quote
@@ -91,6 +97,41 @@ export async function POST(request: NextRequest) {
           error: 'KYC session does not match the provided quote',
         },
         { status: 400 }
+      );
+    }
+
+    const { data: quote, error: quoteError } = await supabase
+      .from('business_quotes')
+      .select('id, contract_term, customer_type')
+      .eq('id', quoteId)
+      .single();
+
+    if (quoteError || !quote) {
+      return NextResponse.json(
+        { success: false, error: 'Quote not found' },
+        { status: 404 }
+      );
+    }
+
+    const { data: quoteItems } = await supabase
+      .from('business_quote_items')
+      .select('product_category, service_type, service_name')
+      .eq('quote_id', quoteId);
+
+    const creditReview = await getQuoteCreditReview(supabase, quoteId);
+    const quoteKind = resolveBusinessQuoteKind({
+      includesCpe: quoteIncludesCpe(quoteItems),
+      onAccount: String(quote.customer_type || '').toLowerCase().includes('account'),
+      contractTerm: quote.contract_term,
+    });
+    const creditBlock = formalContractBlockedReason({
+      quoteKind,
+      review: creditReview,
+    });
+    if (creditBlock) {
+      return NextResponse.json(
+        { success: false, error: creditBlock },
+        { status: 422 }
       );
     }
 

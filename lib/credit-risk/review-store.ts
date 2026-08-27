@@ -1,5 +1,5 @@
-import { buildCreditReview } from './decision';
-import type { CreditReviewInput, OrderCreditReview } from './types';
+import { buildCreditReview, buildQuoteCreditReview } from './decision';
+import type { CreditReviewInput, OrderCreditReview, QuoteCreditReview } from './types';
 
 type SupabaseLike = {
   from: (table: string) => any;
@@ -52,4 +52,37 @@ export async function getCreditReviewsByOrderIds(
     map[row.consumer_order_id] = row as OrderCreditReview;
   }
   return map;
+}
+
+export async function getQuoteCreditReview(
+  supabase: SupabaseLike,
+  businessQuoteId: string
+): Promise<QuoteCreditReview | null> {
+  const { data, error } = await supabase
+    .from('quote_credit_reviews')
+    .select('*')
+    .eq('business_quote_id', businessQuoteId)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data as QuoteCreditReview;
+}
+
+export async function upsertQuoteCreditReview(
+  supabase: SupabaseLike,
+  input: CreditReviewInput
+): Promise<QuoteCreditReview> {
+  const review = buildQuoteCreditReview(input);
+  const row = {
+    ...review,
+    updated_at: new Date().toISOString(),
+  };
+  const { data, error } = await supabase
+    .from('quote_credit_reviews')
+    .upsert(row, { onConflict: 'business_quote_id' })
+    .select('*')
+    .single();
+  if (error) {
+    throw new Error(error.message || 'Failed to save quote credit review');
+  }
+  return data as QuoteCreditReview;
 }

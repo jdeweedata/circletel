@@ -49,8 +49,13 @@ export interface OrderCreditReview {
   updated_at?: string;
 }
 
+export interface QuoteCreditReview extends Omit<OrderCreditReview, 'consumer_order_id'> {
+  business_quote_id: string;
+}
+
 export interface CreditReviewInput {
-  consumer_order_id: string;
+  consumer_order_id?: string;
+  business_quote_id?: string;
   bureau?: string | null;
   report_id?: string | null;
   transaction_id?: string | null;
