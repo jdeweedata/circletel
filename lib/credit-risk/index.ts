@@ -3,8 +3,16 @@ export * from './decision';
 export * from './checkout-gates';
 export * from './review-store';
 export {
+  CREDIT_APPLICATION_REASON_CODE,
+  NETCASH_SOFTWARE_VENDOR_KEY,
+  buildCompanyCreditNif,
+  buildConsumerCreditNif,
+} from './nif';
+export {
   parseCreditReportFlags,
   riskServiceKeyConfigured,
   requestCreditDataReport,
+  requestCompanyCreditReport,
+  requestAvsRealtime,
   requestAvsReport,
 } from './netcash-risk-client';

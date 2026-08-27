@@ -132,15 +132,19 @@ export async function POST(
   try {
     const credit = await requestCreditDataReport({
       idNumber,
-      firstName: order.first_name,
-      lastName: order.last_name,
-      reason: body.reason || 'Credit Risk Assessment',
+      firstName: String(order.first_name || ''),
+      lastName: String(order.last_name || ''),
+      accountReference: orderId,
+      reason: '32',
     });
     let flags = credit.flags;
-    if (body.accountNumber) {
+    if (body.accountNumber && body.branchCode) {
       const avs = await requestAvsReport({
         idNumber,
         accountNumber: String(body.accountNumber),
+        branchCode: String(body.branchCode),
+        enquiryName: `${order.first_name || ''} ${order.last_name || ''}`.trim() || 'Account Holder',
+        accountReference: orderId,
       });
       flags = { ...flags, ...avs.flags };
     }
@@ -149,7 +153,9 @@ export async function POST(
       consumer_order_id: orderId,
       flags,
       bureau: 'TransUnion',
-      purpose: body.reason || 'Credit Risk Assessment',
+      transaction_id: credit.fileToken,
+      pdf_storage_path: credit.pdfStoragePath,
+      purpose: '32',
       requested_at: new Date().toISOString(),
       reviewed_by: authResult.adminUser.id,
       updated_by: authResult.adminUser.email,
