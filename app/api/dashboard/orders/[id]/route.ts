@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { apiLogger } from '@/lib/logging';
+import { toCustomerCreditFields } from '@/lib/credit-risk/customer-outcome';
+import { getOrderCreditReview } from '@/lib/credit-risk/review-store';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -109,9 +111,13 @@ export async function GET(
       }, { status: 404 });
     }
 
+    const creditReview = await getOrderCreditReview(supabase, order.id);
     return NextResponse.json({
       success: true,
-      data: order
+      data: {
+        ...order,
+        ...toCustomerCreditFields(creditReview),
+      },
     });
 
   } catch (error) {

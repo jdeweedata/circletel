@@ -27,6 +27,7 @@ interface Order {
   installation_address: string;
   created_at: string;
   updated_at: string;
+  credit_outcome?: { title: string } | null;
 }
 
 export default function OrdersPage() {
@@ -336,6 +337,11 @@ export default function OrdersPage() {
                         <p className="text-base font-semibold text-gray-900 mb-1">
                           {order.package_name} ({order.package_speed})
                         </p>
+                        {order.credit_outcome?.title && (
+                          <p className="text-sm text-slate-700 mb-1">
+                            {order.credit_outcome.title}
+                          </p>
+                        )}
                         <p className="text-sm text-gray-600 mb-1">
                           {order.installation_address}
                         </p>

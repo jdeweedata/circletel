@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { apiLogger } from '@/lib/logging';
+import { toCustomerCreditFields } from '@/lib/credit-risk/customer-outcome';
+import { getCreditReviewsByOrderIds } from '@/lib/credit-risk/review-store';
 
 export const dynamic = 'force-dynamic';
 // Vercel configuration: Allow longer execution for customer orders
@@ -91,9 +93,17 @@ export async function GET(request: NextRequest) {
       throw ordersError;
     }
 
+    const reviews = await getCreditReviewsByOrderIds(
+      supabase,
+      (orders || []).map((order) => order.id)
+    );
+
     return NextResponse.json({
       success: true,
-      data: orders || []
+      data: (orders || []).map((order) => ({
+        ...order,
+        ...toCustomerCreditFields(reviews[order.id] ?? null),
+      })),
     });
 
   } catch (error) {
