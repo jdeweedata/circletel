@@ -51,7 +51,7 @@ Target after cleanup for a deploy: **≥ 12–14 GB RAM available**, **≥ 10 GB
 6. **After deploy**: wait for container **healthy**; show logs on failure; do not claim success without health evidence. Also verify `/app/COMMIT_SHA.txt` is a 40-char git sha matching `origin/main` (or `EXPECTED_SHA`).
 7. **Primary git checkout**: keep `/home/circletel` on clean tracking `main`; feature work in worktrees (`git-tree-hygiene.md`).
 8. **paths-ignore awareness**: docs/md-only changes may not trigger `deploy.yml` — do not assume every push deploys.
-9. **Env or container recreate**: use `scripts/recreate-circletel-prod.sh` only (`docker compose --no-build --pull never`). Coolify Restart for this dockerimage app runs `docker compose pull` and can boot stale GHCR `:latest`.
+9. **Env or container recreate**: use `scripts/recreate-circletel-prod.sh` only (`docker compose --no-build --pull never`). When `EXPECTED_SHA` is set (GHA deploy), that script pins compose `image:` to `ghcr.io/jdeweedata/circletel:<sha>` before `up`. Do not hand-edit compose as the deploy path. Coolify Restart for this dockerimage app runs `docker compose pull` and can boot stale GHCR `:latest`.
 
 ### NEVER
 
