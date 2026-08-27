@@ -9,6 +9,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { financedHardwareBlockedReason } from '@/lib/credit-risk/decision';
+import {
+  processCreditDealBlockedReason,
+  resolveConsumerDealKind,
+  skuFromOrder,
+} from '@/lib/credit-risk/consumer-gate';
 import { getOrderCreditReview } from '@/lib/credit-risk/review-store';
 
 export async function PATCH(
@@ -37,7 +42,7 @@ export async function PATCH(
     // 1. Verify order exists
     const { data: order, error: orderError } = await supabase
       .from('consumer_orders')
-      .select('id, order_number, sim_serial, router_serial, router_included')
+      .select('id, order_number, sim_serial, router_serial, router_included, package_name, metadata')
       .eq('id', orderId)
       .single();
 
@@ -47,6 +52,20 @@ export async function PATCH(
 
     if (routerSerial) {
       const creditReview = await getOrderCreditReview(supabase, orderId);
+      const dealKind = resolveConsumerDealKind({
+        sku: skuFromOrder(order),
+        routerIncluded: true,
+      });
+      const processBlock = processCreditDealBlockedReason({
+        dealKind,
+        review: creditReview,
+      });
+      if (processBlock) {
+        return NextResponse.json(
+          { success: false, error: processBlock, credit_decision: creditReview?.decision },
+          { status: 422 }
+        );
+      }
       const hardwareBlock = financedHardwareBlockedReason({
         decision: creditReview?.decision,
         hardware_prepaid: creditReview?.hardware_prepaid,
