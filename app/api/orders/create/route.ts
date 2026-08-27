@@ -14,8 +14,6 @@ import {
   ORDER_PROCESSING_FEE_AMOUNT,
   ORDER_PROCESSING_FEE_LABEL,
 } from '@/lib/payments/payment-amounts';
-import { getOrderCreditReview } from '@/lib/credit-risk/review-store';
-import { toCustomerCreditFields } from '@/lib/credit-risk/customer-outcome';
 
 // P4: Valid property types (must match ServiceAddressSection.tsx options)
 const VALID_PROPERTY_TYPES = [
@@ -432,91 +430,8 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
-// GET endpoint to retrieve orders (for admin or customer)
+// Auth lives in get-consumer-order so POST tests do not load admin session code.
 export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const orderId = searchParams.get('id');
-    const orderNumber = searchParams.get('orderNumber');
-    const email = searchParams.get('email');
-
-    const supabase = await createClient();
-
-    if (orderId) {
-      // Get specific order by ID
-      const { data: order, error } = await supabase
-        .from('consumer_orders')
-        .select('*')
-        .eq('id', orderId)
-        .single();
-
-      if (error) {
-        return NextResponse.json(
-          { success: false, error: 'Order not found' },
-          { status: 404 }
-        );
-      }
-
-      const creditReview = await getOrderCreditReview(supabase, order.id);
-      return NextResponse.json({
-        success: true,
-        order: {
-          ...order,
-          ...toCustomerCreditFields(creditReview),
-        },
-      });
-    } else if (orderNumber) {
-      // Get specific order by order number
-      const { data: order, error } = await supabase
-        .from('consumer_orders')
-        .select('*')
-        .eq('order_number', orderNumber)
-        .single();
-
-      if (error) {
-        return NextResponse.json(
-          { success: false, error: 'Order not found' },
-          { status: 404 }
-        );
-      }
-
-      return NextResponse.json({
-        success: true,
-        order,
-      });
-    } else if (email) {
-      // Get all orders for an email
-      const { data: orders, error } = await supabase
-        .from('consumer_orders')
-        .select('*')
-        .eq('email', email)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        return NextResponse.json(
-          { success: false, error: 'Failed to fetch orders' },
-          { status: 500 }
-        );
-      }
-
-      return NextResponse.json({
-        success: true,
-        orders,
-      });
-    }
-
-    return NextResponse.json(
-      { success: false, error: 'Missing query parameter: id, orderNumber, or email' },
-      { status: 400 }
-    );
-  } catch (error) {
-    apiLogger.error('Order fetch error', { error });
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch order',
-      },
-      { status: 500 }
-    );
-  }
+  const { getConsumerOrder } = await import('@/lib/orders/get-consumer-order');
+  return getConsumerOrder(request);
 }
