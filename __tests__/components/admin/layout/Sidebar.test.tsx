@@ -27,8 +27,10 @@ import {
 // ---- environment shims (not the logic under test) ----
 // `mock`-prefixed so it is hoisting-safe inside the jest.mock factory.
 let mockPath = '/admin';
+let mockSearch = '';
 jest.mock('next/navigation', () => ({
   usePathname: () => mockPath,
+  useSearchParams: () => new URLSearchParams(mockSearch),
   useRouter: () => ({ push() {} }),
 }));
 jest.mock('next/link', () => ({
@@ -69,6 +71,7 @@ const text = (inst: any): string => {
 
 function mount(role: string, isOpen = true, path = '/admin') {
   mockPath = path;
+  mockSearch = path.includes('?') ? path.split('?')[1] : '';
   let r: TestRenderer.ReactTestRenderer;
   act(() => {
     r = TestRenderer.create(
@@ -207,7 +210,7 @@ describe('Sidebar workspace switcher', () => {
       (n: any) => n.type === 'a' && n.props.href === found!.childHref
     );
     expect(activeAnchor.length).toBeGreaterThan(0);
-    expect(activeAnchor[0].props.className || '').toMatch(/bg-gray-100/);
+    expect(activeAnchor[0].props['data-active']).toBe('true');
   });
 
   // ---- PR4: collapsed-rail child flyouts ----
