@@ -4,7 +4,7 @@ export * from './checkout-gates';
 export * from './review-store';
 export {
   CREDIT_APPLICATION_REASON_CODE,
-  NETCASH_SOFTWARE_VENDOR_KEY,
+  defaultSoftwareVendorKey,
   buildCompanyCreditNif,
   buildConsumerCreditNif,
 } from './nif';

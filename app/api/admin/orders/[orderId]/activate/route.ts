@@ -452,7 +452,7 @@ export async function POST(
       {
         success: false,
         error: 'Internal server error',
-        details: error.message,
+        details: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }
     );
