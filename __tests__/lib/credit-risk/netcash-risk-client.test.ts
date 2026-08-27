@@ -69,12 +69,14 @@ describe('adminFieldsToKeepOnPull', () => {
       private_note: 'Customer paid the G5C.',
       override_reason: 'MD/CFO dual control',
       override_by: 'admin-1',
+      override_signoffs: [{ role: 'md', adminId: 'admin-1' }],
     });
     expect(kept).toEqual({
       hardware_prepaid: true,
       private_note: 'Customer paid the G5C.',
       override_reason: 'MD/CFO dual control',
       override_by: 'admin-1',
+      override_signoffs: [{ role: 'md', adminId: 'admin-1' }],
     });
   });
 });

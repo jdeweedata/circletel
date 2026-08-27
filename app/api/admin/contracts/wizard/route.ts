@@ -13,6 +13,11 @@ import { createClient } from '@/lib/supabase/server'
 import { apiLogger } from '@/lib/logging'
 import type { ManagedServiceContractInput } from '@/lib/contracts/types'
 import type { ContractWizardState } from '@/components/admin/contracts/wizard/hooks/useContractWizard'
+import {
+  formalContractBlockedReason,
+  quoteKindFromQuote,
+} from '@/lib/credit-risk/business-gate'
+import { getQuoteCreditReview } from '@/lib/credit-risk/review-store'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -115,6 +120,31 @@ export async function POST(request: NextRequest) {
 
     const { state, sendForSignature = false } = body as WizardSubmissionBody
     const { customer, selectedPackage, pricing, sla, terms } = state
+
+    if (state.selectedQuoteId) {
+      const supabase = await createClient()
+      const { data: quote } = await supabase
+        .from('business_quotes')
+        .select('id, contract_term, customer_type')
+        .eq('id', state.selectedQuoteId)
+        .maybeSingle()
+      const { data: quoteItems } = await supabase
+        .from('business_quote_items')
+        .select('product_category, service_type, service_name')
+        .eq('quote_id', state.selectedQuoteId)
+      const creditReview = await getQuoteCreditReview(supabase, state.selectedQuoteId)
+      const creditBlock = formalContractBlockedReason({
+        quoteKind: quoteKindFromQuote({
+          customerType: quote?.customer_type,
+          contractTerm: quote?.contract_term ?? parseTermMonths(terms.term),
+          items: quoteItems,
+        }),
+        review: creditReview,
+      })
+      if (creditBlock) {
+        return NextResponse.json({ success: false, error: creditBlock }, { status: 422 })
+      }
+    }
 
     // ── Build ManagedServiceContractInput ─────────────────────────────────────
     const termMonths = parseTermMonths(terms.term)

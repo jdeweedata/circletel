@@ -13,6 +13,11 @@ import { generateContractPDF } from '@/lib/contracts/pdf-generator';
 import { createZohoSyncService } from '@/lib/integrations/zoho/sync-service';
 import type { ContractCreateRequest } from '@/lib/contracts/types';
 import { apiLogger } from '@/lib/logging';
+import {
+  formalContractBlockedReason,
+  quoteKindFromQuote,
+} from '@/lib/credit-risk/business-gate';
+import { getQuoteCreditReview } from '@/lib/credit-risk/review-store';
 
 /**
  * Create contract from approved quote
@@ -94,7 +99,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 6. Check if contract already exists for this quote
+    const { data: quote, error: quoteError } = await supabase
+      .from('business_quotes')
+      .select('id, contract_term, customer_type')
+      .eq('id', quoteId)
+      .single();
+
+    if (quoteError || !quote) {
+      return NextResponse.json(
+        { success: false, error: 'Quote not found' },
+        { status: 404 }
+      );
+    }
+
+    const { data: quoteItems } = await supabase
+      .from('business_quote_items')
+      .select('product_category, service_type, service_name')
+      .eq('quote_id', quoteId);
+
+    // Existing contracts stay fetchable even if a later review is UNCHECKED.
     const { data: existingContract } = await supabase
       .from('contracts')
       .select('id, contract_number, pdf_url, status')
@@ -112,6 +135,23 @@ export async function POST(request: NextRequest) {
           status: existingContract.status,
         },
       });
+    }
+
+    const creditReview = await getQuoteCreditReview(supabase, quoteId);
+    const quoteKind = quoteKindFromQuote({
+      customerType: quote.customer_type,
+      contractTerm: quote.contract_term,
+      items: quoteItems,
+    });
+    const creditBlock = formalContractBlockedReason({
+      quoteKind,
+      review: creditReview,
+    });
+    if (creditBlock) {
+      return NextResponse.json(
+        { success: false, error: creditBlock },
+        { status: 422 }
+      );
     }
 
     // 7. Create contract from quote

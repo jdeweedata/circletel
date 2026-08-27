@@ -11,6 +11,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { apiLogger } from '@/lib/logging';
 import { fetchQuoteTerms } from '@/lib/quotes/quote-terms';
+import { toCustomerCreditFields } from '@/lib/credit-risk/customer-outcome';
+import { getQuoteCreditReview } from '@/lib/credit-risk/review-store';
 
 export async function GET(
   request: NextRequest,
@@ -63,12 +65,14 @@ export async function GET(
     // Fetch applicable terms based on service types in this quote
     const serviceTypes = [...new Set((items || []).map((item: any) => item.service_type))];
     const terms = await fetchQuoteTerms(serviceTypes, quote.contract_term);
+    const creditReview = await getQuoteCreditReview(supabase, id);
 
     return NextResponse.json({
       success: true,
       quote: {
         ...quote,
-        items: items || []
+        items: items || [],
+        ...toCustomerCreditFields(creditReview),
       },
       terms
     });

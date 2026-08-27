@@ -69,17 +69,20 @@ export async function PATCH(
     return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
   }
 
-  if (body.decision === 'PASS' && body.flags?.debt_review && !body.hardware_prepaid) {
-    const override = validateDualControlOverride({
-      actorRole: authResult.adminUser.role,
-      signoffs: body.override_signoffs,
-      reason: body.override_reason,
-      requestedDecision: body.decision,
-      flags: body.flags,
-      hardwarePrepaid: Boolean(body.hardware_prepaid),
-    });
-    if (!override.ok) {
-      return NextResponse.json({ success: false, error: override.reason }, { status: 422 });
+  if (body.decision === 'PASS') {
+    const passBlock = passBlockedReason(body.flags, Boolean(body.hardware_prepaid));
+    if (passBlock) {
+      const override = validateDualControlOverride({
+        actorRole: authResult.adminUser.role,
+        signoffs: body.override_signoffs,
+        reason: body.override_reason,
+        requestedDecision: body.decision,
+        flags: body.flags,
+        hardwarePrepaid: Boolean(body.hardware_prepaid),
+      });
+      if (!override.ok) {
+        return NextResponse.json({ success: false, error: override.reason }, { status: 422 });
+      }
     }
   }
 

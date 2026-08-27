@@ -14,6 +14,7 @@ import { authenticateAdmin, requirePermission } from '@/lib/auth/admin-api-auth'
 import { calculatePricingBreakdown } from '@/lib/quotes/quote-calculator';
 import { apiLogger } from '@/lib/logging';
 import { fetchQuoteTerms } from '@/lib/quotes/quote-terms';
+import { getQuoteCreditReview } from '@/lib/credit-risk/review-store';
 
 // Vercel serverless function configuration
 export const runtime = 'nodejs'; // Use Node.js runtime (not Edge)
@@ -75,12 +76,15 @@ export async function GET(
     // Fetch applicable terms based on service types in this quote
     const serviceTypes = [...new Set((items || []).map((item: any) => item.service_type))];
     const terms = await fetchQuoteTerms(serviceTypes, quote.contract_term);
+    const creditReview = await getQuoteCreditReview(supabase, id);
 
     return NextResponse.json({
       success: true,
       quote: {
         ...quote,
-        items: items || []
+        items: items || [],
+        credit_review: creditReview,
+        credit_decision: creditReview?.decision ?? 'UNCHECKED',
       },
       terms
     });

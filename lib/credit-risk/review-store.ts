@@ -1,14 +1,21 @@
-import { buildCreditReview } from './decision';
-import type { CreditReviewInput, OrderCreditReview } from './types';
+import { buildCreditReview, buildQuoteCreditReview } from './decision';
+import type { CreditReviewInput, OrderCreditReview, QuoteCreditReview } from './types';
 
 export function adminFieldsToKeepOnPull(
-  existing?: OrderCreditReview | null
-): Pick<CreditReviewInput, 'hardware_prepaid' | 'private_note' | 'override_reason' | 'override_by'> {
+  existing?: Pick<
+    OrderCreditReview,
+    'hardware_prepaid' | 'private_note' | 'override_reason' | 'override_by' | 'override_signoffs'
+  > | null
+): Pick<
+  CreditReviewInput,
+  'hardware_prepaid' | 'private_note' | 'override_reason' | 'override_by' | 'override_signoffs'
+> {
   return {
     hardware_prepaid: Boolean(existing?.hardware_prepaid),
     private_note: existing?.private_note ?? null,
     override_reason: existing?.override_reason ?? null,
     override_by: existing?.override_by ?? null,
+    override_signoffs: existing?.override_signoffs ?? null,
   };
 }
 
@@ -63,4 +70,37 @@ export async function getCreditReviewsByOrderIds(
     map[row.consumer_order_id] = row as OrderCreditReview;
   }
   return map;
+}
+
+export async function getQuoteCreditReview(
+  supabase: SupabaseLike,
+  businessQuoteId: string
+): Promise<QuoteCreditReview | null> {
+  const { data, error } = await supabase
+    .from('quote_credit_reviews')
+    .select('*')
+    .eq('business_quote_id', businessQuoteId)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data as QuoteCreditReview;
+}
+
+export async function upsertQuoteCreditReview(
+  supabase: SupabaseLike,
+  input: CreditReviewInput
+): Promise<QuoteCreditReview> {
+  const review = buildQuoteCreditReview(input);
+  const row = {
+    ...review,
+    updated_at: new Date().toISOString(),
+  };
+  const { data, error } = await supabase
+    .from('quote_credit_reviews')
+    .upsert(row, { onConflict: 'business_quote_id' })
+    .select('*')
+    .single();
+  if (error) {
+    throw new Error(error.message || 'Failed to save quote credit review');
+  }
+  return data as QuoteCreditReview;
 }

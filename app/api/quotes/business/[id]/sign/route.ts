@@ -3,6 +3,14 @@ import { createClient } from '@/lib/supabase/server';
 import { validateSignQuoteRequest, canSignQuote } from '@/lib/quotes/quote-validator';
 import type { SignQuoteRequest } from '@/lib/quotes/types';
 import { apiLogger } from '@/lib/logging';
+import {
+  quoteKindFromQuote,
+  resolveCompanyCreditPulls,
+} from '@/lib/credit-risk/business-gate';
+import { toCustomerCreditFields } from '@/lib/credit-risk/customer-outcome';
+import { upsertQuoteCreditReview } from '@/lib/credit-risk/review-store';
+import { riskServiceKeyConfigured } from '@/lib/credit-risk/netcash-risk-client';
+import { runSignedQuoteCompanyPull } from '@/lib/credit-risk/quote-company-pull';
 
 /**
  * POST /api/quotes/business/:id/sign
@@ -122,15 +130,58 @@ export async function POST(
       );
     }
 
-    // TODO: Trigger post-acceptance workflow:
-    // - Send notification to admin
-    // - Create task for FICA/CIPC document verification
-    // - Schedule site survey
-    // - Create customer account if not exists
+    const { data: quoteItems } = await supabase
+      .from('business_quote_items')
+      .select('product_category, service_type, service_name')
+      .eq('quote_id', id);
+
+    const quoteKind = quoteKindFromQuote({
+      customerType: updatedQuote.customer_type,
+      contractTerm: updatedQuote.contract_term,
+      items: quoteItems,
+    });
+    const pulls = resolveCompanyCreditPulls({
+      signedAt: signature.signed_at,
+      termsAccepted: Boolean(body.terms_accepted),
+      registrationNumber: updatedQuote.registration_number,
+      quoteKind,
+      directorDocsReady: Boolean(body.fica_documents_confirmed && body.cipc_documents_confirmed),
+      directorIsPayer: Boolean((body as { director_is_payer?: boolean }).director_is_payer),
+    });
+
+    let creditReview = null;
+    if (pulls.includes('CD32')) {
+      creditReview = await upsertQuoteCreditReview(supabase, {
+        business_quote_id: id,
+        purpose: pulls.join(','),
+        bureau: 'CIPC',
+        requested_at: new Date().toISOString(),
+        decision: 'UNCHECKED',
+      });
+
+      if (riskServiceKeyConfigured() && updatedQuote.registration_number) {
+        // Sign stays unblocked. Persist the company result when the poll lands.
+        runSignedQuoteCompanyPull({
+          supabase,
+          quoteId: id,
+          registrationNumber: String(updatedQuote.registration_number),
+          accountReference: updatedQuote.quote_number || id,
+          purpose: pulls.join(','),
+        }).catch((pullError) => {
+          apiLogger.error('CD32 pull failed after quote sign', {
+            quoteId: id,
+            error: pullError instanceof Error ? pullError.message : String(pullError),
+          });
+        });
+      }
+    }
 
     return NextResponse.json({
       success: true,
-      quote: updatedQuote,
+      quote: {
+        ...updatedQuote,
+        ...toCustomerCreditFields(creditReview),
+      },
       signature,
       message: 'Quote signed successfully'
     });

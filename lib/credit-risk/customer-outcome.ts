@@ -1,5 +1,5 @@
 import { checkoutCreditGates } from './checkout-gates';
-import type { CreditDecision, OrderCreditReview } from './types';
+import type { CreditDecision } from './types';
 
 export const CUSTOMER_CREDIT_TITLES = {
   approved: 'Approved for this Deal',
@@ -43,7 +43,10 @@ export function toCustomerCreditOutcome(
   };
 }
 
-export function toCustomerCreditFields(review?: OrderCreditReview | null): {
+export function toCustomerCreditFields(review?: {
+  decision?: CreditDecision | null;
+  hardware_prepaid?: boolean;
+} | null): {
   credit_outcome: CustomerCreditOutcome | null;
   credit_gates: ReturnType<typeof checkoutCreditGates>;
 } {

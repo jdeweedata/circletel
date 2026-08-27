@@ -315,6 +315,7 @@ export async function requestAvsRealtime(
     `<tem:IsIdNumber>${params.isIdNumber === false ? 'false' : 'true'}</tem:IsIdNumber>`,
   ].join('');
   const raw = await callNiws('AVSRealtimeQuery', inner, deps);
+  const fromText = parseAvsFlagsFromReport(raw);
   const acc = avsFlag(
     xmlTag(raw, 'BankAccountNumberValid') || xmlTag(raw, 'AccountActive')
   );
@@ -322,8 +323,8 @@ export async function requestAvsRealtime(
   return {
     raw,
     flags: {
-      avs_acc_exists: acc,
-      avs_id_match: idMatch,
+      avs_acc_exists: acc ?? fromText.avs_acc_exists,
+      avs_id_match: idMatch ?? fromText.avs_id_match,
     },
   };
 }
