@@ -103,15 +103,34 @@ export function extractPdfText(pdfBase64: string): string {
   return `${raw}\n${parens}`;
 }
 
+export function parseAvsToken(value: string): boolean | null {
+  const v = value.trim().toLowerCase();
+  if (/^(yes|true|1|valid)$/.test(v)) return true;
+  if (/^(no|false|0|invalid)$/.test(v)) return false;
+  return null;
+}
+
+export function parseAvsFlagsFromReport(raw: string): Pick<CreditFlags, 'avs_acc_exists' | 'avs_id_match'> {
+  const acc = /acc(?:ount)?\s*exists[^a-z0-9]*(yes|true|1|no|false|0|valid|invalid)/i.exec(raw);
+  const idMatch = /id\s*match[^a-z0-9]*(yes|true|1|no|false|0|valid|invalid)/i.exec(raw);
+  return {
+    avs_acc_exists: acc ? parseAvsToken(acc[1]) : null,
+    avs_id_match: idMatch ? parseAvsToken(idMatch[1]) : null,
+  };
+}
+
 function flagsFromReportPayload(payload: string): CreditFlags {
   const scoreMatch = payload.match(/score[:\s]*([0-9]{3})\b/i);
   const score = scoreMatch ? Number(scoreMatch[1]) : null;
+  const avs = parseAvsFlagsFromReport(payload);
   return parseCreditReportFlags({
     comments: payload,
     debtReview: /debt review/i.test(payload),
     judgements: /judgements?[^0-9]*[1-9]/i.test(payload),
     defaults: /defaults?[^0-9]*[1-9]/i.test(payload),
     score,
+    avsAccExists: avs.avs_acc_exists,
+    avsIdMatch: avs.avs_id_match,
   });
 }
 

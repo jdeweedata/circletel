@@ -86,6 +86,13 @@ export async function PATCH(
     }
   }
 
+  const passBlock = body.decision === 'PASS'
+    ? passBlockedReason(body.flags, Boolean(body.hardware_prepaid))
+    : null;
+  if (passBlock) {
+    return NextResponse.json({ success: false, error: passBlock }, { status: 422 });
+  }
+
   try {
     const review = await upsertOrderCreditReview(supabase, {
       consumer_order_id: orderId,
