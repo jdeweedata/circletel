@@ -19,17 +19,6 @@ export function adminFieldsToKeepOnPull(
   };
 }
 
-export function adminFieldsToKeepOnPull(
-  existing?: OrderCreditReview | null
-): Pick<CreditReviewInput, 'hardware_prepaid' | 'private_note' | 'override_reason' | 'override_by'> {
-  return {
-    hardware_prepaid: Boolean(existing?.hardware_prepaid),
-    private_note: existing?.private_note ?? null,
-    override_reason: existing?.override_reason ?? null,
-    override_by: existing?.override_by ?? null,
-  };
-}
-
 type SupabaseLike = {
   from: (table: string) => any;
 };

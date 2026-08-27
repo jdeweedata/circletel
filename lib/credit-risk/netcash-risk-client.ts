@@ -134,22 +134,6 @@ function flagsFromReportPayload(payload: string): CreditFlags {
   });
 }
 
-export function parseAvsToken(value: string): boolean | null {
-  const v = value.trim().toLowerCase();
-  if (/^(yes|true|1|valid)$/.test(v)) return true;
-  if (/^(no|false|0|invalid)$/.test(v)) return false;
-  return null;
-}
-
-export function parseAvsFlagsFromReport(raw: string): Pick<CreditFlags, 'avs_acc_exists' | 'avs_id_match'> {
-  const acc = /acc(?:ount)?\s*exists[^a-z0-9]*(yes|true|1|no|false|0|valid|invalid)/i.exec(raw);
-  const idMatch = /id\s*match[^a-z0-9]*(yes|true|1|no|false|0|valid|invalid)/i.exec(raw);
-  return {
-    avs_acc_exists: acc ? parseAvsToken(acc[1]) : null,
-    avs_id_match: idMatch ? parseAvsToken(idMatch[1]) : null,
-  };
-}
-
 function avsFlag(value: string | null): boolean | null {
   if (!value) return null;
   return parseAvsToken(value);
