@@ -58,6 +58,12 @@ export function ProductCard({ product }: ProductCardProps) {
             <PriceDisplay retailPrice={product.retail_price} size="sm" />
           </div>
 
+          {product.lead_time_label && (
+            <p className="mt-2 text-xs font-semibold text-[#6B7280]">
+              Ships in {product.lead_time_label}
+            </p>
+          )}
+
           {/* Warranty hint */}
           {product.warranty_months && (
             <div className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-[#6B7280]">

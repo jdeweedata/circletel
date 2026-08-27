@@ -121,6 +121,8 @@ export interface HardwareProductDetail extends CircleTelHardwareProduct {
   terms_warranty: string | null
   terms_return: string | null
   terms_back_to_back: boolean | null
+  lead_time_label?: string
+  stock_is_boolean?: boolean
 }
 
 // =====================================================
@@ -162,6 +164,8 @@ export interface HardwareProductFull
   }>
   total_stock: number
   has_stock: boolean
+  lead_time_label?: string
+  stock_is_boolean?: boolean
 }
 
 // =====================================================
@@ -173,10 +177,18 @@ export interface PromoteFromSupplierInput {
   slug: string
   name?: string // override supplier name
   description?: string // override supplier description
-  retail_price: number
+  retail_price?: number
   category?: string
   is_featured?: boolean
-  /** Default markup percentage if no retail price provided */
+  afrihost_url?: string
+  afrihost_price?: number
+  axxess_url?: string
+  axxess_price?: number
+  street_note?: string
+  confirm_unbenchmarked?: boolean
+  lead_time_min_days?: number
+  lead_time_max_days?: number
+  /** @deprecated Use List Price (35% target / Shop Benchmark). Ignored for new defaults. */
   default_markup_percent?: number
 }
 
@@ -236,6 +248,7 @@ export interface HardwareProductListResponse {
 export interface StockDisplay {
   total: number
   has_stock: boolean
+  boolean_stock: boolean
   branches: Array<{
     name: string
     label: string
@@ -246,32 +259,41 @@ export interface StockDisplay {
 
 export function getStockDisplay(product: {
   total_stock: number
-  stock_cpt: number
-  stock_jhb: number
-  stock_dbn: number
+  stock_cpt?: number
+  stock_jhb?: number
+  stock_dbn?: number
+  stock_is_boolean?: boolean
+  primary_supplier_code?: string | null
 }): StockDisplay {
+  const booleanStock =
+    product.stock_is_boolean === true ||
+    product.primary_supplier_code === 'ESQUIRE'
+  const branches = booleanStock
+    ? []
+    : [
+        {
+          name: 'CPT',
+          label: 'Cape Town',
+          count: product.stock_cpt || 0,
+          has_stock: (product.stock_cpt || 0) > 0,
+        },
+        {
+          name: 'JHB',
+          label: 'Johannesburg',
+          count: product.stock_jhb || 0,
+          has_stock: (product.stock_jhb || 0) > 0,
+        },
+        {
+          name: 'DBN',
+          label: 'Durban',
+          count: product.stock_dbn || 0,
+          has_stock: (product.stock_dbn || 0) > 0,
+        },
+      ]
   return {
     total: product.total_stock,
     has_stock: product.total_stock > 0,
-    branches: [
-      {
-        name: 'CPT',
-        label: 'Cape Town',
-        count: product.stock_cpt,
-        has_stock: product.stock_cpt > 0,
-      },
-      {
-        name: 'JHB',
-        label: 'Johannesburg',
-        count: product.stock_jhb,
-        has_stock: product.stock_jhb > 0,
-      },
-      {
-        name: 'DBN',
-        label: 'Durban',
-        count: product.stock_dbn,
-        has_stock: product.stock_dbn > 0,
-      },
-    ],
+    boolean_stock: booleanStock,
+    branches,
   }
 }

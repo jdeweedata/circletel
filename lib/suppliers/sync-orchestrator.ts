@@ -15,6 +15,7 @@ import { syncScoopProducts } from './scoop-sync'
 import { syncNologyProducts } from './nology'
 import { syncMiRoProducts } from './miro'
 import { syncRectronProducts } from './rectron'
+import { syncEsquireProducts } from './esquire'
 import { syncHardwareCosts } from '@/lib/hardware-catalogue/pricing'
 import { detectSupplierTermChanges } from '@/lib/hardware-catalogue/terms'
 import type { SyncResult } from './types'
@@ -130,6 +131,13 @@ function getSyncRegistry(): SupplierSyncDef[] {
       fn: syncRectronProducts as SyncFnWithFile as SyncFn,
       supports_dry_run: true,
       has_stock_data: false,
+    },
+    {
+      code: 'ESQUIRE',
+      name: 'Esquire Technologies',
+      fn: syncEsquireProducts as SyncFn,
+      supports_dry_run: true,
+      has_stock_data: true,
     },
   ]
 }
