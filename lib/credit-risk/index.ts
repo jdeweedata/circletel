@@ -9,6 +9,8 @@ export {
   buildConsumerCreditNif,
 } from './nif';
 export {
+  parseAvsFlagsFromReport,
+  parseAvsToken,
   parseCreditReportFlags,
   riskServiceKeyConfigured,
   requestCreditDataReport,
