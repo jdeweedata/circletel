@@ -1,50 +1,66 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { PiArrowLeftBold, PiPlusBold, PiMagnifyingGlassBold } from 'react-icons/pi'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useAdminAuth } from '@/hooks/useAdminAuth'
-import type { HardwareProductDetail } from '@/lib/hardware-catalogue/types'
+import {
+  decidePromote,
+  quotesFromShopFields,
+} from '@/lib/hardware-catalogue/promote-decision'
+import type { PromoteSuggestionResult } from '@/lib/hardware-catalogue/promote-suggestion'
 
 interface SupplierProduct {
   id: string
   sku: string
   name: string
   manufacturer: string | null
+  category: string | null
   cost_price: number | null
   stock_total: number
   supplier: { code: string; name: string }
+  suggestion?: PromoteSuggestionResult
 }
 
 export default function AdminPromotePage() {
   const { user } = useAdminAuth()
   const router = useRouter()
-  const [supplierProducts, setSupplierProducts] = useState<
-    SupplierProduct[]
-  >([])
+  const [supplierProducts, setSupplierProducts] = useState<SupplierProduct[]>(
+    []
+  )
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [suggestedOnly, setSuggestedOnly] = useState(true)
   const [selected, setSelected] = useState<SupplierProduct | null>(null)
   const [promoting, setPromoting] = useState(false)
   const [form, setForm] = useState({
     name: '',
     slug: '',
-    retail_price: 0,
     category: '',
-    default_markup_percent: 25,
+    afrihost_url: '',
+    afrihost_price: '',
+    axxess_url: '',
+    axxess_price: '',
+    street_note: '',
+    confirm_unbenchmarked: false,
+    lead_time_min_days: 5,
+    lead_time_max_days: 7,
   })
 
   useEffect(() => {
     loadSupplierProducts()
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [suggestedOnly])
 
-  async function loadSupplierProducts() {
+  async function loadSupplierProducts(nextSearch = search) {
+    setLoading(true)
     try {
-      const res = await fetch(
-        '/api/hardware/supplier-products?limit=200'
-      )
+      const params = new URLSearchParams({ limit: '200' })
+      if (nextSearch.trim()) params.set('search', nextSearch.trim())
+      else if (suggestedOnly) params.set('suggested', '1')
+      const res = await fetch(`/api/hardware/supplier-products?${params}`)
       const data = await res.json()
       setSupplierProducts(data.data || [])
     } catch (err) {
@@ -57,22 +73,38 @@ export default function AdminPromotePage() {
   function selectProduct(sp: SupplierProduct) {
     setSelected(sp)
     const slug = sp.sku.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-    const retailPrice =
-      Math.round(
-        (sp.cost_price || 0) *
-          (1 + form.default_markup_percent / 100)
-      ) || 0
-    setForm({
+    setForm((current) => ({
+      ...current,
       name: sp.name,
       slug,
-      retail_price: retailPrice,
-      category: '',
-      default_markup_percent: 25,
-    })
+      category: sp.category?.replace(/^<!\[CDATA\[([\s\S]*?)\]\]>$/i, '$1') || '',
+      confirm_unbenchmarked: false,
+    }))
   }
 
+  const decision = useMemo(() => {
+    if (!selected) return null
+    return decidePromote({
+      costExclVat: selected.cost_price || 0,
+      quotes: quotesFromShopFields({
+        afrihostUrl: form.afrihost_url,
+        afrihostPrice: form.afrihost_price
+          ? Number(form.afrihost_price)
+          : undefined,
+        axxessUrl: form.axxess_url,
+        axxessPrice: form.axxess_price ? Number(form.axxess_price) : undefined,
+      }),
+      confirmUnbenchmarked: form.confirm_unbenchmarked,
+      streetNote: form.street_note,
+      leadTime: {
+        min: form.lead_time_min_days,
+        max: form.lead_time_max_days,
+      },
+    })
+  }, [selected, form])
+
   async function handlePromote() {
-    if (!selected) return
+    if (!selected || !decision?.allowed) return
     setPromoting(true)
     try {
       const res = await fetch('/api/hardware/promote', {
@@ -80,7 +112,21 @@ export default function AdminPromotePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           supplier_product_id: selected.id,
-          ...form,
+          name: form.name,
+          slug: form.slug,
+          category: form.category,
+          afrihost_url: form.afrihost_url || undefined,
+          afrihost_price: form.afrihost_price
+            ? Number(form.afrihost_price)
+            : undefined,
+          axxess_url: form.axxess_url || undefined,
+          axxess_price: form.axxess_price
+            ? Number(form.axxess_price)
+            : undefined,
+          street_note: form.street_note || undefined,
+          confirm_unbenchmarked: form.confirm_unbenchmarked,
+          lead_time_min_days: form.lead_time_min_days,
+          lead_time_max_days: form.lead_time_max_days,
         }),
       })
       const data = await res.json()
@@ -104,16 +150,6 @@ export default function AdminPromotePage() {
     )
   }
 
-  const filtered = supplierProducts.filter(
-    (sp) =>
-      !search ||
-      sp.name.toLowerCase().includes(search.toLowerCase()) ||
-      sp.sku.toLowerCase().includes(search.toLowerCase()) ||
-      (sp.manufacturer || '')
-        .toLowerCase()
-        .includes(search.toLowerCase())
-  )
-
   return (
     <div className="space-y-6">
       <button
@@ -129,28 +165,49 @@ export default function AdminPromotePage() {
       </h1>
 
       <p className="text-sm text-[#7C93AF]">
-        Select a product from your supplier feeds to add to the CircleTel
-        hardware catalogue.
+        The system suggests first-wave SKUs. A person confirms each Promote and
+        pastes Afrihost/Axxess shop URLs. Nothing is auto-listed.
       </p>
 
-      {/* Search */}
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant={suggestedOnly ? 'default' : 'outline'}
+          className={suggestedOnly ? 'bg-[#E87A1E] hover:bg-[#C45A30]' : ''}
+          onClick={() => {
+            setSuggestedOnly(true)
+            setSearch('')
+          }}
+        >
+          Suggested first-wave
+        </Button>
+        <Button
+          variant={!suggestedOnly ? 'default' : 'outline'}
+          className={!suggestedOnly ? 'bg-[#E87A1E] hover:bg-[#C45A30]' : ''}
+          onClick={() => setSuggestedOnly(false)}
+        >
+          Search all
+        </Button>
+      </div>
+
       <div className="relative">
         <PiMagnifyingGlassBold className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7C93AF]" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') loadSupplierProducts(search)
+          }}
           placeholder="Search by name, SKU, or manufacturer..."
           className="w-full rounded-lg border border-[#DDE7F3] py-2 pl-10 pr-4 text-sm focus:border-[#E87A1E] focus:outline-none focus:ring-1 focus:ring-[#E87A1E]"
         />
       </div>
 
-      {/* Supplier product list */}
       {loading ? (
         <p className="py-10 text-center text-[#7C93AF]">Loading...</p>
       ) : (
         <div className="grid gap-4">
-          {filtered.slice(0, 50).map((sp) => (
+          {supplierProducts.slice(0, 50).map((sp) => (
             <Card
               key={sp.id}
               className={`cursor-pointer transition ${
@@ -162,12 +219,21 @@ export default function AdminPromotePage() {
             >
               <CardContent className="flex items-center justify-between p-4">
                 <div>
-                  <p className="text-sm font-bold text-[#1B2A4A]">
-                    {sp.name}
-                  </p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm font-bold text-[#1B2A4A]">
+                      {sp.name}
+                    </p>
+                    {sp.suggestion?.suggested && (
+                      <span className="rounded-full bg-[#FFF4E8] px-2 py-0.5 text-[11px] font-semibold text-[#E87A1E]">
+                        Suggested
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-[#7C93AF]">
                     {sp.supplier.name} · SKU: {sp.sku}
                     {sp.manufacturer && ` · ${sp.manufacturer}`}
+                    {sp.category &&
+                      ` · ${sp.category.replace(/^<!\[CDATA\[([\s\S]*?)\]\]>$/i, '$1')}`}
                   </p>
                 </div>
                 <div className="text-right">
@@ -190,8 +256,7 @@ export default function AdminPromotePage() {
         </div>
       )}
 
-      {/* Promotion form */}
-      {selected && (
+      {selected && decision && (
         <Card className="sticky bottom-0 border-t-2 border-[#E87A1E]">
           <CardContent className="space-y-4 p-6">
             <h3 className="text-lg font-bold text-[#1B2A4A]">
@@ -227,50 +292,137 @@ export default function AdminPromotePage() {
               </div>
               <div>
                 <label className="block text-xs font-bold text-[#7C93AF]">
-                  Retail Price (incl VAT)
+                  Afrihost shop URL
                 </label>
                 <input
-                  type="number"
-                  value={form.retail_price}
+                  type="url"
+                  value={form.afrihost_url}
                   onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      retail_price: parseFloat(e.target.value) || 0,
-                    }))
+                    setForm((f) => ({ ...f, afrihost_url: e.target.value }))
                   }
                   className="mt-1 w-full rounded-lg border border-[#DDE7F3] px-4 py-2 text-sm"
                 />
               </div>
               <div>
                 <label className="block text-xs font-bold text-[#7C93AF]">
-                  Category
+                  Afrihost shop price (incl VAT)
                 </label>
                 <input
-                  type="text"
-                  value={form.category}
+                  type="number"
+                  value={form.afrihost_price}
                   onChange={(e) =>
-                    setForm((f) => ({ ...f, category: e.target.value }))
+                    setForm((f) => ({ ...f, afrihost_price: e.target.value }))
                   }
-                  placeholder="e.g., Networking"
                   className="mt-1 w-full rounded-lg border border-[#DDE7F3] px-4 py-2 text-sm"
                 />
               </div>
+              <div>
+                <label className="block text-xs font-bold text-[#7C93AF]">
+                  Axxess shop URL
+                </label>
+                <input
+                  type="url"
+                  value={form.axxess_url}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, axxess_url: e.target.value }))
+                  }
+                  className="mt-1 w-full rounded-lg border border-[#DDE7F3] px-4 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[#7C93AF]">
+                  Axxess shop price (incl VAT)
+                </label>
+                <input
+                  type="number"
+                  value={form.axxess_price}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, axxess_price: e.target.value }))
+                  }
+                  className="mt-1 w-full rounded-lg border border-[#DDE7F3] px-4 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[#7C93AF]">
+                  List Price (incl VAT)
+                </label>
+                <input
+                  type="text"
+                  readOnly
+                  value={
+                    decision.listInclVat != null
+                      ? `R${decision.listInclVat.toLocaleString('en-ZA', { minimumFractionDigits: 2 })} · ${decision.status}`
+                      : 'Blocked — below 25% floor'
+                  }
+                  className="mt-1 w-full rounded-lg border border-[#DDE7F3] bg-[#F7FAFC] px-4 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[#7C93AF]">
+                  Lead time (business days)
+                </label>
+                <div className="mt-1 flex gap-2">
+                  <input
+                    type="number"
+                    value={form.lead_time_min_days}
+                    onChange={(e) =>
+                      setForm((f) => ({
+                        ...f,
+                        lead_time_min_days: Number(e.target.value) || 5,
+                      }))
+                    }
+                    className="w-full rounded-lg border border-[#DDE7F3] px-4 py-2 text-sm"
+                  />
+                  <input
+                    type="number"
+                    value={form.lead_time_max_days}
+                    onChange={(e) =>
+                      setForm((f) => ({
+                        ...f,
+                        lead_time_max_days: Number(e.target.value) || 7,
+                      }))
+                    }
+                    className="w-full rounded-lg border border-[#DDE7F3] px-4 py-2 text-sm"
+                  />
+                </div>
+              </div>
             </div>
 
+            {decision.status === 'unbenchmarked' && (
+              <label className="flex items-start gap-2 text-sm text-[#1B2A4A]">
+                <input
+                  type="checkbox"
+                  checked={form.confirm_unbenchmarked}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      confirm_unbenchmarked: e.target.checked,
+                    }))
+                  }
+                  className="mt-1"
+                />
+                No Afrihost/Axxess shop hit. Confirm Promote at 35% target
+                (unbenchmarked).
+              </label>
+            )}
+
+            {decision.reason === 'below_floor' && (
+              <p className="text-sm font-semibold text-red-600">
+                {decision.error}
+              </p>
+            )}
+
             <div className="flex justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setSelected(null)}
-              >
+              <Button variant="outline" onClick={() => setSelected(null)}>
                 Cancel
               </Button>
               <Button
                 className="gap-2 bg-[#E87A1E] hover:bg-[#C45A30]"
                 onClick={handlePromote}
-                disabled={promoting || !form.slug}
+                disabled={promoting || !form.slug || !decision.allowed}
               >
                 <PiPlusBold className="h-4 w-4" />
-                {promoting ? 'Promoting...' : 'Promote to Catalogue'}
+                {promoting ? 'Promoting...' : 'Confirm Promote (draft)'}
               </Button>
             </div>
           </CardContent>

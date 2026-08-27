@@ -16,7 +16,7 @@ import type { CSSProperties } from 'react';
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import {
@@ -32,6 +32,7 @@ import {
   type NavItem,
   type WorkspaceId,
 } from '@/lib/admin/feature-registry';
+import { isActiveNavHref } from '@/lib/admin/nav-active';
 import type { AdminRole } from '@/lib/auth/constants';
 import { getTenantConfig } from '@/lib/tenant';
 import { coerceWorkspaceRole, extraWorkspacesForRole } from '@/lib/admin/workspace-access';
@@ -83,7 +84,7 @@ function CollapsedFlyout({
   isActiveLink,
 }: {
   item: NavItem;
-  isActiveLink: (href: string, end?: boolean) => boolean;
+  isActiveLink: (href: string, end?: boolean, exactPath?: boolean) => boolean;
 }) {
   const [open, setOpen] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -157,9 +158,9 @@ function CollapsedFlyout({
               key={child.href}
               href={child.href}
               role="menuitem"
-              data-active={isActiveLink(child.href) ? 'true' : undefined}
+              data-active={isActiveLink(child.href, undefined, true) ? 'true' : undefined}
               className="pm-nav-item flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors"
-              style={pmNavStyle(isActiveLink(child.href))}
+              style={pmNavStyle(isActiveLink(child.href, undefined, true))}
             >
               <child.icon className="h-4 w-4 flex-shrink-0" />
               <span className="truncate">{child.name}</span>
@@ -178,6 +179,8 @@ function CollapsedFlyout({
 
 export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const search = searchParams.toString();
 
   // Real admin roles are super_admin | product_manager | editor | viewer.
   // Unknown RBAC templates (e.g. accountant) coerce to viewer, then extra
@@ -244,10 +247,8 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeWs, pathname]);
 
-  const isActiveLink = (href: string, end?: boolean) => {
-    const base = href.split('?')[0];
-    return end ? pathname === base : pathname.startsWith(base);
-  };
+  const isActiveLink = (href: string, end?: boolean, exactPath = false) =>
+    isActiveNavHref(pathname, search, href, { end, exactPath });
 
   const toggleDropdown = (itemName: string) => {
     setExpandedItems((prev) =>
@@ -392,8 +393,8 @@ export function Sidebar({ isOpen, onToggle, user }: SidebarProps) {
                             key={child.href}
                             href={child.href}
                             className="pm-nav-item flex items-center rounded-lg px-3 py-2 text-sm transition-all"
-                            data-active={isActiveLink(child.href) ? 'true' : undefined}
-                            style={pmNavStyle(isActiveLink(child.href))}
+                            data-active={isActiveLink(child.href, undefined, true) ? 'true' : undefined}
+                            style={pmNavStyle(isActiveLink(child.href, undefined, true))}
                           >
                             <child.icon className="mr-2 h-4 w-4" />
                             <span className="flex-1">{child.name}</span>

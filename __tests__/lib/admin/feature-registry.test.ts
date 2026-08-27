@@ -29,6 +29,23 @@ describe('feature registry data', () => {
       }
     }
   });
+
+  it('nests supplier feeds and promote under Products, not a one-child Suppliers accordion', () => {
+    const items = featureSections.flatMap((s) => s.items);
+    expect(items.map((i) => i.name)).not.toContain('Suppliers');
+
+    const products = items.find((i) => i.name === 'Products');
+    expect(products && hasChildren(products)).toBe(true);
+    if (!products || !hasChildren(products)) return;
+
+    expect(products.children.map((c) => [c.name, c.href])).toEqual([
+      ['Product Workspace', '/admin/products'],
+      ['Portfolio', '/admin/products?section=portfolio'],
+      ['Suppliers', '/admin/products?section=suppliers'],
+      ['Promote Product', '/admin/products/hardware/promote'],
+      ['Add Product', '/admin/products/new'],
+    ]);
+  });
 });
 
 describe('getVisibleSections', () => {
@@ -127,6 +144,7 @@ describe('module + workspace axes', () => {
 
   it('workspaceForPath resolves known routes', () => {
     expect(workspaceForPath('/admin/quotes')).toBe('sales');
+    expect(workspaceForPath('/admin/products/hardware/promote')).toBe('sales');
     expect(workspaceForPath('/admin/billing/invoices')).toBe('finance');
     expect(workspaceForPath('/admin/settings')).toBe('admin');
     expect(workspaceForPath('/admin/inbox')).toBe('support');
