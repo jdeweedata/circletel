@@ -7,6 +7,11 @@ import { apiLogger } from '@/lib/logging';
 import { checkOrderVerificationStatus } from '@/lib/orders/verification-gate';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { financedHardwareBlockedReason } from '@/lib/credit-risk/decision';
+import {
+  processCreditDealBlockedReason,
+  resolveConsumerDealKind,
+  skuFromOrder,
+} from '@/lib/credit-risk/consumer-gate';
 import { getOrderCreditReview } from '@/lib/credit-risk/review-store';
 
 export const runtime = 'nodejs';
@@ -134,6 +139,24 @@ export async function POST(
     }
 
     const creditReview = await getOrderCreditReview(supabase, orderId);
+    const dealKind = resolveConsumerDealKind({
+      sku: skuFromOrder(order),
+      routerIncluded: Boolean(order.router_included),
+    });
+    const processBlock = processCreditDealBlockedReason({
+      dealKind,
+      review: creditReview,
+    });
+    if (processBlock) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: processBlock,
+          credit_decision: creditReview?.decision ?? 'UNCHECKED',
+        },
+        { status: 422 }
+      );
+    }
     const hardwareBlock = financedHardwareBlockedReason({
       decision: creditReview?.decision,
       hardware_prepaid: creditReview?.hardware_prepaid,

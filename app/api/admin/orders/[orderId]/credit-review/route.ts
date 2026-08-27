@@ -4,6 +4,12 @@ import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
 import { CREDIT_DECISIONS } from '@/lib/credit-risk/types';
 import { getOrderCreditReview, upsertOrderCreditReview } from '@/lib/credit-risk/review-store';
 import {
+  resolveConsumerDealKind,
+  shouldPullConsumerCredit,
+  skuFromOrder,
+  validateDualControlOverride,
+} from '@/lib/credit-risk/consumer-gate';
+import {
   requestAvsReport,
   requestCreditDataReport,
   riskServiceKeyConfigured,
@@ -50,7 +56,7 @@ export async function PATCH(
   const supabase = adminDb();
   const { data: order } = await supabase
     .from('consumer_orders')
-    .select('id, package_price, router_included')
+    .select('id, package_price, router_included, package_name, metadata')
     .eq('id', orderId)
     .maybeSingle();
 
@@ -59,13 +65,17 @@ export async function PATCH(
   }
 
   if (body.decision === 'PASS' && body.flags?.debt_review && !body.hardware_prepaid) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Cannot mark PASS while debt review is flagged unless hardware is prepaid.',
-      },
-      { status: 422 }
-    );
+    const override = validateDualControlOverride({
+      actorRole: authResult.adminUser.role,
+      signoffs: body.override_signoffs,
+      reason: body.override_reason,
+      requestedDecision: body.decision,
+      flags: body.flags,
+      hardwarePrepaid: Boolean(body.hardware_prepaid),
+    });
+    if (!override.ok) {
+      return NextResponse.json({ success: false, error: override.reason }, { status: 422 });
+    }
   }
 
   try {
@@ -83,6 +93,7 @@ export async function PATCH(
       pdf_storage_path: body.pdf_storage_path,
       override_reason: body.override_reason,
       override_by: body.override_reason ? authResult.adminUser.id : body.override_by,
+      override_signoffs: body.override_signoffs,
       reviewed_by: authResult.adminUser.id,
       updated_by: authResult.adminUser.email,
       package_price: Number(order.package_price) || 0,
@@ -116,12 +127,27 @@ export async function POST(
   const supabase = adminDb();
   const { data: order } = await supabase
     .from('consumer_orders')
-    .select('id, first_name, last_name, package_price, router_included')
+    .select('id, first_name, last_name, package_price, router_included, package_name, metadata')
     .eq('id', orderId)
     .maybeSingle();
 
   if (!order) {
     return NextResponse.json({ success: false, error: 'Order not found' }, { status: 404 });
+  }
+
+  const dealKind = resolveConsumerDealKind({
+    sku: skuFromOrder(order),
+    routerIncluded: Boolean(order.router_included),
+    hardwarePath: body.hardwarePath,
+  });
+  const kycReady = Boolean(body.idNumber) && Boolean(body.proofOfAddress || body.kycReady);
+  const consent = body.consent !== false;
+  if (!shouldPullConsumerCredit({ dealKind, kycReady, consent })) {
+    return NextResponse.json({
+      success: true,
+      skipped: true,
+      reason: 'CD11 is not pulled for SIM-only, Cash CPE, BYO, or missing KYC/consent.',
+    });
   }
 
   const idNumber = String(body.idNumber || '');

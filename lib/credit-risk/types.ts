@@ -42,6 +42,7 @@ export interface OrderCreditReview {
   pdf_storage_path?: string | null;
   override_reason?: string | null;
   override_by?: string | null;
+  override_signoffs?: { role: 'md' | 'cfo'; adminId: string }[] | null;
   reviewed_by?: string | null;
   updated_by?: string | null;
   created_at?: string;
@@ -62,6 +63,7 @@ export interface CreditReviewInput {
   pdf_storage_path?: string | null;
   override_reason?: string | null;
   override_by?: string | null;
+  override_signoffs?: { role: 'md' | 'cfo'; adminId: string }[] | null;
   reviewed_by?: string | null;
   updated_by?: string | null;
   package_price?: number;

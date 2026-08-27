@@ -127,6 +127,7 @@ export function buildCreditReview(input: CreditReviewInput): OrderCreditReview {
     pdf_storage_path: input.pdf_storage_path ?? null,
     override_reason: input.override_reason ?? null,
     override_by: input.override_by ?? null,
+    override_signoffs: input.override_signoffs ?? null,
     reviewed_by: input.reviewed_by ?? null,
     updated_by: input.updated_by ?? null,
   };
