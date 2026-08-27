@@ -3,6 +3,7 @@ export * from './decision';
 export * from './checkout-gates';
 export * from './review-store';
 export * from './consumer-gate';
+export * from './customer-outcome';
 export {
   CREDIT_APPLICATION_REASON_CODE,
   defaultSoftwareVendorKey,

@@ -37,6 +37,7 @@ import { DetailPageHeader } from '@/components/shared/DetailPageHeader';
 import { UnderlineTabs, TabPanel } from '@/components/shared/UnderlineTabs';
 import type { OrderWithTracking, OrderTrackingEvent, FulfillmentStatus } from '@/lib/types/order-tracking';
 import { getFulfillmentStatusInfo, getOrderWorkflow } from '@/lib/types/order-tracking';
+import type { CustomerCreditOutcome } from '@/lib/credit-risk/customer-outcome';
 
 const TABS = [
   { id: 'overview', label: 'Overview' },
@@ -50,7 +51,7 @@ export default function OrderDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { user, session } = useCustomerAuth();
-  const [order, setOrder] = useState<OrderWithTracking | null>(null);
+  const [order, setOrder] = useState<(OrderWithTracking & { credit_outcome?: CustomerCreditOutcome | null }) | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabId>('overview');
@@ -204,6 +205,24 @@ export default function OrderDetailPage() {
 
       {/* Body */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        {order.credit_outcome && (
+          <SectionCard
+            title="What we can offer"
+            icon={
+              order.credit_outcome.code === 'approved'
+                ? PiShieldCheckBold
+                : PiWarningCircleBold
+            }
+          >
+            <p className="text-base font-semibold text-slate-900">
+              {order.credit_outcome.title}
+            </p>
+            <p className="mt-1 text-sm text-slate-600">
+              {order.credit_outcome.reason}
+            </p>
+          </SectionCard>
+        )}
 
         {/* Stat Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
