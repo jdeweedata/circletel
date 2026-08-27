@@ -240,6 +240,7 @@ graphify-out/
 
 # Local-only artifacts & sensitive operational data (not for git)
 .docs/
+.private/
 .understand-anything/
 .claude-workflows/
 mockups/

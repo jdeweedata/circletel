@@ -16,9 +16,11 @@ interface OrdersFiltersProps {
   searchQuery: string;
   statusFilter: string;
   paymentStatusFilter: string;
+  creditFilter: string;
   onSearchChange: (value: string) => void;
   onStatusChange: (value: string) => void;
   onPaymentStatusChange: (value: string) => void;
+  onCreditChange: (value: string) => void;
   onClearAll: () => void;
   hasActiveFilters: boolean;
 }
@@ -27,9 +29,11 @@ export function OrdersFilters({
   searchQuery,
   statusFilter,
   paymentStatusFilter,
+  creditFilter,
   onSearchChange,
   onStatusChange,
   onPaymentStatusChange,
+  onCreditChange,
   onClearAll,
   hasActiveFilters,
 }: OrdersFiltersProps) {
@@ -90,6 +94,20 @@ export function OrdersFilters({
             <SelectItem value="paid">Paid</SelectItem>
             <SelectItem value="partial">Partial</SelectItem>
             <SelectItem value="failed">Failed</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={creditFilter} onValueChange={onCreditChange}>
+          <SelectTrigger className="w-full md:w-48 bg-white">
+            <SelectValue placeholder="Credit review" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All credit</SelectItem>
+            <SelectItem value="needs_review">Needs review</SelectItem>
+            <SelectItem value="HARD_FAIL">Hard fail</SelectItem>
+            <SelectItem value="FAIL">Fail</SelectItem>
+            <SelectItem value="MARGINAL">Marginal</SelectItem>
+            <SelectItem value="PASS">Pass</SelectItem>
+            <SelectItem value="UNCHECKED">Unchecked</SelectItem>
           </SelectContent>
         </Select>
       </div>

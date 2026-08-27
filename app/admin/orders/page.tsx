@@ -43,6 +43,7 @@ interface Order {
   installation_address: string;
   created_at: string;
   activation_date: string | null;
+  credit_decision?: string;
 }
 
 interface OrderStats {
@@ -76,6 +77,7 @@ export default function AdminOrdersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [paymentStatusFilter, setPaymentStatusFilter] = useState('all');
+  const [creditFilter, setCreditFilter] = useState('all');
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [sortField, setSortField] = useState<SortField>('created_at');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
@@ -95,7 +97,7 @@ export default function AdminOrdersPage() {
 
   useEffect(() => {
     filterOrders();
-  }, [orders, searchQuery, statusFilter, paymentStatusFilter, sortField, sortDirection]);
+  }, [orders, searchQuery, statusFilter, paymentStatusFilter, creditFilter, sortField, sortDirection]);
 
   const fetchOrders = async () => {
     try {
@@ -148,6 +150,22 @@ export default function AdminOrdersPage() {
 
     if (paymentStatusFilter !== 'all') {
       filtered = filtered.filter((order) => order.payment_status === paymentStatusFilter);
+    }
+
+    if (creditFilter === 'needs_review') {
+      filtered = filtered.filter((order) => {
+        const decision = order.credit_decision || 'UNCHECKED';
+        const awaiting =
+          order.payment_status === 'paid' ||
+          ['pending', 'payment_method_registered', 'installation_scheduled', 'installation_in_progress'].includes(
+            order.status
+          );
+        return awaiting && decision === 'UNCHECKED';
+      });
+    } else if (creditFilter !== 'all') {
+      filtered = filtered.filter(
+        (order) => (order.credit_decision || 'UNCHECKED') === creditFilter
+      );
     }
 
     filtered.sort((a, b) => {
@@ -252,17 +270,22 @@ export default function AdminOrdersPage() {
     }
     setSearchQuery('');
     setPaymentStatusFilter('all');
+    setCreditFilter('all');
   };
 
   const clearAllFilters = () => {
     setSearchQuery('');
     setStatusFilter('all');
     setPaymentStatusFilter('all');
+    setCreditFilter('all');
     setActiveStatFilter(null);
   };
 
   const hasActiveFilters =
-    searchQuery !== '' || statusFilter !== 'all' || paymentStatusFilter !== 'all';
+    searchQuery !== '' ||
+    statusFilter !== 'all' ||
+    paymentStatusFilter !== 'all' ||
+    creditFilter !== 'all';
 
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -300,9 +323,11 @@ export default function AdminOrdersPage() {
             searchQuery={searchQuery}
             statusFilter={statusFilter}
             paymentStatusFilter={paymentStatusFilter}
+            creditFilter={creditFilter}
             onSearchChange={setSearchQuery}
             onStatusChange={setStatusFilter}
             onPaymentStatusChange={setPaymentStatusFilter}
+            onCreditChange={setCreditFilter}
             onClearAll={clearAllFilters}
             hasActiveFilters={hasActiveFilters}
           />

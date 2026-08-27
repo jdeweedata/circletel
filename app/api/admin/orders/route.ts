@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { apiLogger } from '@/lib/logging';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { getCreditReviewsByOrderIds } from '@/lib/credit-risk/review-store';
 
 // Vercel configuration: Allow longer execution for order queries
 export const runtime = 'nodejs';
@@ -67,10 +68,20 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const reviews = await getCreditReviewsByOrderIds(
+      supabase,
+      (orders || []).map((order: { id: string }) => order.id)
+    );
+    const data = (orders || []).map((order: { id: string }) => ({
+      ...order,
+      credit_decision: reviews[order.id]?.decision ?? 'UNCHECKED',
+      credit_review: reviews[order.id] ?? null,
+    }));
+
     return NextResponse.json({
       success: true,
-      data: orders || [],
-      count: orders?.length || 0
+      data,
+      count: data.length
     });
   } catch (error) {
     apiLogger.error('Orders fetch error', { error: error instanceof Error ? error.message : String(error) });

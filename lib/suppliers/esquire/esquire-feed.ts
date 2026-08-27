@@ -2,7 +2,9 @@ import type { EsquireFeedEnv } from './esquire-types'
 
 export const ESQUIRE_FEED_HOST = 'https://api.esquire.co.za/api/DataFeed'
 
-export function buildEsquireFeedUrl(env: EsquireFeedEnv = process.env): string {
+export function buildEsquireFeedUrl(
+  env: EsquireFeedEnv = process.env as EsquireFeedEnv
+): string {
   const user = env.ESQUIRE_FEED_USER?.trim()
   const password = env.ESQUIRE_FEED_PASSWORD?.trim()
 
@@ -27,7 +29,7 @@ export function buildEsquireFeedUrl(env: EsquireFeedEnv = process.env): string {
 }
 
 export async function fetchEsquireXml(
-  env: EsquireFeedEnv = process.env,
+  env: EsquireFeedEnv = process.env as EsquireFeedEnv,
   fetchImpl: typeof fetch = fetch
 ): Promise<string> {
   const url = buildEsquireFeedUrl(env)

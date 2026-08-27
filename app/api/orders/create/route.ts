@@ -14,6 +14,8 @@ import {
   ORDER_PROCESSING_FEE_AMOUNT,
   ORDER_PROCESSING_FEE_LABEL,
 } from '@/lib/payments/payment-amounts';
+import { getOrderCreditReview } from '@/lib/credit-risk/review-store';
+import { checkoutCreditGates } from '@/lib/credit-risk/checkout-gates';
 
 // P4: Valid property types (must match ServiceAddressSection.tsx options)
 const VALID_PROPERTY_TYPES = [
@@ -455,9 +457,18 @@ export async function GET(request: NextRequest) {
         );
       }
 
+      const creditReview = await getOrderCreditReview(supabase, order.id);
       return NextResponse.json({
         success: true,
-        order,
+        order: {
+          ...order,
+          credit_review: creditReview,
+          credit_decision: creditReview?.decision ?? 'UNCHECKED',
+          credit_gates: checkoutCreditGates(
+            creditReview?.decision,
+            Boolean(creditReview?.hardware_prepaid)
+          ),
+        },
       });
     } else if (orderNumber) {
       // Get specific order by order number

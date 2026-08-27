@@ -6,6 +6,8 @@ import { PPPoECredentialService } from '@/lib/pppoe';
 import { apiLogger } from '@/lib/logging';
 import { checkOrderVerificationStatus } from '@/lib/orders/verification-gate';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { financedHardwareBlockedReason } from '@/lib/credit-risk/decision';
+import { getOrderCreditReview } from '@/lib/credit-risk/review-store';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -128,6 +130,23 @@ export async function POST(
           error: `Cannot activate order from status: ${order.status}. Order must be in "installation_completed" status.`
         },
         { status: 400 }
+      );
+    }
+
+    const creditReview = await getOrderCreditReview(supabase, orderId);
+    const hardwareBlock = financedHardwareBlockedReason({
+      decision: creditReview?.decision,
+      hardware_prepaid: creditReview?.hardware_prepaid,
+      router_included: Boolean(order.router_included),
+    });
+    if (hardwareBlock) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: hardwareBlock,
+          credit_decision: creditReview?.decision ?? 'UNCHECKED',
+        },
+        { status: 422 }
       );
     }
 

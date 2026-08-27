@@ -8,3 +8,4 @@ export { OrderDevicesRedesigned } from './OrderDevicesRedesigned';
 export { OrderInstallationRedesigned } from './OrderInstallationRedesigned';
 export { OrderFinancialsRedesigned } from './OrderFinancialsRedesigned';
 export { OrderHistoryRedesigned } from './OrderHistoryRedesigned';
+export { OrderCreditRiskTab } from './OrderCreditRiskTab';

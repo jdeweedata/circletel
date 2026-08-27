@@ -14,6 +14,8 @@ import {
 import Link from 'next/link';
 import { StatusBadge } from '@/components/admin/shared';
 import { SendEmailDialog } from '@/components/admin/support/SendEmailDialog';
+import { creditBadgeVariant, creditDecisionLabel } from '@/lib/credit-risk/decision';
+import type { CreditDecision } from '@/lib/credit-risk/types';
 
 interface Order {
   id: string;
@@ -28,6 +30,9 @@ interface Order {
   package_price: number;
   account_number?: string;
   created_at: string;
+  router_included?: boolean;
+  credit_decision?: string;
+  credit_review?: { hardware_prepaid?: boolean } | null;
 }
 
 interface OrderHeaderProps {
@@ -90,6 +95,17 @@ export function OrderHeader({ order, onNavigateToTab }: OrderHeaderProps) {
               {order.order_number}
             </h2>
             <StatusBadge status={statusConfig.label} className={statusConfig.className} />
+            <button type="button" onClick={() => onNavigateToTab?.('credit')}>
+              <StatusBadge
+                status={creditDecisionLabel((order.credit_decision as CreditDecision) || 'UNCHECKED')}
+                variant={creditBadgeVariant((order.credit_decision as CreditDecision) || 'UNCHECKED')}
+              />
+            </button>
+            {order.router_included &&
+            (order.credit_decision === 'HARD_FAIL' || order.credit_decision === 'FAIL') &&
+            !order.credit_review?.hardware_prepaid ? (
+              <StatusBadge status="Router blocked" variant="error" />
+            ) : null}
           </div>
 
           {/* Action Buttons */}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { apiLogger } from '@/lib/logging';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
+import { getOrderCreditReview } from '@/lib/credit-risk/review-store';
 
 // Vercel configuration: allow longer execution for single order queries
 export const runtime = 'nodejs';
@@ -72,12 +73,16 @@ export async function GET(
       .limit(1)
       .maybeSingle();
 
+    const creditReview = await getOrderCreditReview(supabase, orderId);
+
     // Enrich order data with payment method status and customer account number
     const enrichedOrder = {
       ...order,
       account_number: customerAccountNumber || order.account_number,
       payment_method_active: !!paymentMethod,
-      payment_method_mandate_status: paymentMethod?.mandate_status || (paymentMethod ? 'active' : null)
+      payment_method_mandate_status: paymentMethod?.mandate_status || (paymentMethod ? 'active' : null),
+      credit_review: creditReview,
+      credit_decision: creditReview?.decision ?? 'UNCHECKED',
     };
 
     return NextResponse.json({

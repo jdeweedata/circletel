@@ -39,6 +39,8 @@ import {
 import { SectionCard } from '@/components/admin/shared/SectionCard';
 import { StatusBadge, getStatusVariant } from '@/components/admin/shared/StatusBadge';
 import { PiTableBold } from 'react-icons/pi';
+import { creditBadgeVariant, creditDecisionLabel } from '@/lib/credit-risk/decision';
+import type { CreditDecision } from '@/lib/credit-risk/types';
 
 interface Order {
   id: string;
@@ -55,6 +57,7 @@ interface Order {
   installation_address: string;
   created_at: string;
   activation_date: string | null;
+  credit_decision?: string;
 }
 
 type SortField = 'order_number' | 'customer' | 'package_price' | 'created_at';
@@ -204,6 +207,9 @@ export function OrdersTable({
                   Status
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                  Credit
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
                   Payment
                 </th>
                 <th
@@ -249,6 +255,16 @@ export function OrdersTable({
                     </span>
                   </td>
                   <td className="px-4 py-4">{getStatusBadge(order.status)}</td>
+                  <td className="px-4 py-4">
+                    <StatusBadge
+                      status={creditDecisionLabel(
+                        (order.credit_decision as CreditDecision) || 'UNCHECKED'
+                      )}
+                      variant={creditBadgeVariant(
+                        (order.credit_decision as CreditDecision) || 'UNCHECKED'
+                      )}
+                    />
+                  </td>
                   <td className="px-4 py-4">{getPaymentBadge(order.payment_status)}</td>
                   <td className="px-4 py-4">
                     <span className="text-sm text-slate-500">
