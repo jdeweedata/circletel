@@ -284,3 +284,8 @@ export class NetCashDebitBatchService {
 }
 
 export const netcashDebitBatchService = new NetCashDebitBatchService();
+
+/** Public Netcash default ISV key already used on debit NIF headers. */
+export function getNetcashSoftwareVendorKey(): string {
+  return VENDOR_KEY;
+}
