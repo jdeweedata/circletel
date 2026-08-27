@@ -9,6 +9,7 @@
  */
 import type React from 'react';
 import {
+  PiArrowFatLineUpBold,
   PiArrowsClockwiseBold,
   PiBellBold,
   PiBriefcaseBold,
@@ -126,6 +127,8 @@ export const featureSections: NavSection[] = [
         children: [
           { name: 'Product Workspace', href: '/admin/products', icon: PiSquaresFourBold },
           { name: 'Portfolio', href: '/admin/products?section=portfolio', icon: PiChartLineBold },
+          { name: 'Suppliers', href: '/admin/products?section=suppliers', icon: PiTruckBold },
+          { name: 'Promote Product', href: '/admin/products/hardware/promote', icon: PiArrowFatLineUpBold },
           { name: 'Add Product', href: '/admin/products/new', icon: PiPlusBold },
         ],
       },
@@ -208,11 +211,6 @@ export const featureSections: NavSection[] = [
           { name: 'All Corporates', href: '/admin/corporate', icon: PiBuildingsBold },
           { name: 'Add Corporate', href: '/admin/corporate/new', icon: PiPlusBold },
         ],
-      },
-      {
-        name: 'Suppliers',
-        icon: PiTruckBold,
-        children: [{ name: 'Suppliers', href: '/admin/products?section=suppliers', icon: PiTruckBold }],
       },
     ],
   },
@@ -541,7 +539,6 @@ export const ITEM_WORKSPACE: Record<string, WorkspaceId> = {
   Payments: 'finance',
   Products: 'sales',
   Quotes: 'sales',
-  Suppliers: 'sales',
   'Sales Engine': 'sales',
   Leads: 'sales',
   'B2B Feasibility': 'sales',
@@ -581,7 +578,6 @@ export const ITEM_MODULE: Record<string, ModuleId> = {
   Payments: 'billing',
   Products: 'offers',
   Quotes: 'offers',
-  Suppliers: 'offers',
   'CPQ Builder': 'offers',
   'Sales Engine': 'sales',
   Leads: 'sales',

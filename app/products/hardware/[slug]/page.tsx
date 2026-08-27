@@ -104,10 +104,15 @@ export default async function HardwareProductPage({ params }: Props) {
                   </li>
                 )}
 
-                {/* Delivery */}
+                {/* Lead time from Promote */}
                 <li className="flex gap-3 text-sm font-semibold text-[#31527B]">
                   <PiTruckBold className="mt-0.5 h-5 w-5 flex-none text-[#E87A1E]" />
-                  <span>Free nationwide delivery</span>
+                  <span>
+                    Ships in{' '}
+                    {product.lead_time_label ||
+                      product.terms?.delivery_estimate ||
+                      '5–7 business days'}
+                  </span>
                 </li>
               </ul>
 
@@ -121,15 +126,6 @@ export default async function HardwareProductPage({ params }: Props) {
                     showVatNote
                   />
                 </div>
-                {product.best_supplier_cost && (
-                  <p className="mt-1 text-xs text-[#7C93AF]">
-                    Supplier cost: R
-                    {product.best_supplier_cost.toLocaleString('en-ZA', {
-                      minimumFractionDigits: 2,
-                    })}{' '}
-                    excl VAT
-                  </p>
-                )}
               </div>
 
               {/* CTA */}
@@ -246,7 +242,7 @@ export default async function HardwareProductPage({ params }: Props) {
         </section>
 
         {/* Stock availability per branch */}
-        {stock.branches.some((b) => b.count > 0) && (
+        {!stock.boolean_stock && stock.branches.some((b) => b.count > 0) && (
           <section className="bg-[#1B2A4A] py-8 text-white">
             <div className="container mx-auto px-4">
               <h3 className="mb-4 text-sm font-bold uppercase tracking-wide text-white/60">
