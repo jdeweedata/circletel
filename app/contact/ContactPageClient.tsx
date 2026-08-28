@@ -26,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { CONTACT } from '@/lib/constants/contact';
 
 const ContactPageClient = () => {
   const searchParams = useSearchParams();
@@ -347,25 +348,12 @@ Thank you for choosing CircleTel!
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-circleTel-secondaryNeutral">Monday - Friday</span>
-                        <span className="font-semibold text-circleTel-navy">8:00 AM - 5:00 PM</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-circleTel-secondaryNeutral">Saturday</span>
-                        <span className="font-semibold text-circleTel-navy">9:00 AM - 1:00 PM</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-circleTel-secondaryNeutral">Sunday</span>
-                        <span className="font-semibold text-circleTel-navy">Closed</span>
-                      </div>
-                      <div className="pt-3 border-t">
-                        <p className="text-sm text-circleTel-secondaryNeutral">
-                          Emergency support available 24/7 for managed service clients
-                        </p>
-                      </div>
-                    </div>
+                    <p className="font-semibold text-circleTel-navy">
+                      {CONTACT.SUPPORT_HOURS}
+                    </p>
+                    <p className="mt-1 text-sm text-circleTel-secondaryNeutral">
+                      South African time. WhatsApp is monitored during these hours.
+                    </p>
                   </CardContent>
                 </Card>
               </div>
