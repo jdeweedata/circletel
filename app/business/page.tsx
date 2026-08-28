@@ -281,11 +281,11 @@ export default function BusinessPage() {
               <PiArrowRightBold className="ml-2 h-5 w-5" />
             </Link>
             <a
-              href="https://wa.me/27824873900"
+              href="https://wa.me/27847739467"
               className="bg-circleTel-navy hover:bg-circleTel-secondaryNeutral text-white px-8 py-4 rounded-lg font-semibold inline-flex items-center justify-center transition-colors"
             >
               <PiPhoneBold className="mr-2 h-5 w-5" />
-              082 487 3900
+              084 773 9467
             </a>
           </div>
         </div>

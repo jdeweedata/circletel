@@ -505,4 +505,4 @@ Escalate to the Managing Director in these situations:
 
 *CircleTel (Pty) Ltd — A member of the New Generation Group*
 *"Connecting Today, Creating Tomorrow"*
-*contactus@circletel.co.za | WhatsApp: 082 487 3900 | Mon–Fri 08:00–17:00 SAST*
+*contactus@circletel.co.za | WhatsApp: 084 773 9467 | Mon–Fri 08:00–17:00 SAST*

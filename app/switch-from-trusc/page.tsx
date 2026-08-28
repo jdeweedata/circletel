@@ -619,7 +619,7 @@ export default function SwitchFromTruscPage() {
       <nav className="site-nav">
         <div className="logo">Circle<span>Tel</span></div>
         <a
-          href="https://wa.me/27824873900?text=Hi%2C+I%27d+like+to+switch+from+TRUSC+to+CircleTel"
+          href="https://wa.me/27847739467?text=Hi%2C+I%27d+like+to+switch+from+TRUSC+to+CircleTel"
           className="nav-cta"
           target="_blank"
           rel="noopener noreferrer"
@@ -644,7 +644,7 @@ export default function SwitchFromTruscPage() {
             </p>
             <div className="hero-ctas">
               <a
-                href="https://wa.me/27824873900?text=Hi%2C+I%27d+like+to+switch+to+CircleTel+from+TRUSC"
+                href="https://wa.me/27847739467?text=Hi%2C+I%27d+like+to+switch+to+CircleTel+from+TRUSC"
                 className="btn-whatsapp"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -681,7 +681,7 @@ export default function SwitchFromTruscPage() {
               <span className="savings-val highlight">R223/mo</span>
             </div>
             <a
-              href="https://wa.me/27824873900?text=Hi%2C+I%27d+like+a+free+quote+to+switch+to+CircleTel"
+              href="https://wa.me/27847739467?text=Hi%2C+I%27d+like+a+free+quote+to+switch+to+CircleTel"
               className="card-cta"
               target="_blank"
               rel="noopener noreferrer"
@@ -844,7 +844,7 @@ export default function SwitchFromTruscPage() {
                 <li>WhatsApp support</li>
               </ul>
               <a
-                href="https://wa.me/27824873900?text=Hi%2C+I%27m+interested+in+CircleTel+Business+10+Mbps"
+                href="https://wa.me/27847739467?text=Hi%2C+I%27m+interested+in+CircleTel+Business+10+Mbps"
                 className="pkg-cta secondary"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -868,7 +868,7 @@ export default function SwitchFromTruscPage() {
                 <li>Static IP available</li>
               </ul>
               <a
-                href="https://wa.me/27824873900?text=Hi%2C+I%27m+interested+in+CircleTel+Business+25+Mbps"
+                href="https://wa.me/27847739467?text=Hi%2C+I%27m+interested+in+CircleTel+Business+25+Mbps"
                 className="pkg-cta primary"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -892,7 +892,7 @@ export default function SwitchFromTruscPage() {
                 <li>Dedicated account manager</li>
               </ul>
               <a
-                href="https://wa.me/27824873900?text=Hi%2C+I%27m+interested+in+CircleTel+Business+50+Mbps"
+                href="https://wa.me/27847739467?text=Hi%2C+I%27m+interested+in+CircleTel+Business+50+Mbps"
                 className="pkg-cta secondary"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -950,7 +950,7 @@ export default function SwitchFromTruscPage() {
         </p>
         <div className="bottom-ctas">
           <a
-            href="https://wa.me/27824873900?text=Hi%2C+I%27d+like+to+switch+to+CircleTel+business+internet"
+            href="https://wa.me/27847739467?text=Hi%2C+I%27d+like+to+switch+to+CircleTel+business+internet"
             className="btn-whatsapp"
             target="_blank"
             rel="noopener noreferrer"
@@ -976,7 +976,7 @@ export default function SwitchFromTruscPage() {
       {/* ── FOOTER ──────────────────────────────────────────────── */}
       <footer className="site-footer">
         <div className="footer-brand">Circle<span>Tel</span></div>
-        <div>© 2026 CircleTel (Pty) Ltd · West Coast, South Africa · 082 487 3900</div>
+        <div>© 2026 CircleTel (Pty) Ltd · West Coast, South Africa · 084 773 9467</div>
         <div className="footer-links">
           <a href="/privacy-policy">Privacy Policy</a>
           <a href="/terms-of-service">Terms of Service</a>

@@ -388,7 +388,7 @@ Rules:
 - **Don't** add horizontal rule dividers — use background alternation instead
 - **Don't** stack two adjacent Anchor Navy (`#1B2A4A`) sections
 - **Don't** use the term "24/7 support" — support hours are Mon–Fri 8am–5pm SAST
-- **Don't** display a phone number — WhatsApp (082 487 3900) and email are the only inbound channels
+- **Don't** display a phone number — WhatsApp (084 773 9467) and email are the only inbound channels
 - **Don't** guess column/prop names — StatusBadge uses `status=`, not `label=`
 - **Don't** use `optimizePackageImports` on any package that is in `serverExternalPackages`
 
@@ -540,4 +540,4 @@ border-radius 9999px, 6px green dot left.
 
 *CircleTel (Pty) Ltd — "Connecting Today, Creating Tomorrow"*  
 *8a Mellis Rd, Rivonia, Sandton, Gauteng 2128, South Africa*  
-*WhatsApp: 082 487 3900 | contactus@circletel.co.za | Mon–Fri 8am–5pm SAST*
+*WhatsApp: 084 773 9467 | contactus@circletel.co.za | Mon–Fri 8am–5pm SAST*

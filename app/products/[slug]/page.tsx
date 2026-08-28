@@ -103,7 +103,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <Link href="/">Check Coverage</Link>
             </Button>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/20 hover:scale-105 transition-all duration-200" asChild>
-              <Link href="https://wa.me/27824873900" className="flex items-center gap-2">
+              <Link href="https://wa.me/27847739467" className="flex items-center gap-2">
                 <PiWhatsappLogoBold className="w-5 h-5" />
                 Talk to Sales
               </Link>

@@ -215,7 +215,7 @@ async function main() {
   doc.setFillColor('#F5831F');
   doc.rect(0, footerY - 2, pageWidth, 14, 'F');
   doc.setTextColor('#FFFFFF'); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
-  doc.text('Thank you for your business. | www.circletel.co.za | contactus@circletel.co.za | 082 487 3900', pageWidth / 2, footerY + 4, { align: 'center' });
+  doc.text('Thank you for your business. | www.circletel.co.za | contactus@circletel.co.za | 084 773 9467', pageWidth / 2, footerY + 4, { align: 'center' });
 
   const pdfBuffer = doc.output('arraybuffer');
   const pdfBase64 = Buffer.from(pdfBuffer).toString('base64');
@@ -254,7 +254,7 @@ async function main() {
             <a href="https://www.circletel.co.za/dashboard/billing" style="background: #F5831F; color: white; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 14px;">View in Portal</a>
           </div>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-          <p style="color: #9CA3AF; font-size: 12px; text-align: center;">Circle Tel SA (Pty) Ltd · VAT 4380269318 · contactus@circletel.co.za · 082 487 3900</p>
+          <p style="color: #9CA3AF; font-size: 12px; text-align: center;">Circle Tel SA (Pty) Ltd · VAT 4380269318 · contactus@circletel.co.za · 084 773 9467</p>
         </div>
       </div>
     `,

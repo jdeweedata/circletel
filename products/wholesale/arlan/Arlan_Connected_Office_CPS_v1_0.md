@@ -274,7 +274,7 @@ CircleTel resells MTN network services through Arlan. MTN's standard business SL
 | Dimension | Standard |
 |-----------|----------|
 | Support hours | Monday–Friday, 08:00–17:00 SAST |
-| Support channels | WhatsApp (082 487 3900); email (contactus@circletel.co.za) |
+| Support channels | WhatsApp (084 773 9467); email (contactus@circletel.co.za) |
 | Account manager contact | Named account manager assigned to each Connected Office customer |
 | First response (WhatsApp) | Within 2 business hours during support hours |
 | Billing queries | Resolved within 3 business days |
@@ -351,7 +351,7 @@ Connected Office customers have a single CircleTel point of contact for all conn
 | Contact Type | Channel | Hours |
 |-------------|---------|-------|
 | Named Account Manager | WhatsApp direct | Mon–Fri 08:00–17:00 |
-| General Support | WhatsApp 082 487 3900 | Mon–Fri 08:00–17:00 |
+| General Support | WhatsApp 084 773 9467 | Mon–Fri 08:00–17:00 |
 | Billing | contactus@circletel.co.za | Mon–Fri 08:00–17:00 |
 | After-hours emergency | WhatsApp — monitored for severity 1 only | Outside hours |
 

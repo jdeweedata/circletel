@@ -55,10 +55,10 @@ export function Step6Done({ accountNumber }: Step6DoneProps) {
         <p>
           Questions?{' '}
           <a
-            href="https://wa.me/27824873900"
+            href="https://wa.me/27847739467"
             className="font-semibold text-circleTel-orange hover:underline"
           >
-            WhatsApp 082 487 3900
+            WhatsApp 084 773 9467
           </a>{' '}
           or{' '}
           <a

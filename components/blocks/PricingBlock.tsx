@@ -188,7 +188,7 @@ export function PricingBlock({
               {enterprisePlans.length > 0 && (
                 <div className="mt-8 max-w-5xl mx-auto">
                   {enterprisePlans.map((plan) => {
-                    const ctaHref = plan.cta?.href || plan.ctaUrl || 'https://wa.me/27824873900';
+                    const ctaHref = plan.cta?.href || plan.ctaUrl || 'https://wa.me/27847739467';
 
                     return (
                       <div

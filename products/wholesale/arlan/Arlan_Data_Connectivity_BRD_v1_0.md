@@ -430,4 +430,4 @@ Issue quote with 36-month (MFB standard) contract → PROCEED TO ORDER
 
 *CircleTel (Pty) Ltd — A member of the New Generation Group*
 *"Connecting Today, Creating Tomorrow"*
-*contactus@circletel.co.za | WhatsApp: 082 487 3900 | Mon–Fri 8am–5pm*
+*contactus@circletel.co.za | WhatsApp: 084 773 9467 | Mon–Fri 8am–5pm*

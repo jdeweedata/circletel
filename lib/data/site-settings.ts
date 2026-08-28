@@ -6,7 +6,7 @@ export const siteSettings: SiteSettings = {
   contactInfo: {
     address: 'Imagine House, 2 Mellis Rd, Rivonia, Sandton, 2191',
     email: 'contactus@circletel.co.za',
-    phone: '082 487 3900',
+    phone: '084 773 9467',
     supportHours: 'Mon–Fri 8am–5pm SAST',
   },
   defaultSeo: {

@@ -97,7 +97,7 @@ async function sendAdminWelcomeEmail() {
                 © ${new Date().getFullYear()} CircleTel (Pty) Ltd. All rights reserved.<br>
                 Imagine House, 2 Mellis Road, Rivonia, Sandton, 2191<br>
                 <a href="mailto:contactus@circletel.co.za" style="color: #F5831F; text-decoration: none;">contactus@circletel.co.za</a> |
-                <a href="https://wa.me/27824873900" style="color: #F5831F; text-decoration: none;">082 487 3900</a>
+                <a href="https://wa.me/27847739467" style="color: #F5831F; text-decoration: none;">084 773 9467</a>
               </p>
             </div>
           </body>

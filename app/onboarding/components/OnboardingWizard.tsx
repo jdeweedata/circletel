@@ -120,10 +120,10 @@ export function OnboardingWizard({ token }: OnboardingWizardProps) {
             Your clinic is already set up. If you need to make changes,
             please contact support at{' '}
             <a
-              href="https://wa.me/27824873900"
+              href="https://wa.me/27847739467"
               className="font-semibold underline"
             >
-              082 487 3900
+              084 773 9467
             </a>
             .
           </p>

@@ -101,7 +101,7 @@ function ConfirmationContent() {
           </p>
           <p className="text-sm text-gray-400 mb-6">{error}</p>
           <a
-            href="https://wa.me/27824873900"
+            href="https://wa.me/27847739467"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-xl font-medium text-sm"

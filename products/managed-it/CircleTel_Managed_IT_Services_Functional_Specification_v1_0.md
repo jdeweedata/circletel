@@ -1683,8 +1683,8 @@ INSERT INTO mits_notification_templates (event_type, subject_template, body_temp
 VALUES (
     'service_activated',
     'Welcome to CircleTel Managed IT Services - {{service_number}}',
-    E'Dear {{customer_name}},\n\nYour Managed IT Services account is now active!\n\nService Number: {{service_number}}\nTier: {{tier_name}}\nSupport Line: 082 487 3900 (WhatsApp)\n\nYour M365 tenant: {{m365_domain}}\n\nWelcome to the CircleTel family!\n\nBest regards,\nCircleTel Team',
-    'CircleTel: Your Managed IT service {{service_number}} is now active. Support: 082 487 3900'
+    E'Dear {{customer_name}},\n\nYour Managed IT Services account is now active!\n\nService Number: {{service_number}}\nTier: {{tier_name}}\nSupport Line: 084 773 9467 (WhatsApp)\n\nYour M365 tenant: {{m365_domain}}\n\nWelcome to the CircleTel family!\n\nBest regards,\nCircleTel Team',
+    'CircleTel: Your Managed IT service {{service_number}} is now active. Support: 084 773 9467'
 );
 ```
 

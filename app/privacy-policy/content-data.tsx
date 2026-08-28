@@ -302,7 +302,7 @@ export const privacyPolicyData: ContentPageData = {
               <strong>Email:</strong> privacy@circletel.co.za
             </p>
             <p>
-              <strong>WhatsApp:</strong> 082 487 3900
+              <strong>WhatsApp:</strong> 084 773 9467
             </p>
             <p>
               <strong>Address:</strong> CircleTel (Pty) Ltd, Johannesburg, South Africa

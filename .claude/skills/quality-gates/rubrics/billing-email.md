@@ -22,7 +22,7 @@ Every billing email MUST include:
 - [ ] Amount due (in Rands, formatted: R 799.00)
 - [ ] Due date (specific: "28 February 2026")
 - [ ] Payment method (NetCash Pay Now link)
-- [ ] Contact info (WhatsApp: 082 487 3900)
+- [ ] Contact info (WhatsApp: 084 773 9467)
 - [ ] CircleTel branding
 
 ## Evaluation Prompt
@@ -68,7 +68,7 @@ Due Date: 28 February 2026
 [PAY NOW - SECURE NETCASH PAYMENT]
 
 Questions about your bill? Reply to this email or WhatsApp us
-at 082 487 3900 - we're happy to help!
+at 084 773 9467 - we're happy to help!
 
 Thank you for choosing CircleTel.
 
@@ -96,7 +96,7 @@ Thanks
 ## CircleTel-Specific Rules
 
 1. **Use verified sender**: `billing@notify.circletel.co.za`
-2. **Include WhatsApp**: Always offer WhatsApp support (082 487 3900)
+2. **Include WhatsApp**: Always offer WhatsApp support (084 773 9467)
 3. **Use NetCash Pay Now**: Link to payment page, not just bank details
 4. **Format amounts**: Always `R 799.00` (space after R, two decimals)
 5. **Date format**: `28 February 2026` (day month year, no ordinals)

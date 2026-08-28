@@ -248,7 +248,7 @@ export default function SkyFibreBusinessPage() {
                   <ArrowRightIcon />
                 </a>
                 <a
-                  href="https://wa.me/27824873900"
+                  href="https://wa.me/27847739467"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 border border-white/25 hover:bg-white/[0.06] hover:border-white/50 text-white text-[13px] font-semibold tracking-[0.06em] px-7 py-[14px] transition-colors"
@@ -426,7 +426,7 @@ export default function SkyFibreBusinessPage() {
             <p className="mt-5 text-[12px] text-[#8A95A8] text-center italic">
               Not sure which plan is right?{' '}
               <a
-                href="https://wa.me/27824873900"
+                href="https://wa.me/27847739467"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#E87A1E] font-semibold not-italic"
@@ -600,12 +600,12 @@ export default function SkyFibreBusinessPage() {
             <p className="text-[14px] text-[#8A95A8]">
               Prefer to talk first?{' '}
               <a
-                href="https://wa.me/27824873900"
+                href="https://wa.me/27847739467"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white/70 font-semibold hover:text-[#E87A1E] transition-colors"
               >
-                WhatsApp us on 082 487 3900
+                WhatsApp us on 084 773 9467
               </a>
               {' '}·{' '}
               <a

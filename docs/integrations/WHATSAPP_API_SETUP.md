@@ -20,7 +20,7 @@ This guide walks through obtaining WhatsApp Business API credentials from Meta D
 
 | Item | Value |
 |------|-------|
-| WhatsApp Number | +27 82 487 3900 |
+| WhatsApp Number | +27 84 773 9467 |
 | Business Name | Circle Tel SA |
 | Partner | Zoho Corporation (Full control) |
 | ZOHO One | Active (keeping ZOHO Desk integration) |
@@ -74,7 +74,7 @@ The WhatsApp Business Account is managed through Zoho Corporation as a partner, 
 2. Find **WhatsApp** and click **Set Up**
 3. Complete the setup flow:
    - Select your WhatsApp Business Account (Circle Tel SA)
-   - Link your phone number (+27 82 487 3900)
+   - Link your phone number (+27 84 773 9467)
 
 ---
 
@@ -281,7 +281,7 @@ WhatsApp requires pre-approved templates for business-initiated messages. Submit
 | **Name** | `circletel_service_activated` |
 | **Category** | `UTILITY` |
 | **Language** | `en` |
-| **Body** | `Hi {{1}}, your {{2}} service is now active! Account: {{3}}. Support: 082 487 3900` |
+| **Body** | `Hi {{1}}, your {{2}} service is now active! Account: {{3}}. Support: 084 773 9467` |
 
 ### How to Submit Templates
 

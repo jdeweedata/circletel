@@ -127,7 +127,7 @@ export default function KYCCompletedEmail({
               📧 Email: <a href="mailto:support@circletel.co.za" style={link}>support@circletel.co.za</a>
             </Text>
             <Text style={footerText}>
-              📞 Phone: <a href="tel:+27824873900" style={link}>+27 82 487 3900</a>
+              📞 Phone: <a href="tel:+27847739467" style={link}>+27 84 773 9467</a>
             </Text>
             <Text style={footerText}>
               🕐 Hours: Monday-Friday 8AM-6PM, Saturday 9AM-1PM

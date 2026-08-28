@@ -202,7 +202,7 @@ export default function ProductsPageClient() {
               <Link href="/get-connected">Check Coverage</Link>
             </Button>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10" asChild>
-              <Link href="https://wa.me/27824873900">WhatsApp Sales</Link>
+              <Link href="https://wa.me/27847739467">WhatsApp Sales</Link>
             </Button>
           </div>
         </div>

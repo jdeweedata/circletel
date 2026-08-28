@@ -48,7 +48,7 @@ export default function EntertainmentPage() {
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <a
-                href={`https://wa.me/27824873900?text=${waMessage}`}
+                href={`https://wa.me/27847739467?text=${waMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-white text-[#F5831F] hover:bg-gray-50 font-semibold px-6 py-3 rounded-md transition-colors"

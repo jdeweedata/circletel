@@ -474,7 +474,7 @@ function buildEmailHtml(): string {
                   <td style="width: 33%; vertical-align: top; text-align: center;">
                     <h3 style="margin: 0 0 6px 0; font-size: 13px; color: #1F2937; font-weight: 700;">SUPPORT</h3>
                     <p style="margin: 0; font-size: 11px; color: #6B7280; line-height: 16px;">
-                      WhatsApp: 082 487 3900<br>
+                      WhatsApp: 084 773 9467<br>
                       Business Hours: 08:00 - 17:00<br>
                       contactus@circletel.co.za
                     </p>

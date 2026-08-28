@@ -132,7 +132,7 @@ Commercial venues juggle multiple vendors: one for WiFi, another for POS connect
 ### Contact
 
 **Sales**: sales@circletel.co.za
-**WhatsApp**: 082 487 3900
+**WhatsApp**: 084 773 9467
 **Site Survey**: Free — book at circletel.co.za/venue
 
 ---

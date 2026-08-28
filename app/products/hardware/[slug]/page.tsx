@@ -231,7 +231,7 @@ export default async function HardwareProductPage({ params }: Props) {
                 Contact Sales
               </Link>
               <a
-                href="https://wa.me/27824873900"
+                href="https://wa.me/27847739467"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-6 py-3 text-sm font-bold text-white transition hover:brightness-95"
               >
                 <PiWhatsappLogoBold className="h-5 w-5" />

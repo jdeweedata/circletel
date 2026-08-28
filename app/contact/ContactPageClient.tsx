@@ -26,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { CONTACT } from '@/lib/constants/contact';
 
 const ContactPageClient = () => {
   const searchParams = useSearchParams();
@@ -158,7 +159,7 @@ ${formData.message}
 What's Next:
 - Our team will review your inquiry
 - You'll receive a response within 24 hours
-- For urgent matters, WhatsApp us at 082 487 3900
+- For urgent matters, WhatsApp us at 084 773 9467
 
 Thank you for choosing CircleTel!
     `.trim();
@@ -314,7 +315,7 @@ Thank you for choosing CircleTel!
                         <PiPhoneBold className="h-5 w-5 text-circleTel-orange mr-3 mt-1" />
                         <div>
                           <p className="font-semibold text-circleTel-navy">Phone</p>
-                          <p className="text-circleTel-secondaryNeutral">082 487 3900</p>
+                          <p className="text-circleTel-secondaryNeutral">084 773 9467</p>
                         </div>
                       </div>
                       <div className="flex items-start">
@@ -347,25 +348,12 @@ Thank you for choosing CircleTel!
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-circleTel-secondaryNeutral">Monday - Friday</span>
-                        <span className="font-semibold text-circleTel-navy">8:00 AM - 5:00 PM</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-circleTel-secondaryNeutral">Saturday</span>
-                        <span className="font-semibold text-circleTel-navy">9:00 AM - 1:00 PM</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-circleTel-secondaryNeutral">Sunday</span>
-                        <span className="font-semibold text-circleTel-navy">Closed</span>
-                      </div>
-                      <div className="pt-3 border-t">
-                        <p className="text-sm text-circleTel-secondaryNeutral">
-                          Emergency support available 24/7 for managed service clients
-                        </p>
-                      </div>
-                    </div>
+                    <p className="font-semibold text-circleTel-navy">
+                      {CONTACT.SUPPORT_HOURS}
+                    </p>
+                    <p className="mt-1 text-sm text-circleTel-secondaryNeutral">
+                      South African time. WhatsApp is monitored during these hours.
+                    </p>
                   </CardContent>
                 </Card>
               </div>
@@ -429,7 +417,7 @@ Thank you for choosing CircleTel!
                 </li>
                 <li className="flex items-start">
                   <PiCheckCircleBold className="h-4 w-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>For urgent matters, WhatsApp us at 082 487 3900</span>
+                  <span>For urgent matters, WhatsApp us at 084 773 9467</span>
                 </li>
               </ul>
             </div>

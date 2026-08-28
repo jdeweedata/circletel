@@ -344,7 +344,7 @@ export default function CloudPageClient() {
                   size="lg"
                   className="border-circleTel-orange text-circleTel-orange hover:bg-circleTel-orange hover:text-white"
                 >
-                  <Link href="https://wa.me/27824873900?text=Hi%2C%20I%27d%20like%20to%20learn%20more%20about%20CircleCloud%20services">
+                  <Link href="https://wa.me/27847739467?text=Hi%2C%20I%27d%20like%20to%20learn%20more%20about%20CircleCloud%20services">
                     WhatsApp Us <PiArrowRightBold className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>

@@ -174,7 +174,7 @@ export default function LocationsHubPage() {
               Check My Coverage
             </Link>
             <Link
-              href="https://wa.me/27824873900?text=Hi+CircleTel%2C+I%27d+like+to+know+what%27s+available+in+my+West+Coast+town."
+              href="https://wa.me/27847739467?text=Hi+CircleTel%2C+I%27d+like+to+know+what%27s+available+in+my+West+Coast+town."
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-lg border border-white/30 bg-white/10 px-6 py-3 font-semibold text-white transition-colors hover:bg-white/20"

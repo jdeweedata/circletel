@@ -419,11 +419,11 @@ export default function PublicPaymentPage() {
                   contactus@circletel.co.za
                 </a>
                 <a
-                  href="https://wa.me/27824873900"
+                  href="https://wa.me/27847739467"
                   className="inline-flex items-center gap-1 text-primary hover:underline"
                 >
                   <PiPhoneBold className="h-3 w-3" />
-                  082 487 3900
+                  084 773 9467
                 </a>
               </div>
             </div>

@@ -336,7 +336,7 @@ function buildProfessionalEmailHtml(): string {
       <td style="padding: 0 25px 30px 25px;">
         <p style="margin: 0; font-size: 13px; color: #6b7280;">
           Questions? Contact us at <a href="mailto:${COMPANY.email}" style="color: #f5831f; text-decoration: none;">${COMPANY.email}</a>
-          or WhatsApp <a href="https://wa.me/27824873900" style="color: #f5831f; text-decoration: none;">082 487 3900</a>
+          or WhatsApp <a href="https://wa.me/27847739467" style="color: #f5831f; text-decoration: none;">084 773 9467</a>
         </p>
       </td>
     </tr>
