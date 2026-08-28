@@ -211,7 +211,7 @@ For sections that require product-specific engineering detail not available from
 **File name**: `{ProductName}_OnePager.md`
 **Output path**: `products/[CATEGORY]/[SUBCATEGORY]/sales-collateral/`
 
-Keep it to one tight page. Lead with the problem, solve it with the product, make the comparison vivid, and end with a compelling pitch. Use the contact constants: WhatsApp 082 487 3900, sales@circletel.co.za.
+Keep it to one tight page. Lead with the problem, solve it with the product, make the comparison vivid, and end with a compelling pitch. Use the contact constants: WhatsApp 084 773 9467, sales@circletel.co.za.
 
 ---
 

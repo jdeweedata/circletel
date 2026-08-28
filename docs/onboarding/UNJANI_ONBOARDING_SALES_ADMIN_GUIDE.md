@@ -183,14 +183,14 @@ No problem — we'll send you a fresh link.
 We review your documents, your bank confirms the debit order with you, and then your billing is set up. We'll let you know when it's all active.
 
 **Q: Who do I contact for help?**
-CircleTel: WhatsApp **082 487 3900** or email **contactus@circletel.co.za** (Mon–Fri, 8am–5pm). Your sales administrator can also help you live.
+CircleTel: WhatsApp **084 773 9467** or email **contactus@circletel.co.za** (Mon–Fri, 8am–5pm). Your sales administrator can also help you live.
 
 ---
 
 ## 11. Quick reference
 
 - **Onboarding sender (WhatsApp):** +27 84 773 9467 ("Start setup" button)
-- **Support line nurses know:** 082 487 3900 · contactus@circletel.co.za
+- **Support line nurses know:** 084 773 9467 · contactus@circletel.co.za
 - **Price:** R450 ex VAT / R517.50 incl / month / clinic (first month pro-rated)
 - **Link validity:** 7 days, single-use
 - **Required docs:** CIPC cert · VAT cert (if VAT) · bank confirmation · owner/director ID · proof of address
@@ -201,7 +201,7 @@ CircleTel: WhatsApp **082 487 3900** or email **contactus@circletel.co.za** (Mon
 
 ## 12. WhatsApp scripts (copy-paste when guiding a nurse)
 
-> These are for **you chatting one-on-one** with the nurse on WhatsApp (e.g. from the support line 082 487 3900). Keep replies in the same conversation. Replace anything in **[brackets]**. The official "Start setup" link itself is sent by the system from +27 84 773 9467 — these messages are your human follow-ups around it.
+> These are for **you chatting one-on-one** with the nurse on WhatsApp (e.g. from the support line 084 773 9467). Keep replies in the same conversation. Replace anything in **[brackets]**. The official "Start setup" link itself is sent by the system from +27 84 773 9467 — these messages are your human follow-ups around it.
 
 **A. Heads-up before/with the link**
 ```
@@ -235,7 +235,7 @@ Hi [Nurse name], one last step: your bank will send you a DebiCheck request to a
 
 **G. All done — billing active**
 ```
-🎉 You're all set, [Nurse name]! [Clinic name] is now set up. Your monthly fee is R517.50 (R450 + VAT), coming off on the [date]. Your first month is pro-rated. Welcome aboard — anything you need, we're on 082 487 3900.
+🎉 You're all set, [Nurse name]! [Clinic name] is now set up. Your monthly fee is R517.50 (R450 + VAT), coming off on the [date]. Your first month is pro-rated. Welcome aboard — anything you need, we're on 084 773 9467.
 ```
 
 **H. Nurse with more than one clinic**
@@ -250,7 +250,7 @@ Hi [Nurse name], for [New clinic name] we first need to confirm we can install i
 
 **J. Reassurance (nurse worried about giving bank details)**
 ```
-Totally understand 🙂 It's the official CircleTel setup page (same as circletel.co.za). The bank details are only to set up your monthly debit order, and YOU approve it through your own bank (DebiCheck) — nothing is ever taken without your approval. You can verify us on 082 487 3900 or contactus@circletel.co.za.
+Totally understand 🙂 It's the official CircleTel setup page (same as circletel.co.za). The bank details are only to set up your monthly debit order, and YOU approve it through your own bank (DebiCheck) — nothing is ever taken without your approval. You can verify us on 084 773 9467 or contactus@circletel.co.za.
 ```
 
 ---

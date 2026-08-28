@@ -115,7 +115,7 @@ export const getVerificationEmailHTML = (params: EmailTemplateParams): string =>
                       📧 Email: <a href="mailto:contactus@circletel.co.za" style="color: #F5831F; text-decoration: none; font-weight: 600;">contactus@circletel.co.za</a>
                     </p>
                     <p style="color: #4B5563; font-size: 14px; margin: 0 0 20px 0;">
-                      💬 WhatsApp: <a href="https://wa.me/27824873900" style="color: #F5831F; text-decoration: none; font-weight: 600;">082 487 3900</a>
+                      💬 WhatsApp: <a href="https://wa.me/27847739467" style="color: #F5831F; text-decoration: none; font-weight: 600;">084 773 9467</a>
                     </p>
                   </td>
                 </tr>
@@ -235,7 +235,7 @@ export const getPasswordResetEmailHTML = (params: EmailTemplateParams): string =
                       📧 <a href="mailto:contactus@circletel.co.za" style="color: #F5831F; text-decoration: none;">contactus@circletel.co.za</a>
                     </p>
                     <p style="color: #4B5563; font-size: 14px; margin: 0 0 20px 0;">
-                      📞 <a href="https://wa.me/27824873900" style="color: #F5831F; text-decoration: none;">082 487 3900</a>
+                      📞 <a href="https://wa.me/27847739467" style="color: #F5831F; text-decoration: none;">084 773 9467</a>
                     </p>
                     <p style="color: #9CA3AF; font-size: 12px; margin: 0;">
                       © ${currentYear} CircleTel. All rights reserved.
@@ -280,7 +280,7 @@ What happens next?
 
 Need help? Contact us:
 Email: contactus@circletel.co.za
-WhatsApp: 082 487 3900
+WhatsApp: 084 773 9467
 
 © ${new Date().getFullYear()} CircleTel. All rights reserved.
 Connecting South Africa, one home at a time.
@@ -305,7 +305,7 @@ If you didn't request this password reset, please ignore this email. Your passwo
 
 Need help? Contact CircleTel Support:
 Email: contactus@circletel.co.za
-WhatsApp: 082 487 3900
+WhatsApp: 084 773 9467
 
 © ${new Date().getFullYear()} CircleTel. All rights reserved.
   `.trim();

@@ -239,7 +239,7 @@ approval for inclusion in quote.
 
 | Channel | Availability | Response Time |
 |---------|-------------|---------------|
-| WhatsApp: 082 487 3900 | Mon–Fri 8am–5pm | Within 2 business hours |
+| WhatsApp: 084 773 9467 | Mon–Fri 8am–5pm | Within 2 business hours |
 | Email: contactus@circletel.co.za | Mon–Fri 8am–5pm | Within 4 business hours |
 | After-hours faults | WhatsApp; triaged next business day | Next business day |
 
@@ -284,7 +284,7 @@ business hours.
 | Escalation Tier | Handled By | Contact |
 |-----------------|------------|---------|
 | Billing and account queries | CircleTel | contactus@circletel.co.za |
-| SIM connectivity faults | CircleTel → Arlan escalation | WhatsApp 082 487 3900 |
+| SIM connectivity faults | CircleTel → Arlan escalation | WhatsApp 084 773 9467 |
 | MTN network faults | Arlan → MTN Business desk | Via CircleTel |
 | Fleet software integration | Customer's fleet software vendor | Not CircleTel scope |
 
@@ -416,4 +416,4 @@ a high-margin, zero-CAPEX revenue stream with strong upsell potential.
 
 *CircleTel (Pty) Ltd — A member of the New Generation Group*
 *"Connecting Today, Creating Tomorrow"*
-*contactus@circletel.co.za | WhatsApp: 082 487 3900 | Mon–Fri 8am–5pm*
+*contactus@circletel.co.za | WhatsApp: 084 773 9467 | Mon–Fri 8am–5pm*

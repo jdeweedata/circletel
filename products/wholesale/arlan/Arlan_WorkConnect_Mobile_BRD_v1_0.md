@@ -520,6 +520,6 @@ This ensures MSC coverage calculations remain accurate and Arlan commission repo
 
 ---
 
-*CircleTel (Pty) Ltd | contactus@circletel.co.za | WhatsApp: 082 487 3900 | Mon–Fri 08:00–17:00 SAST*
+*CircleTel (Pty) Ltd | contactus@circletel.co.za | WhatsApp: 084 773 9467 | Mon–Fri 08:00–17:00 SAST*
 *Document: CT-BRD-ARLAN-WCM-2026-001 | Version 1.0 | Effective 06 April 2026*
 *Classification: CONFIDENTIAL — Internal & Partner Use*

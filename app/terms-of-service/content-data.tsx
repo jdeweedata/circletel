@@ -333,7 +333,7 @@ export const termsOfServiceData: ContentPageData = {
           <h4 className="font-semibold mt-4">Step 1: Initial Resolution Attempt</h4>
           <p>Contact our customer support team to attempt resolution in the spirit of cooperation.</p>
           <p>
-            <strong>WhatsApp:</strong> 082 487 3900
+            <strong>WhatsApp:</strong> 084 773 9467
             <br />
             <strong>Email:</strong> support@circletel.co.za
           </p>

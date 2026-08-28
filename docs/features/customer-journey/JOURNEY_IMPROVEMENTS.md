@@ -1187,7 +1187,7 @@ export function ExitIntentModal() {
         </div>
 
         <p className="text-xs text-center text-gray-500">
-          Need help? WhatsApp us at 082 487 3900
+          Need help? WhatsApp us at 084 773 9467
         </p>
       </DialogContent>
     </Dialog>

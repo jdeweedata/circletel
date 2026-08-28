@@ -285,7 +285,7 @@ export default function OrderPackagesPage() {
             We&apos;re expanding our network. Join the waitlist and we&apos;ll notify you when service is available.
           </p>
           <a
-            href={`https://wa.me/27824873900?text=${encodeURIComponent('Hi, I checked coverage and no packages were available. I would like to be added to the waitlist.')}`}
+            href={`https://wa.me/27847739467?text=${encodeURIComponent('Hi, I checked coverage and no packages were available. I would like to be added to the waitlist.')}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700"

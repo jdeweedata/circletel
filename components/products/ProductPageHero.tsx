@@ -50,7 +50,7 @@ export function ProductPageHero({ name, tagline, heroImage, category }: ProductP
               <Link href="/">Get Started</Link>
             </Button>
             <Button size="lg" className="bg-[#25D366] hover:bg-[#1da851] text-white" asChild>
-              <Link href="https://wa.me/27824873900" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
+              <Link href="https://wa.me/27847739467" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
                 <PiWhatsappLogoBold className="w-5 h-5" />
                 WhatsApp Us
               </Link>

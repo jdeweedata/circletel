@@ -8,7 +8,7 @@ export { offerEnquiryPrefix } from './ContactPageClient';
 export const metadata: Metadata = {
   title: 'Contact CircleTel | Sales & Support South Africa',
   description:
-    'Get in touch with CircleTel for connectivity, managed IT, cloud, and security solutions. Call 082 487 3900, email contactus@circletel.co.za, or send us a message — we respond within 24 hours.',
+    'Get in touch with CircleTel for connectivity, managed IT, cloud, and security solutions. Call 084 773 9467, email contactus@circletel.co.za, or send us a message — we respond within 24 hours.',
   openGraph: {
     title: 'Contact CircleTel | Sales & Support South Africa',
     description:

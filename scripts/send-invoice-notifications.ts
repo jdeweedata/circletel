@@ -106,7 +106,7 @@ async function sendEmail(invoice: typeof invoices[0]): Promise<boolean> {
     <hr style="border: none; border-top: 1px solid #E5E7EB; margin: 30px 0;">
 
     <p style="color: #9CA3AF; font-size: 12px; text-align: center;">
-      Questions? Contact us on WhatsApp: 082 487 3900<br>
+      Questions? Contact us on WhatsApp: 084 773 9467<br>
       CircleTel SA (Pty) Ltd
     </p>
   </div>
@@ -125,7 +125,7 @@ Due: ${invoice.dueDate}
 
 Pay securely here: ${invoice.paynowUrl}
 
-Questions? WhatsApp: 082 487 3900
+Questions? WhatsApp: 084 773 9467
 CircleTel SA
 `;
 

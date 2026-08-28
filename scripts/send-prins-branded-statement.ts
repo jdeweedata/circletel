@@ -596,7 +596,7 @@ function buildEmailHTML(): string {
           <tr>
             <td style="padding: 32px 40px;">
               <p style="margin: 0; font-size: 14px; color: #6B7280;">
-                Questions? Contact us at <a href="mailto:contactus@circletel.co.za" style="color: #F5831F; text-decoration: none;">contactus@circletel.co.za</a> or WhatsApp <a href="https://wa.me/27824873900" style="color: #F5831F; text-decoration: none;">082 487 3900</a>
+                Questions? Contact us at <a href="mailto:contactus@circletel.co.za" style="color: #F5831F; text-decoration: none;">contactus@circletel.co.za</a> or WhatsApp <a href="https://wa.me/27847739467" style="color: #F5831F; text-decoration: none;">084 773 9467</a>
               </p>
             </td>
           </tr>

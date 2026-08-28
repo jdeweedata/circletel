@@ -44,7 +44,7 @@ CIPC company registration cert · VAT cert (only if VAT-registered) · **bank co
 ---
 
 ### Contacts
-**Customer support (nurses know this):** WhatsApp/Call **082 487 3900** · **contactus@circletel.co.za** · Mon–Fri 8am–5pm
+**Customer support (nurses know this):** WhatsApp/Call **084 773 9467** · **contactus@circletel.co.za** · Mon–Fri 8am–5pm
 **Escalate technical/coverage/install or stuck mandates →** CircleTel tech team.
 
 *Full guide + WhatsApp scripts: `docs/onboarding/UNJANI_ONBOARDING_SALES_ADMIN_GUIDE.md`*

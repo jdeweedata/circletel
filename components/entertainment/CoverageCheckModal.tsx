@@ -147,7 +147,7 @@ export function CoverageCheckModal({ open, onOpenChange, bundle }: CoverageCheck
                 asChild
               >
                 <a
-                  href={`https://wa.me/27824873900?text=${waMessage}`}
+                  href={`https://wa.me/27847739467?text=${waMessage}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

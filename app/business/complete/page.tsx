@@ -99,7 +99,7 @@ export default function BusinessCompletePage() {
               See Plans & Pricing
             </Link>
             <a
-              href="https://wa.me/27824873900"
+              href="https://wa.me/27847739467"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-[#25D366] hover:bg-[#1da851] text-white font-semibold text-[15px] px-6 py-3 rounded-xl transition-colors"
@@ -729,7 +729,7 @@ export default function BusinessCompletePage() {
             <p className="text-[#475467] text-[1.0625rem] mt-2">
               Still unsure?{' '}
               <a
-                href="https://wa.me/27824873900"
+                href="https://wa.me/27847739467"
                 className="text-[#AE5B16] font-semibold hover:underline"
               >
                 WhatsApp us
@@ -773,10 +773,10 @@ export default function BusinessCompletePage() {
           <p className="mt-5 text-white/40 text-[13px]">
             Or chat with us directly —{' '}
             <a
-              href="https://wa.me/27824873900"
+              href="https://wa.me/27847739467"
               className="text-[#FDB981] hover:underline font-medium"
             >
-              WhatsApp 082 487 3900
+              WhatsApp 084 773 9467
             </a>
           </p>
         </div>

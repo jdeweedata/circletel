@@ -168,8 +168,8 @@ export default function PaymentCallbackPage() {
         {/* Help Text */}
         <p className="text-center text-sm text-gray-500 mt-6">
           Need help?{' '}
-          <a href="https://wa.me/27824873900" className="text-circleTel-orange hover:underline">
-            WhatsApp 082 487 3900
+          <a href="https://wa.me/27847739467" className="text-circleTel-orange hover:underline">
+            WhatsApp 084 773 9467
           </a>
         </p>
       </div>

@@ -185,7 +185,7 @@ async function sendEmail(paymentUrl: string): Promise<boolean> {
       <div class="contact">
         <strong>Need help?</strong><br>
         📧 <a href="mailto:billing@circletel.co.za">billing@circletel.co.za</a><br>
-        💬 WhatsApp: <a href="https://wa.me/27824873900">082 487 3900</a> (Mon–Fri, 8am–5pm)
+        💬 WhatsApp: <a href="https://wa.me/27847739467">084 773 9467</a> (Mon–Fri, 8am–5pm)
       </div>
 
       <p>Thank you for choosing CircleTel!</p>

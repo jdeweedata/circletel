@@ -54,7 +54,7 @@ export function PartnerHero() {
                 </Button>
               </Link>
               <a
-                href="https://wa.me/27824873900?text=Hi%2C%20I%27m%20interested%20in%20the%20CircleTel%20Partner%20Programme"
+                href="https://wa.me/27847739467?text=Hi%2C%20I%27m%20interested%20in%20the%20CircleTel%20Partner%20Programme"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto"

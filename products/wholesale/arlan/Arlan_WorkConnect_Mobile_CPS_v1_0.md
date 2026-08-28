@@ -360,7 +360,7 @@ The WorkConnect + Mobile bundle is presented to customers as a unified account. 
 
 - One CircleTel account number
 - One monthly invoice showing both line items
-- One support contact: 082 487 3900 (WhatsApp) or contactus@circletel.co.za
+- One support contact: 084 773 9467 (WhatsApp) or contactus@circletel.co.za
 - One account manager at CircleTel
 
 CircleTel handles all first-level support triage. WorkConnect faults are escalated to the CircleTel NOC. Arlan/MTN faults are escalated by CircleTel to the Arlan account manager.
@@ -369,7 +369,7 @@ CircleTel handles all first-level support triage. WorkConnect faults are escalat
 
 | Channel | Availability | Use Case |
 |---------|------------|---------|
-| WhatsApp (082 487 3900) | Mon–Fri, 08:00–17:00 SAST | Primary support channel |
+| WhatsApp (084 773 9467) | Mon–Fri, 08:00–17:00 SAST | Primary support channel |
 | Email (contactus@circletel.co.za) | Mon–Fri, 08:00–17:00 SAST | Non-urgent queries, documentation |
 | AI assistant (website) | 24/7 | Common queries, self-service |
 | After-hours emergency | Next business day response | Critical outages — logged via WhatsApp |
@@ -525,6 +525,6 @@ Each WorkConnect component of a bundle counts as one Tarana subscriber toward MS
 
 ---
 
-*CircleTel (Pty) Ltd | contactus@circletel.co.za | WhatsApp: 082 487 3900 | Mon–Fri 08:00–17:00 SAST*
+*CircleTel (Pty) Ltd | contactus@circletel.co.za | WhatsApp: 084 773 9467 | Mon–Fri 08:00–17:00 SAST*
 *Document: CT-CPS-ARLAN-WCM-2026-001 | Version 1.0 | Effective 06 April 2026*
 *Classification: CONFIDENTIAL — Internal & Partner Use*

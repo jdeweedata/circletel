@@ -80,7 +80,7 @@ SMEs lose **R15,000+ per hour** when internet goes down. Yet most businesses rel
 ### Contact
 
 **Sales**: sales@circletel.co.za
-**WhatsApp**: 082 487 3900
+**WhatsApp**: 084 773 9467
 **Coverage Check**: circletel.co.za/check-coverage
 
 ---

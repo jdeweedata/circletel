@@ -74,7 +74,7 @@
 ### Contact
 
 **Sales**: sales@circletel.co.za
-**WhatsApp**: 082 487 3900
+**WhatsApp**: 084 773 9467
 **Coverage Check**: circletel.co.za/check-coverage
 
 ---

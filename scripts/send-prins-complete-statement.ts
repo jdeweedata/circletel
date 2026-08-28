@@ -241,7 +241,7 @@ function buildCompleteStatementHtml(): string {
                     <p style="color: #1F2937; font-size: 15px; font-weight: 600; margin: 0 0 12px 0;">Need Help?</p>
                     <p style="color: #4B5563; font-size: 14px; line-height: 22px; margin: 0;">
                       📧 Email: <a href="mailto:contactus@circletel.co.za" style="color: #F5831F; text-decoration: none;">contactus@circletel.co.za</a><br>
-                      💬 WhatsApp: <a href="https://wa.me/27824873900" style="color: #F5831F; text-decoration: none;">082 487 3900</a>
+                      💬 WhatsApp: <a href="https://wa.me/27847739467" style="color: #F5831F; text-decoration: none;">084 773 9467</a>
                     </p>
                   </td>
                 </tr>

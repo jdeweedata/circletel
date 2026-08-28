@@ -82,7 +82,7 @@ Nothing! Service will restore automatically.
 After the upgrade:
 Your connection speed will improve by approximately 20%
 
-Questions? WhatsApp us at 082 487 3900.
+Questions? WhatsApp us at 084 773 9467.
 
 Thank you for your patience!
 CircleTel Team
@@ -115,6 +115,6 @@ Sorry for the inconvenience.
 
 1. **Never alarm unnecessarily**: Even outages should be communicated calmly
 2. **Always provide timeline**: Customers want to know "when"
-3. **Include WhatsApp**: 082 487 3900 for support
+3. **Include WhatsApp**: 084 773 9467 for support
 4. **Use SAST**: Always specify timezone for times
 5. **Positive framing**: "Upgrading to serve you better" not "System broken"

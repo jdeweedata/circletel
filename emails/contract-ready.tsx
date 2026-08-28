@@ -183,7 +183,7 @@ export default function ContractReadyEmail(props: Partial<ContractReadyEmailProp
               📧 Email: <a href="mailto:contracts@circletel.co.za" style={link}>contracts@circletel.co.za</a>
             </Text>
             <Text style={footerText}>
-              📞 Phone: <a href="tel:+27824873900" style={link}>+27 82 487 3900</a>
+              📞 Phone: <a href="tel:+27847739467" style={link}>+27 84 773 9467</a>
             </Text>
             <Text style={footerText}>
               💬 Live Chat: <a href="https://circletel.co.za/support" style={link}>circletel.co.za/support</a>

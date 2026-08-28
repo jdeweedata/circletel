@@ -237,7 +237,7 @@ installation.
 
 | Channel | Availability | Response Time |
 |---------|-------------|---------------|
-| WhatsApp: 082 487 3900 | Mon–Fri 8am–5pm | Within 2 business hours |
+| WhatsApp: 084 773 9467 | Mon–Fri 8am–5pm | Within 2 business hours |
 | Email: contactus@circletel.co.za | Mon–Fri 8am–5pm | Within 4 business hours |
 | After-hours faults | WhatsApp; monitored next business day | Next business day morning |
 
@@ -314,7 +314,7 @@ Customer must be available at premises during the scheduled installation window.
 | Escalation Tier | Handled By | Contact |
 |-----------------|------------|---------|
 | Billing and account queries | CircleTel | contactus@circletel.co.za |
-| Connectivity faults (CPE, SIM) | CircleTel → Arlan escalation | WhatsApp 082 487 3900 |
+| Connectivity faults (CPE, SIM) | CircleTel → Arlan escalation | WhatsApp 084 773 9467 |
 | MTN network outages | Arlan → MTN Business fault desk | Via CircleTel |
 | ZYXEL hardware faults (under warranty) | Arlan ICT team via CircleTel | WhatsApp escalation |
 | Tozed CPE self-install support | CircleTel WhatsApp guide | Plug-and-play; call Arlan if SIM doesn't activate |
@@ -450,4 +450,4 @@ Bundle conversion is a key revenue multiplier from Month 3 onward.
 
 *CircleTel (Pty) Ltd — A member of the New Generation Group*
 *"Connecting Today, Creating Tomorrow"*
-*contactus@circletel.co.za | WhatsApp: 082 487 3900 | Mon–Fri 8am–5pm*
+*contactus@circletel.co.za | WhatsApp: 084 773 9467 | Mon–Fri 8am–5pm*

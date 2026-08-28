@@ -117,7 +117,7 @@ export function DemoFAQSection() {
                 <div className="font-semibold text-circleTel-navy mb-1">WhatsApp Business</div>
                 <div className="text-sm text-circleTel-secondaryNeutral mb-3">Instant Support</div>
                 <Button variant="outline" size="sm" className="border-circleTel-red text-circleTel-red hover:bg-circleTel-red hover:text-white">
-                  082 487 3900
+                  084 773 9467
                 </Button>
               </div>
             </div>

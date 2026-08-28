@@ -96,7 +96,7 @@ const emailHtml = `
               <p style="color: #6B7280; font-size: 14px; line-height: 22px; margin: 0;">Questions? Contact us:</p>
               <ul style="color: #6B7280; font-size: 14px; line-height: 22px; margin: 10px 0 0 0; padding-left: 20px;">
                 <li>Email: <a href="mailto:contactus@circletel.co.za" style="color: #F5831F;">contactus@circletel.co.za</a></li>
-                <li>WhatsApp: <a href="https://wa.me/27824873900" style="color: #F5831F;">082 487 3900</a></li>
+                <li>WhatsApp: <a href="https://wa.me/27847739467" style="color: #F5831F;">084 773 9467</a></li>
               </ul>
             </td>
           </tr>

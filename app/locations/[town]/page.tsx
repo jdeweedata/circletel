@@ -354,7 +354,7 @@ export default async function TownPage({ params }: { params: Promise<Params> }) 
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center rounded-lg border border-white/40 px-8 py-4 text-lg font-semibold text-white transition hover:bg-white/10"
             >
-              WhatsApp: 082 487 3900
+              WhatsApp: 084 773 9467
             </a>
           </div>
           <p className="mt-6 text-sm text-gray-400">

@@ -25,8 +25,8 @@ import { CONTACT, getWhatsAppLink } from '@/lib/constants/contact';
 
 | Channel | Constant | Value |
 |---------|----------|-------|
-| WhatsApp | `CONTACT.WHATSAPP_NUMBER` | 082 487 3900 |
-| WhatsApp Link | `CONTACT.WHATSAPP_LINK` | https://wa.me/27824873900 |
+| WhatsApp | `CONTACT.WHATSAPP_NUMBER` | 084 773 9467 |
+| WhatsApp Link | `CONTACT.WHATSAPP_LINK` | https://wa.me/27847739467 |
 | Email | `CONTACT.EMAIL_PRIMARY` | contactus@circletel.co.za |
 | Support Hours | `CONTACT.SUPPORT_HOURS` | Mon-Fri, 8am-5pm |
 
@@ -47,7 +47,7 @@ import { CONTACT, getWhatsAppLink } from '@/lib/constants/contact';
 
 ```tsx
 // WRONG - hardcoded values
-<a href="https://wa.me/27824873900">082 487 3900</a>
+<a href="https://wa.me/27847739467">084 773 9467</a>
 <a href="mailto:support@circletel.co.za">Email us</a>
 <span>24/7 support</span> // INCORRECT - support is Mon-Fri 8am-5pm
 

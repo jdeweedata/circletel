@@ -74,7 +74,7 @@ export function WirelessFAQ() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center text-sm">
               <span>📞 <strong>Phone:</strong> 087 073 0000</span>
               <span>📧 <strong>Email:</strong> support@circletel.co.za</span>
-              <span>💬 <strong>WhatsApp:</strong> 082 487 3900</span>
+              <span>💬 <strong>WhatsApp:</strong> 084 773 9467</span>
             </div>
           </div>
         </div>

@@ -506,7 +506,7 @@ export default function CheckoutPage() {
               {errorMessage && (
                 <div className="mt-5 bg-red-50 border border-red-100 rounded-xl p-4 text-sm text-red-700">
                   {errorMessage}{' '}
-                  <a href="https://wa.me/27824873900" target="_blank" rel="noopener noreferrer" className="underline font-medium">
+                  <a href="https://wa.me/27847739467" target="_blank" rel="noopener noreferrer" className="underline font-medium">
                     Contact support
                   </a>
                 </div>
@@ -630,7 +630,7 @@ export default function CheckoutPage() {
                 {errorMessage && (
                   <div className="mt-5 bg-red-50 border border-red-100 rounded-xl p-4 text-sm text-red-700">
                     {errorMessage}{' '}
-                    <a href="https://wa.me/27824873900" target="_blank" rel="noopener noreferrer" className="underline font-medium">
+                    <a href="https://wa.me/27847739467" target="_blank" rel="noopener noreferrer" className="underline font-medium">
                       Contact support
                     </a>
                   </div>

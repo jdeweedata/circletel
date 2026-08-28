@@ -364,7 +364,7 @@ export class CorporateEscalationService {
 
           <div style="background-color:#F0F9FF;border-left:4px solid #1B2A4A;padding:15px;margin:20px 0;">
             <strong>Need help?</strong><br>
-            WhatsApp: <a href="https://wa.me/27824873900" style="color:#F5831F;">082 487 3900</a><br>
+            WhatsApp: <a href="https://wa.me/27847739467" style="color:#F5831F;">084 773 9467</a><br>
             Email: <a href="mailto:contactus@circletel.co.za" style="color:#F5831F;">contactus@circletel.co.za</a>
           </div>
 

@@ -40,7 +40,7 @@ export const CircleTelFooter: React.FC<CircleTelFooterProps> = ({
           contactus@circletel.co.za
         </Link>
         <br />
-        WhatsApp: 082 487 3900
+        WhatsApp: 084 773 9467
         <br />
         Website:{' '}
         <Link href="https://www.circletel.co.za" style={emailStyles.footerLink}>

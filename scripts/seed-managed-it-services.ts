@@ -140,7 +140,7 @@ const MANAGED_IT_SERVICES_PRODUCT = {
             'Custom pricing based on requirements',
           ],
           ctaLabel: 'Contact Sales',
-          ctaUrl: 'https://wa.me/27824873900?text=Hi%2C%20I%27m%20interested%20in%20the%20Enterprise%20Managed%20IT%20package%20for%20my%20business',
+          ctaUrl: 'https://wa.me/27847739467?text=Hi%2C%20I%27m%20interested%20in%20the%20Enterprise%20Managed%20IT%20package%20for%20my%20business',
         },
       ],
       footnote: 'All prices exclude VAT. Each tier includes a set number of Microsoft 365 licences — additional users charged per seat. Custom solutions available for 100+ employees.',

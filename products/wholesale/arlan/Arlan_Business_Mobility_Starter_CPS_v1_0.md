@@ -206,7 +206,7 @@ MTN's enterprise and business mobile SLA governs network availability. CircleTel
 | Billing query resolution | Within 2 business days |
 | Arlan order submission | Within 1 business day of complete FICA documentation |
 | Escalation to Arlan/MTN | Within 1 business day of confirmed network fault |
-| Support channel | WhatsApp: 082 487 3900 | Email: contactus@circletel.co.za |
+| Support channel | WhatsApp: 084 773 9467 | Email: contactus@circletel.co.za |
 | Support hours | Mon–Fri, 08:00–17:00 SAST |
 
 ---
@@ -250,7 +250,7 @@ All customer support for Business Mobility Starter is handled by CircleTel as th
 | Data top-up | Customer self-serves via MTN app; CircleTel advises | MTN direct |
 
 **Contact channels for customers**:
-- WhatsApp: 082 487 3900 (primary; monitored during business hours)
+- WhatsApp: 084 773 9467 (primary; monitored during business hours)
 - Email: contactus@circletel.co.za
 - Support hours: Mon–Fri, 08:00–17:00 SAST
 
@@ -404,4 +404,4 @@ Business Mobility Starter is one of four Arlan product lines. The combined targe
 
 *CircleTel (Pty) Ltd — A member of the New Generation Group*
 *"Connecting Today, Creating Tomorrow"*
-*contactus@circletel.co.za | WhatsApp: 082 487 3900 | Mon–Fri 08:00–17:00 SAST*
+*contactus@circletel.co.za | WhatsApp: 084 773 9467 | Mon–Fri 08:00–17:00 SAST*
