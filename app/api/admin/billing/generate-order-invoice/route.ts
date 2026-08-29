@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createClientWithSession } from '@/lib/supabase/server';
+import { allocateNextInvoiceNumber } from '@/lib/billing/allocate-invoice-number';
 import type { InvoiceLineItem } from '@/lib/billing/types';
 import { apiLogger } from '@/lib/logging';
 import { authenticateAdmin } from '@/lib/auth/admin-api-auth';
@@ -166,16 +167,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 7. Generate unique invoice number (INV-YYYY-NNNNN format)
+    // 7. Generate unique invoice number (INV-YYYY-NNNNN = max+1, not row count)
     const year = invoiceDate.getFullYear();
-    const { count } = await supabase
-      .from('customer_invoices')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', `${year}-01-01`)
-      .lt('created_at', `${year + 1}-01-01`);
-
-    const sequenceNumber = (count || 0) + 1;
-    const invoiceNumber = `INV-${year}-${sequenceNumber.toString().padStart(5, '0')}`;
+    const invoiceNumber = await allocateNextInvoiceNumber(supabase, year);
 
     // 8. Insert invoice (matching actual customer_invoices schema)
     const { data: invoice, error: invoiceError } = await supabase
@@ -274,9 +268,10 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: unknown) {
-    apiLogger.error('Order invoice generation failed:', error);
+    const message = error instanceof Error ? error.message : 'Internal server error';
+    apiLogger.error('Order invoice generation failed', { error: message });
     return NextResponse.json(
-      { success: false, error: error.message || 'Internal server error' },
+      { success: false, error: message },
       { status: 500 }
     );
   }
