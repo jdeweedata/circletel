@@ -4,6 +4,7 @@
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { buildActiveClinicLineItems } from './corporate-clinic-line-items';
+import { formatInvoiceNumber, nextInvoiceSequence } from './invoice-amounts';
 
 const VAT_RATE = 0.15;
 
@@ -115,8 +116,19 @@ export async function generateCorporateConsolidatedInvoice(
       return d.toISOString().split('T')[0];
     })();
 
+  // customer_invoices has no DB sequence — app must supply INV-YYYY-NNNNN (max+1).
   const year = new Date(invoiceDate).getFullYear();
-  const invoiceNumber = `INV-${year}-${String(Math.floor(Math.random() * 99999) + 1).padStart(5, '0')}`;
+  const { data: yearInvoices } = await supabase
+    .from('customer_invoices')
+    .select('invoice_number')
+    .like('invoice_number', `INV-${year}-%`);
+  const invoiceNumber = formatInvoiceNumber(
+    year,
+    nextInvoiceSequence(
+      (yearInvoices || []).map((r) => r.invoice_number as string),
+      year
+    )
+  );
 
   const { data: invoice, error } = await supabase
     .from('customer_invoices')
