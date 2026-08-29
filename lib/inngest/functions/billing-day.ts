@@ -127,7 +127,7 @@ export const billingDayFunction = inngest.createFunction(
           .from('cron_execution_log')
           .update({
             status: 'running',
-            started_at: new Date().toISOString(),
+            execution_start: new Date().toISOString(),
           })
           .eq('id', eventData.process_log_id);
 
@@ -146,8 +146,8 @@ export const billingDayFunction = inngest.createFunction(
         .insert({
           job_name: 'process-billing-day',
           status: 'running',
-          started_at: new Date().toISOString(),
-          result: {
+          execution_start: new Date().toISOString(),
+          execution_details: {
             triggered_by: triggeredBy,
             triggered_by_user_id: adminUserId || null,
             billing_date: dateStr,
@@ -251,17 +251,20 @@ export const billingDayFunction = inngest.createFunction(
 
       await step.run('update-empty-log', async () => {
         const supabase = await createClient();
-        await supabase
+        const { error: cronLogError } = await supabase
           .from('cron_execution_log')
           .update({
             status: 'completed',
-            completed_at: new Date().toISOString(),
-            result: {
+            execution_end: new Date().toISOString(),
+            execution_details: {
               ...result,
               duration_ms: Date.now() - startTime,
             },
           })
           .eq('id', processLogId);
+        if (cronLogError) {
+          console.error('[BillingDay] Failed to write cron_execution_log:', cronLogError.message);
+        }
       });
 
       // Send completion event
@@ -375,17 +378,20 @@ export const billingDayFunction = inngest.createFunction(
 
       await step.run('update-no-eligible-log', async () => {
         const supabase = await createClient();
-        await supabase
+        const { error: cronLogError2 } = await supabase
           .from('cron_execution_log')
           .update({
             status: 'completed',
-            completed_at: new Date().toISOString(),
-            result: {
+            execution_end: new Date().toISOString(),
+            execution_details: {
               ...result,
               duration_ms: Date.now() - startTime,
             },
           })
           .eq('id', processLogId);
+        if (cronLogError2) {
+          console.error('[BillingDay] Failed to write cron_execution_log:', cronLogError2.message);
+        }
       });
 
       // Send completion event
@@ -483,25 +489,28 @@ export const billingDayFunction = inngest.createFunction(
 
     // Step 7: Update final log
     const finalStatus = result.failed > 0
-      ? (result.successful > 0 ? 'completed_with_errors' : 'failed')
+      ? (result.successful > 0 ? 'partial' : 'failed')
       : 'completed';
     const duration = Date.now() - startTime;
 
     await step.run('update-final-log', async () => {
       const supabase = await createClient();
 
-      await supabase
+      const { error: cronLogError3 } = await supabase
         .from('cron_execution_log')
         .update({
           status: finalStatus,
-          completed_at: new Date().toISOString(),
-          result: {
+          execution_end: new Date().toISOString(),
+          execution_details: {
             ...result,
             dry_run: dryRun,
             duration_ms: duration,
           },
         })
         .eq('id', processLogId);
+      if (cronLogError3) {
+        console.error('[BillingDay] Failed to write cron_execution_log:', cronLogError3.message);
+      }
 
       console.log(
         `[BillingDay] Complete: ${result.processed} processed, ${result.successful} successful, ` +
@@ -593,17 +602,21 @@ export const billingDayFailedFunction = inngest.createFunction(
       const supabase = await createClient();
 
       // Update process log with failure status
-      await supabase
+      const { error: cronLogError4 } = await supabase
         .from('cron_execution_log')
         .update({
           status: 'failed',
-          completed_at: new Date().toISOString(),
-          result: {
+          execution_end: new Date().toISOString(),
+          error_message: typeof error === 'string' ? error : String(error),
+          execution_details: {
             error,
             failed_attempt: attempt,
           },
         })
         .eq('id', process_log_id);
+      if (cronLogError4) {
+        console.error('[BillingDay] Failed to write cron_execution_log:', cronLogError4.message);
+      }
 
       // TODO: PiPaperPlaneRightBold alert notification for billing failures
       // TODO: Log to error tracking service (Sentry, etc.)

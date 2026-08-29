@@ -470,9 +470,9 @@ async function logCronExecution(
   dateStr: string
 ): Promise<void> {
   try {
-    await supabase.from('cron_execution_log').insert({
+    const { error: cronLogError } = await supabase.from('cron_execution_log').insert({
       job_name: 'paynow-reconciliation',
-      status: result.errors.length > 0 ? 'completed_with_errors' : 'completed',
+      status: result.errors.length > 0 ? 'partial' : 'completed',
       execution_start: new Date(Date.now() - result.durationMs).toISOString(),
       execution_end: new Date().toISOString(),
       execution_details: {
@@ -480,6 +480,11 @@ async function logCronExecution(
         reconciliation_date: dateStr,
       },
     });
+    if (cronLogError) {
+      cronLogger.error('[PayNowRecon] Failed to write cron_execution_log', {
+        error: cronLogError.message,
+      });
+    }
   } catch (error) {
     cronLogger.error('[PayNowRecon] Failed to write cron execution log', {
       error: error instanceof Error ? error.message : String(error),

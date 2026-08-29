@@ -104,9 +104,13 @@ export async function GET(request: NextRequest) {
       // Check if cron_execution_log table exists, if not skip logging
       const { error: logError } = await supabase.from('cron_execution_log').insert({
         job_name: 'zoho-sync',
-        status: summary.crmFailed + summary.billingFailed > 0 ? 'partial' : 'success',
-        execution_time_ms: duration,
-        result_summary: {
+        status: summary.crmFailed + summary.billingFailed > 0 ? 'partial' : 'completed',
+        execution_start: new Date(startTime).toISOString(),
+        execution_end: new Date().toISOString(),
+        records_processed: summary.processed,
+        records_failed: summary.crmFailed + summary.billingFailed,
+        records_skipped: summary.skipped,
+        execution_details: {
           totalCandidates: summary.totalCandidates,
           processed: summary.processed,
           crmSucceeded: summary.crmSucceeded,
@@ -114,6 +118,7 @@ export async function GET(request: NextRequest) {
           billingSucceeded: summary.billingSucceeded,
           billingFailed: summary.billingFailed,
           skipped: summary.skipped,
+          duration_ms: duration,
         },
         error_message:
           summary.crmFailed + summary.billingFailed > 0
@@ -220,16 +225,26 @@ export async function GET(request: NextRequest) {
     // Try to log fatal error to database
     try {
       const supabase = await createClient();
-      await supabase.from('cron_execution_log').insert({
-        job_name: 'zoho-sync',
-        status: 'failed',
-        execution_time_ms: duration,
-        error_message: error.message,
-        result_summary: {
-          error: error.message,
-          stack: error.stack,
-        },
-      });
+      const { error: logInsertError } = await supabase
+        .from('cron_execution_log')
+        .insert({
+          job_name: 'zoho-sync',
+          status: 'failed',
+          execution_start: new Date(startTime).toISOString(),
+          execution_end: new Date().toISOString(),
+          error_message: error.message,
+          error_details: {
+            error: error.message,
+            stack: error.stack,
+          },
+          execution_details: { duration_ms: duration },
+        });
+
+      if (logInsertError) {
+        cronLogger.error('[Zoho Sync Cron] Failed to write cron_execution_log', {
+          error: logInsertError.message,
+        });
+      }
     } catch (logError) {
       cronLogger.error('[Zoho Sync Cron] Failed to log fatal error', { error: logError instanceof Error ? logError.message : String(logError) });
     }

@@ -127,7 +127,7 @@ export const debitOrdersFunction = inngest.createFunction(
           .from('cron_execution_log')
           .update({
             status: 'running',
-            started_at: new Date().toISOString(),
+            execution_start: new Date().toISOString(),
           })
           .eq('id', eventData.batch_log_id);
 
@@ -146,8 +146,8 @@ export const debitOrdersFunction = inngest.createFunction(
         .insert({
           job_name: 'submit-debit-orders',
           status: 'running',
-          started_at: new Date().toISOString(),
-          result: {
+          execution_start: new Date().toISOString(),
+          execution_details: {
             triggered_by: triggeredBy,
             triggered_by_user_id: adminUserId || null,
             billing_date: dateStr,
@@ -180,17 +180,20 @@ export const debitOrdersFunction = inngest.createFunction(
 
       await step.run('log-config-failure', async () => {
         const supabase = await createClient();
-        await supabase
+        const { error: cronLogError } = await supabase
           .from('cron_execution_log')
           .update({
             status: 'failed',
-            completed_at: new Date().toISOString(),
-            result: {
+            execution_end: new Date().toISOString(),
+            execution_details: {
               ...result,
               duration_ms: Date.now() - startTime,
             },
           })
           .eq('id', batchLogId);
+        if (cronLogError) {
+          console.error('[DebitOrders] Failed to write cron_execution_log:', cronLogError.message);
+        }
       });
 
       return { success: false, batchLogId, result };
@@ -494,17 +497,20 @@ export const debitOrdersFunction = inngest.createFunction(
 
       await step.run('update-empty-batch-log', async () => {
         const supabase = await createClient();
-        await supabase
+        const { error: cronLogError2 } = await supabase
           .from('cron_execution_log')
           .update({
-            status: result.errors.length > 0 ? 'completed_with_errors' : 'completed',
-            completed_at: new Date().toISOString(),
-            result: {
+            status: result.errors.length > 0 ? 'partial' : 'completed',
+            execution_end: new Date().toISOString(),
+            execution_details: {
               ...result,
               duration_ms: Date.now() - startTime,
             },
           })
           .eq('id', batchLogId);
+        if (cronLogError2) {
+          console.error('[DebitOrders] Failed to write cron_execution_log:', cronLogError2.message);
+        }
       });
 
       // Send completion event
@@ -688,24 +694,27 @@ export const debitOrdersFunction = inngest.createFunction(
     }
 
     // Step 12: Update final log
-    const finalStatus = result.errors.length > 0 ? 'completed_with_errors' : 'completed';
+    const finalStatus = result.errors.length > 0 ? 'partial' : 'completed';
     const duration = Date.now() - startTime;
 
     await step.run('update-final-log', async () => {
       const supabase = await createClient();
 
-      await supabase
+      const { error: cronLogError3 } = await supabase
         .from('cron_execution_log')
         .update({
           status: finalStatus,
-          completed_at: new Date().toISOString(),
-          result: {
+          execution_end: new Date().toISOString(),
+          execution_details: {
             ...result,
             dry_run: dryRun,
             duration_ms: duration,
           },
         })
         .eq('id', batchLogId);
+      if (cronLogError3) {
+        console.error('[DebitOrders] Failed to write cron_execution_log:', cronLogError3.message);
+      }
 
       console.log(
         `[DebitOrders] Complete: ${result.submitted} submitted, ${result.skipped} skipped, ${result.paynowSent} Pay Now sent ` +
@@ -777,12 +786,12 @@ export const debitOrdersCompletedFunction = inngest.createFunction(
       const supabase = await createClient();
 
       // Create a process log for billing-day
-      const { data: processLog } = await supabase
+      const { data: processLog, error: processLogError } = await supabase
         .from('cron_execution_log')
         .insert({
           job_name: 'billing-day-processor',
-          status: 'pending',
-          result: {
+          status: 'running',
+          execution_details: {
             triggered_by: 'debit-completion',
             billing_date,
             debit_batch_log_id: batch_log_id,
@@ -790,6 +799,13 @@ export const debitOrdersCompletedFunction = inngest.createFunction(
         })
         .select('id')
         .single();
+
+      if (processLogError) {
+        console.error(
+          '[DebitOrders] Failed to write cron_execution_log:',
+          processLogError.message
+        );
+      }
 
       if (processLog) {
         await inngest.send({
@@ -832,17 +848,21 @@ export const debitOrdersFailedFunction = inngest.createFunction(
       const supabase = await createClient();
 
       // Update batch log with failure status
-      await supabase
+      const { error: cronLogError4 } = await supabase
         .from('cron_execution_log')
         .update({
           status: 'failed',
-          completed_at: new Date().toISOString(),
-          result: {
+          execution_end: new Date().toISOString(),
+          error_message: typeof error === 'string' ? error : String(error),
+          execution_details: {
             error,
             failed_attempt: attempt,
           },
         })
         .eq('id', batch_log_id);
+      if (cronLogError4) {
+        console.error('[DebitOrders] Failed to write cron_execution_log:', cronLogError4.message);
+      }
 
       // TODO: PiPaperPlaneRightBold alert notification for batch failures
       // TODO: Log to error tracking service (Sentry, etc.)

@@ -896,19 +896,33 @@ export class MonthlyInvoiceGenerator {
   async logBillingRun(result: MonthlyBillingResult): Promise<void> {
     try {
       const supabase = await this.getClient();
-      await supabase.from('billing_cron_logs').insert({
-        run_id: result.runId,
-        billing_day: result.billingDay,
-        started_at: result.startedAt,
-        completed_at: result.completedAt,
-        dry_run: result.dryRun,
-        total_services: result.summary.totalServices,
-        processed: result.summary.processed,
-        successful: result.summary.successful,
+      const { error } = await supabase.from('billing_cron_logs').insert({
+        cron_type: 'monthly-invoice-generation',
+        run_date: result.startedAt,
+        services_processed: result.summary.totalServices,
+        invoices_created: result.summary.successful,
+        zoho_synced: result.results.filter((r) => r.zohoSynced).length,
+        emails_sent: result.results.filter((r) => r.emailSent).length,
+        sms_sent: result.results.filter((r) => r.smsSent).length,
         failed: result.summary.failed,
         skipped: result.summary.skipped,
-        results: result.results,
+        dry_run: result.dryRun,
+        details: {
+          run_id: result.runId,
+          billing_day: result.billingDay,
+          started_at: result.startedAt,
+          completed_at: result.completedAt,
+          processed: result.summary.processed,
+          results: result.results,
+        },
       });
+
+      if (error) {
+        billingLogger.warn('MonthlyInvoice: Failed to log billing run', {
+          runId: result.runId,
+          error: error.message,
+        });
+      }
     } catch (error) {
       // Table may not exist yet - log but don't fail
       billingLogger.warn('MonthlyInvoice: Failed to log billing run', {

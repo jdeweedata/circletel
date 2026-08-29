@@ -345,7 +345,7 @@ async function submitCCDebitOrders(customDate?: Date): Promise<CCSubmissionResul
   await logExecution(
     supabase,
     result,
-    result.errors.length > 0 ? 'completed_with_errors' : 'completed'
+    result.errors.length > 0 ? 'partial' : 'completed'
   );
 
   cronLogger.info(
@@ -411,15 +411,15 @@ async function recordBatchSubmission(
 async function logExecution(
   supabase: AnySupabaseClient,
   result: CCSubmissionResult,
-  status: 'completed' | 'completed_with_errors' | 'failed'
+  status: 'completed' | 'partial' | 'failed'
 ) {
   try {
-    await supabase.from('cron_execution_log').insert({
+    const { error: cronLogError } = await supabase.from('cron_execution_log').insert({
       job_name: 'submit-cc-debit-orders',
       status,
-      started_at: new Date().toISOString(),
-      completed_at: new Date().toISOString(),
-      result: {
+      execution_start: new Date().toISOString(),
+      execution_end: new Date().toISOString(),
+      execution_details: {
         date: result.date,
         totalEligible: result.totalEligible,
         submitted: result.submitted,
@@ -429,6 +429,11 @@ async function logExecution(
         warnings: result.warnings,
       },
     });
+    if (cronLogError) {
+      cronLogger.error('[CC Debit Cron] Failed to write cron_execution_log', {
+        error: cronLogError.message,
+      });
+    }
   } catch (error) {
     cronLogger.error('[CC Debit Cron] Failed to log execution', { error: error instanceof Error ? error.message : String(error) });
   }
