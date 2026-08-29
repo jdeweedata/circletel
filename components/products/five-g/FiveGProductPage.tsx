@@ -24,6 +24,7 @@ import {
   type FiveGDealPackage,
 } from '@/lib/products/five-g-deals';
 import { getFiveGCardDataCap, getFiveGOfferTerm } from '@/lib/products/five-g-offer-term';
+import { getTenantConfig } from '@/lib/tenant';
 
 interface FiveGProductPageProps {
   product: FiveGDealPackage;
@@ -121,7 +122,9 @@ export function FiveGProductPage({ product, cashCpeRouters = [] }: FiveGProductP
       : undefined;
   const badge = getCoveragePromoBadge(product.sku, promoPrice);
   const media = getFiveGProductMedia(product);
-  const whatsappHref = getWhatsAppLink(`Hi CircleTel, I'm interested in ${product.name}`);
+  const whatsappHref = getWhatsAppLink(
+    `Hi ${getTenantConfig().branding.companyName}, I'm interested in ${product.name}`
+  );
   const items = benefits(product);
   const tiles = specTiles(product);
 

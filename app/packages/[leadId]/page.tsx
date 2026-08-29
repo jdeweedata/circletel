@@ -1019,7 +1019,7 @@ function PackagesContent() {
                 <p className="text-sm text-gray-600">
                   R{displayInclVat(selectedPackage).toLocaleString()}/month
                   {onceOffFromSelectedAddons(selectedAddons) > 0 && (
-                    <span className="text-circleTel-orange">
+                    <span className="text-orange-600">
                       {' '}
                       + R{onceOffFromSelectedAddons(selectedAddons).toLocaleString()} router
                     </span>

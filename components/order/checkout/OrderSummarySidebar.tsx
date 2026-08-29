@@ -12,6 +12,8 @@ import {
   formatFiveGCashCpePrice,
 } from '@/lib/products/five-g-cash-cpe';
 import { customerExclVat, customerInclVat } from '@/lib/billing/vat';
+import { brandText } from '@/lib/tenant';
+import { cn } from '@/lib/utils';
 
 interface OrderSummarySidebarProps {
   packageName: string;
@@ -124,19 +126,19 @@ export function OrderSummarySidebar({
           {cashCpeName && (
             <div className="mt-3 flex items-center justify-between gap-4 border-t border-orange-200/70 pt-3">
               <div>
-                <span className="text-sm font-semibold text-circleTel-navy">{cashCpeName}</span>
+                <span className={cn('text-sm font-semibold', brandText.navy)}>{cashCpeName}</span>
                 <p className="mt-1 text-xs leading-relaxed text-gray-500">
                   Once-off approved 5G router. Ships after payment.
                 </p>
               </div>
-              <span className="text-xl font-extrabold text-circleTel-orange">
+              <span className={cn('text-xl font-extrabold', brandText.orange)}>
                 {formatFiveGCashCpePrice(FIVE_G_CASH_CPE_PRICE_INCL_VAT)}
               </span>
             </div>
           )}
           <div className="mt-3 flex items-center justify-between gap-4 border-t border-orange-200/70 pt-3">
-            <span className="text-sm font-semibold text-circleTel-navy">Total today</span>
-            <span className="text-3xl font-extrabold text-circleTel-orange">
+            <span className={cn('text-sm font-semibold', brandText.navy)}>Total today</span>
+            <span className={cn('text-3xl font-extrabold', brandText.orange)}>
               R{checkoutPaymentAmount({ cashCpe: Boolean(cashCpeName) }).toFixed(2)}
             </span>
           </div>

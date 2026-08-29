@@ -134,6 +134,6 @@ describe('stripEsquireCdata', () => {
 
 describe('storage key', () => {
   it('uses a dedicated session key for the 5G cash CPE', () => {
-    expect(FIVE_G_CASH_CPE_STORAGE_KEY).toBe('circletel_5g_cash_cpe');
+    expect(FIVE_G_CASH_CPE_STORAGE_KEY).toBe('five_g_cash_cpe');
   });
 });

@@ -1,11 +1,12 @@
 import type { ProductAddon, SelectedAddon } from '@/lib/order/types';
 import { createClient } from '@/lib/supabase/server';
 import { normalizeCategory } from '@/lib/hardware-catalogue/promote-suggestion';
+import { HARDWARE_PRODUCTS_TABLE } from '@/lib/tenant';
 
 /** Cash CPE add-on on month-to-month SIM-only 5G deals. Incl. VAT. */
 export const FIVE_G_CASH_CPE_PRICE_INCL_VAT = 2999.99;
 
-export const FIVE_G_CASH_CPE_STORAGE_KEY = 'circletel_5g_cash_cpe';
+export const FIVE_G_CASH_CPE_STORAGE_KEY = 'five_g_cash_cpe';
 
 export const FIVE_G_CASH_CPE_ALLOWED_SKUS = ['G5C'] as const;
 
@@ -208,7 +209,7 @@ export function clearFiveGCashCpeSelection(): void {
 export async function getFiveGCashCpeRouters(): Promise<FiveGCashCpeRouter[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from('circletel_hardware_products')
+    .from(HARDWARE_PRODUCTS_TABLE)
     .select(
       `
       name,

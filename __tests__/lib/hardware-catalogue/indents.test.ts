@@ -1,5 +1,6 @@
 import { createHardwareIndentForPaidOrder } from '@/lib/hardware-catalogue/indents';
 import { FIVE_G_CASH_CPE_PRICE_INCL_VAT } from '@/lib/products/five-g-cash-cpe';
+import { HARDWARE_PRODUCTS_TABLE } from '@/lib/tenant';
 
 describe('createHardwareIndentForPaidOrder', () => {
   it('does not create an indent before NetCash payment succeeds', async () => {
@@ -54,7 +55,7 @@ describe('createHardwareIndentForPaidOrder', () => {
             })),
           };
         }
-        if (table === 'circletel_hardware_products') {
+        if (table === HARDWARE_PRODUCTS_TABLE) {
           return {
             select: jest.fn(() => ({
               eq: jest.fn(() => ({

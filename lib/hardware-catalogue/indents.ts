@@ -1,4 +1,5 @@
 import { cashCpeSkuFromMetadata, hasCashCpeCheckout } from '@/lib/products/five-g-cash-cpe';
+import { HARDWARE_PRODUCTS_TABLE } from '@/lib/tenant';
 
 export type HardwareIndentStatus = 'pending' | 'ordered' | 'cancelled';
 
@@ -58,7 +59,7 @@ export async function createHardwareIndentForPaidOrder(
   }
 
   const { data: product } = await supabase
-    .from('circletel_hardware_products')
+    .from(HARDWARE_PRODUCTS_TABLE)
     .select('id, metadata')
     .eq('status', 'published')
     .contains('metadata', { cash_cpe: true })
