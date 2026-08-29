@@ -33,6 +33,11 @@ import {
   groupCoveragePackagesByTerm,
 } from '@/lib/products/coverage-package-inclusions';
 import { appendTermsAndConditions } from '@/lib/products/terms-info';
+import {
+  hydrateCashCpeSelectedAddons,
+  onceOffFromSelectedAddons,
+  peekFiveGCashCpeSelection,
+} from '@/lib/products/five-g-cash-cpe';
 
 interface Package {
   id: string;
@@ -157,7 +162,17 @@ function PackagesContent() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [hasLicensedWireless, setHasLicensedWireless] = useState(false);
   const [requiresQuote, setRequiresQuote] = useState(false);
-  const [selectedAddons] = useState<SelectedAddon[]>([]);
+  const [selectedAddons, setSelectedAddons] = useState<SelectedAddon[]>(() =>
+    hydrateCashCpeSelectedAddons(state.orderData.package.selectedAddons, null)
+  );
+
+  useEffect(() => {
+    const next = hydrateCashCpeSelectedAddons(
+      state.orderData.package.selectedAddons,
+      peekFiveGCashCpeSelection()
+    );
+    setSelectedAddons(next);
+  }, [state.orderData.package.selectedAddons]);
 
   // Phase 3: Pagination state - show 8 packages initially
   const [showAllPackages, setShowAllPackages] = useState(false);
@@ -312,12 +327,14 @@ function PackagesContent() {
 
     // Save selected package to OrderContext (customer-facing monthly is always incl VAT)
     const priceInclVAT = displayInclVat(pkg);
+    const cashCpeOnceOff = onceOffFromSelectedAddons(selectedAddons);
     actions.updateOrderData({
       package: {
         selectedPackage: packageDetails,
+        selectedAddons,
         pricing: {
           monthly: priceInclVAT,
-          onceOff: 0,
+          onceOff: cashCpeOnceOff,
           vatIncluded: true,
           breakdown: [
             {
@@ -325,6 +342,13 @@ function PackagesContent() {
               amount: priceInclVAT,
               type: 'monthly',
             },
+            ...selectedAddons
+              .filter((sa) => sa.addon.price_type === 'once-off')
+              .map((sa) => ({
+                name: sa.addon.name,
+                amount: sa.addon.price_incl_vat * sa.quantity,
+                type: 'once_off' as const,
+              })),
           ],
         },
       },
@@ -356,11 +380,11 @@ function PackagesContent() {
 
       // Calculate pricing including add-ons
       const basePriceInclVAT = displayInclVat(selectedPackage);
-      const addonsTotal = selectedAddons.reduce(
-        (sum, sa) => sum + sa.addon.price_incl_vat * sa.quantity,
-        0
-      );
-      const totalMonthly = basePriceInclVAT + addonsTotal;
+      const monthlyAddonsTotal = selectedAddons
+        .filter((sa) => sa.addon.price_type === 'monthly')
+        .reduce((sum, sa) => sum + sa.addon.price_incl_vat * sa.quantity, 0);
+      const cashCpeOnceOff = onceOffFromSelectedAddons(selectedAddons);
+      const totalMonthly = basePriceInclVAT + monthlyAddonsTotal;
 
       // Build breakdown including add-ons
       const breakdown = [
@@ -372,7 +396,7 @@ function PackagesContent() {
         ...selectedAddons.map((sa) => ({
           name: sa.addon.name,
           amount: sa.addon.price_incl_vat * sa.quantity,
-          type: 'monthly' as const,
+          type: sa.addon.price_type === 'once-off' ? ('once_off' as const) : ('monthly' as const),
         })),
       ];
 
@@ -383,7 +407,7 @@ function PackagesContent() {
           selectedAddons: selectedAddons,
           pricing: {
             monthly: totalMonthly,
-            onceOff: 0,
+            onceOff: cashCpeOnceOff,
             vatIncluded: true,
             breakdown,
           },
@@ -873,9 +897,12 @@ function PackagesContent() {
               {selectedPackage && selectedSpeedDisplay && (
                 <div className="hidden lg:block lg:w-[400px] space-y-4">
                   <PackageDetailSidebar
-                    promoPrice={displayInclVat(selectedPackage) + selectedAddons.reduce((sum, sa) => sum + sa.addon.price_incl_vat * sa.quantity, 0)}
+                    promoPrice={displayInclVat(selectedPackage)}
                     originalPrice={selectedPackage.promotion_price ? displayInclVat(selectedPackage, selectedPackage.price) : undefined}
-                    promoDescription={sidebarPromoDescription(selectedPackage, selectedAddons.length)}
+                    promoDescription={sidebarPromoDescription(
+                      selectedPackage,
+                      selectedAddons.filter((sa) => sa.addon.price_type === 'monthly').length
+                    )}
                     name={selectedPackage.name}
                     type={selectedSpeedDisplay.type}
                     dataLimit={selectedSpeedDisplay.dataLimit}
@@ -990,8 +1017,13 @@ function PackagesContent() {
               <div className="text-left flex-1">
                 <h3 className="font-bold text-base text-gray-900 truncate">{selectedPackage.name}</h3>
                 <p className="text-sm text-gray-600">
-                  R{(displayInclVat(selectedPackage) + selectedAddons.reduce((sum, sa) => sum + sa.addon.price_incl_vat * sa.quantity, 0)).toLocaleString()}/month
-                  {selectedAddons.length > 0 && <span className="text-circleTel-orange"> +{selectedAddons.length} add-on{selectedAddons.length > 1 ? 's' : ''}</span>}
+                  R{displayInclVat(selectedPackage).toLocaleString()}/month
+                  {onceOffFromSelectedAddons(selectedAddons) > 0 && (
+                    <span className="text-circleTel-orange">
+                      {' '}
+                      + R{onceOffFromSelectedAddons(selectedAddons).toLocaleString()} router
+                    </span>
+                  )}
                 </p>
               </div>
             </div>

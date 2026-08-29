@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { FiveGProductPage } from '@/components/products/five-g/FiveGProductPage';
+import { getFiveGCashCpeRouters } from '@/lib/products/five-g-cash-cpe';
 import {
   FIVE_G_DEAL_SLUGS,
   formatFiveGPrice,
@@ -59,5 +60,8 @@ export default async function FiveGDealProductRoute({ params }: FiveGDealProduct
     notFound();
   }
 
-  return <FiveGProductPage product={deal} />;
+  const term = getFiveGOfferTerm(deal.metadata);
+  const cashCpeRouters = term.kind === 'mtm_sim' ? await getFiveGCashCpeRouters() : [];
+
+  return <FiveGProductPage product={deal} cashCpeRouters={cashCpeRouters} />;
 }

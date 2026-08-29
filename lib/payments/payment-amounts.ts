@@ -31,3 +31,19 @@ export function isLegacyValidationChargeAmount(amount: number): boolean {
 export function isOrderProcessingFeeAmount(amount: number): boolean {
   return Math.abs(amount - ORDER_PROCESSING_FEE_AMOUNT) <= 0.01;
 }
+
+export function checkoutPaymentAmount(input: { cashCpe: boolean }): number {
+  if (!input.cashCpe) return ORDER_PROCESSING_FEE_AMOUNT;
+  return Number((ORDER_PROCESSING_FEE_AMOUNT + 2999.99).toFixed(2));
+}
+
+/** Checkout confirm = processing fee, or processing fee + cash CPE router_fee. */
+export function isCheckoutConfirmAmount(
+  amount: number,
+  routerFee = 0
+): boolean {
+  const expected = Number(
+    (ORDER_PROCESSING_FEE_AMOUNT + Math.max(0, Number(routerFee) || 0)).toFixed(2)
+  );
+  return Math.abs(amount - expected) <= 0.01;
+}

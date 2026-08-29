@@ -1,4 +1,16 @@
+import type { FiveGCashCpeRouter } from '@/lib/products/five-g-cash-cpe';
+import { FIVE_G_CASH_CPE_PRICE_INCL_VAT } from '@/lib/products/five-g-cash-cpe';
 import type { FiveGDealPackage } from '@/lib/products/five-g-deals';
+
+export const cashCpeRouters: FiveGCashCpeRouter[] = [
+  {
+    sku: 'G5C',
+    name: 'ZTE G5C 5G CPE WiFi Router',
+    imageUrl: '/images/hardware/cpe/zte-g5c.png',
+    inStock: true,
+    sellInclVat: FIVE_G_CASH_CPE_PRICE_INCL_VAT,
+  },
+];
 
 export const fiveGListingPackages: FiveGDealPackage[] = [
   {

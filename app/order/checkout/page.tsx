@@ -22,10 +22,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createClient } from '@/lib/supabase/client';
+import { checkoutPaymentAmount } from '@/lib/payments/payment-amounts';
 import {
-  ORDER_PROCESSING_FEE_AMOUNT,
-  ORDER_PROCESSING_FEE_LABEL,
-} from '@/lib/payments/payment-amounts';
+  cashCpeRouterFromAddons,
+  peekFiveGCashCpeSelection,
+} from '@/lib/products/five-g-cash-cpe';
 import type { PackageDetails } from '@/lib/order/types';
 import { customerInclVat } from '@/lib/billing/vat';
 import type {
@@ -67,6 +68,14 @@ export default function CheckoutPage() {
 
   const pkg = orderState.orderData.package?.selectedPackage;
   const coverage = orderState.orderData.coverage;
+  const [sessionCashCpe, setSessionCashCpe] = useState(
+    () => cashCpeRouterFromAddons(orderState.orderData.package?.selectedAddons)
+  );
+  useEffect(() => {
+    const fromAddons = cashCpeRouterFromAddons(orderState.orderData.package?.selectedAddons);
+    setSessionCashCpe(fromAddons || peekFiveGCashCpeSelection()?.router || null);
+  }, [orderState.orderData.package?.selectedAddons]);
+  const cashCpe = sessionCashCpe;
 
   const [serviceAddress, setServiceAddress] = useState(coverage?.address ?? '');
   const [serviceCoordinates, setServiceCoordinates] = useState(coverage?.coordinates);
@@ -290,17 +299,23 @@ export default function CheckoutPage() {
         product_category: pkg.product_category,
         speed_down: pkg.speed_down,
         installation_fee: pkg.installation_fee ?? 0,
-        payment_amount: ORDER_PROCESSING_FEE_AMOUNT,
+        payment_amount: checkoutPaymentAmount({ cashCpe: Boolean(cashCpe) }),
         checkout_charge_type: 'order_processing_fee',
+        cash_cpe: Boolean(cashCpe),
+        router_sku: cashCpe?.sku,
+        router_model: cashCpe?.name,
         installation_address: serviceAddress,
         delivery_address: finalDeliveryAddress,
         coordinates: serviceCoordinates,
         installation_location_type: propertyType,
         account_type: coverage?.coverageType === 'business' ? 'business' : 'personal',
         coverage_lead_id: coverage?.leadId,
-        metadata: confirmedSkyFibreOrderability
-          ? { skyfibre_orderability: confirmedSkyFibreOrderability }
-          : {},
+        metadata: {
+          ...(confirmedSkyFibreOrderability
+            ? { skyfibre_orderability: confirmedSkyFibreOrderability }
+            : {}),
+          ...(cashCpe ? { cash_cpe: { sku: cashCpe.sku } } : {}),
+        },
       }),
     });
 
@@ -320,7 +335,7 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           orderId: order.id,
-          amount: ORDER_PROCESSING_FEE_AMOUNT,
+          amount: checkoutPaymentAmount({ cashCpe: Boolean(cashCpe) }),
           customerEmail: email,
           customerName: `${firstName} ${lastName}`.trim(),
           paymentReference: order.payment_reference,
@@ -484,6 +499,7 @@ export default function CheckoutPage() {
             isSimOnly={pkg.type === 'mobile'}
             address={coverage?.address}
             priceIncludesVat={pkg.price_includes_vat}
+            cashCpeName={cashCpe?.name}
           />
         </div>
       )}
@@ -709,6 +725,7 @@ export default function CheckoutPage() {
               isSimOnly={pkg.type === 'mobile'}
               address={coverage?.address}
               priceIncludesVat={pkg.price_includes_vat}
+              cashCpeName={cashCpe?.name}
             />
           )}
         </div>
@@ -721,7 +738,7 @@ export default function CheckoutPage() {
             <div className="flex-1 min-w-0">
               <p className="font-bold text-sm text-gray-900 truncate">{pkg.name}</p>
               <p className="text-xs text-gray-500">
-                R{monthlyInclVat}/mo · {ORDER_PROCESSING_FEE_LABEL} R{ORDER_PROCESSING_FEE_AMOUNT.toFixed(2)}
+                R{monthlyInclVat}/mo · Today R{checkoutPaymentAmount({ cashCpe: Boolean(cashCpe) }).toFixed(2)}
               </p>
             </div>
             <button

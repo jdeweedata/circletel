@@ -4,7 +4,12 @@ import { PiCreditCardBold } from 'react-icons/pi';
 import {
   ORDER_PROCESSING_FEE_AMOUNT,
   ORDER_PROCESSING_FEE_LABEL,
+  checkoutPaymentAmount,
 } from '@/lib/payments/payment-amounts';
+import {
+  FIVE_G_CASH_CPE_PRICE_INCL_VAT,
+  formatFiveGCashCpePrice,
+} from '@/lib/products/five-g-cash-cpe';
 
 interface PaymentDetailCardProps {
   packageName: string;
@@ -13,6 +18,7 @@ interface PaymentDetailCardProps {
   promotionPrice?: number;
   installationFee?: number;
   isSimOnly?: boolean;
+  cashCpeName?: string | null;
 }
 
 export function PaymentDetailCard({
@@ -22,8 +28,11 @@ export function PaymentDetailCard({
   promotionPrice,
   installationFee = 0,
   isSimOnly = false,
+  cashCpeName = null,
 }: PaymentDetailCardProps) {
   const displayMonthly = promotionPrice ?? monthlyPrice;
+  const cashCpe = Boolean(cashCpeName);
+  const totalToday = checkoutPaymentAmount({ cashCpe });
 
   return (
     <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
@@ -59,11 +68,17 @@ export function PaymentDetailCard({
           <span className="text-gray-500">{ORDER_PROCESSING_FEE_LABEL}</span>
           <span className="text-gray-700">R{ORDER_PROCESSING_FEE_AMOUNT.toFixed(2)}</span>
         </div>
+        {cashCpeName && (
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-500">{cashCpeName}</span>
+            <span className="text-gray-700">{formatFiveGCashCpePrice(FIVE_G_CASH_CPE_PRICE_INCL_VAT)}</span>
+          </div>
+        )}
 
         <div className="border-t border-gray-100 pt-2.5 flex items-center justify-between">
           <span className="text-sm font-semibold text-gray-800">Total today</span>
           <span className="text-2xl font-extrabold text-circleTel-orange">
-            R{ORDER_PROCESSING_FEE_AMOUNT.toFixed(2)}
+            R{totalToday.toFixed(2)}
           </span>
         </div>
       </div>

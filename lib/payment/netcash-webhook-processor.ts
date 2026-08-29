@@ -10,9 +10,10 @@ import type { NetcashWebhookPayload } from './netcash-webhook-validator';
 import { normalizeNetcashReference } from './netcash-webhook-validator';
 import {
   ORDER_PROCESSING_FEE_LABEL,
+  isCheckoutConfirmAmount,
   isLegacyValidationChargeAmount,
-  isOrderProcessingFeeAmount,
 } from '@/lib/payments/payment-amounts';
+import { createHardwareIndentForPaidOrder } from '@/lib/hardware-catalogue/indents';
 
 // ==================================================================
 // TYPES
@@ -86,7 +87,6 @@ export async function processPaymentSuccess(
 
     const amountPaid = parseFloat(payload.Amount) / 100;
     const isLegacyCardValidation = isLegacyValidationChargeAmount(amountPaid);
-    const isOrderProcessingFee = isOrderProcessingFeeAmount(amountPaid);
 
     // 1. Find order by payment reference — try exact match first, then normalized
     let { data: order, error: orderError } = await supabase
@@ -170,10 +170,11 @@ export async function processPaymentSuccess(
       };
     }
 
-    // 4. The checkout processing fee confirms the order but should not activate
-    // service. Installation and service activation still happen through ops.
-    if (isOrderProcessingFee) {
-      console.log('[Webhook Processor] Order processing fee detected — order confirmed, service NOT activated');
+    // 4. Checkout confirm (R149, or R149 + cash CPE) must not activate service.
+    const routerFee = Number(order.router_fee) || 0;
+    const isCheckoutConfirm = isCheckoutConfirmAmount(amountPaid, routerFee);
+    if (isCheckoutConfirm) {
+      console.log('[Webhook Processor] Checkout confirm detected — order confirmed, service NOT activated');
 
       const updateData: OrderUpdateData = {
         payment_status: 'paid',
@@ -199,6 +200,16 @@ export async function processPaymentSuccess(
 
       if (updateError) {
         throw new Error(`Failed to update order: ${updateError.message}`);
+      }
+
+      if (routerFee > 0) {
+        await createHardwareIndentForPaidOrder(supabase, {
+          id: order.id,
+          payment_status: 'paid',
+          router_fee: routerFee,
+          router_model: order.router_model,
+          metadata: (order.metadata as Record<string, unknown> | null) || {},
+        });
       }
 
       await createWebhookAudit(webhookId, 'order_processing_fee_paid', {

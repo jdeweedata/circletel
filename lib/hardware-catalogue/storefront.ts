@@ -11,6 +11,19 @@ export function isStorefrontPublished(
   return status === 'published'
 }
 
+export function isDealAddonOnly(
+  metadata: Record<string, unknown> | null | undefined
+): boolean {
+  return metadata?.deal_addon_only === true
+}
+
+export function isStorefrontShopVisible(
+  status: string | null | undefined,
+  metadata: Record<string, unknown> | null | undefined
+): boolean {
+  return isStorefrontPublished(status) && !isDealAddonOnly(metadata)
+}
+
 export function isBooleanSupplierStock(
   supplierCode: string | null | undefined
 ): boolean {

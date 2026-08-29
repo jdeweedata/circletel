@@ -4,10 +4,18 @@ import TestRenderer, { act } from 'react-test-renderer';
 import { FiveGProductPage } from '../FiveGProductPage';
 import {
   bestEffortSimProduct,
+  cashCpeRouters,
   fiveG60Product,
   fwa500Product,
   uncapped20Product,
 } from './five-g-fixtures';
+
+jest.mock('@/components/order/context/OrderContext', () => ({
+  useOrderContext: () => ({
+    state: { orderData: { package: {}, coverage: {}, account: {} } },
+    actions: { updateOrderData: jest.fn() },
+  }),
+}));
 
 jest.mock('next/link', () => ({
   __esModule: true,
@@ -84,15 +92,17 @@ describe('FiveGProductPage', () => {
     expect(serialized).toContain('No router or equipment included');
     expect(serialized).toContain('/images/hardware/sim/circletel-nano-sim.png');
     expect(serialized).toContain('Check coverage');
-    expect(serialized).not.toContain('Add router');
+    expect(serialized).toContain('Add router');
     expect(serialized).not.toContain('OP19627');
   });
 
-  it('renders Best Effort SIM only with the 24-month router sibling', () => {
+  it('opens a cash CPE choice instead of switching to the 24-month sibling', () => {
     let renderer: TestRenderer.ReactTestRenderer;
 
     act(() => {
-      renderer = TestRenderer.create(<FiveGProductPage product={bestEffortSimProduct} />);
+      renderer = TestRenderer.create(
+        <FiveGProductPage product={bestEffortSimProduct} cashCpeRouters={cashCpeRouters} />
+      );
     });
 
     const serialized = JSON.stringify(renderer!.toJSON());
@@ -102,7 +112,7 @@ describe('FiveGProductPage', () => {
     expect(serialized).toContain('1.5TB');
     expect(serialized).toContain('100–300 Mbps');
     expect(serialized).toContain('Add router');
-    expect(serialized).toContain('/5g-deals/circleconnect-5g-best-effort');
+    expect(serialized).not.toContain('/5g-deals/circleconnect-5g-best-effort');
     expect(serialized).toContain('SIM only');
     expect(serialized).not.toContain('PROMO');
     expect(serialized).not.toContain('MTN shop');
