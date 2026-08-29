@@ -56,7 +56,7 @@ echo "Step 3: Setting NetCash Sandbox Configuration..."
 add_env_var "NEXT_PUBLIC_NETCASH_SERVICE_KEY" "7928c6de-219f-4b75-9408-ea0e53be8c87" "preview"
 add_env_var "NETCASH_MERCHANT_ID" "52340889417" "preview"
 add_env_var "NETCASH_PAYMENT_URL" "https://sandbox.netcash.co.za/paynow/process" "preview"
-add_env_var "NETCASH_WEBHOOK_SECRET" "CtLE3LsjW5B76VB74goex++4poBSt/4MVX1tZyQHvEc=" "preview"
+add_env_var "NETCASH_WEBHOOK_SECRET" "<NETCASH_WEBHOOK_SECRET>" "preview"
 
 echo ""
 echo "=========================================="

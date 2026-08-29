@@ -32,7 +32,7 @@ Write-Host "`n[12/50] Netcash Payment Gateway..." -ForegroundColor Yellow
 netlify env:set NEXT_PUBLIC_NETCASH_SERVICE_KEY "7928c6de-219f-4b75-9408-ea0e53be8c87"
 netlify env:set NEXT_PUBLIC_NETCASH_PCI_VAULT_KEY "3143ee79-0c96-4909-968e-5a716fd19a65"
 netlify env:set NETCASH_MERCHANT_ID "52340889417"
-netlify env:set NETCASH_WEBHOOK_SECRET "6148290802cdc682c39e4a76b4effddc56ed431d25257d8bc692f05b698bea74"
+netlify env:set NETCASH_WEBHOOK_SECRET "<NETCASH_WEBHOOK_SECRET>"
 netlify env:set NETCASH_PAYMENT_URL "https://sandbox.netcash.co.za/paynow/process"
 netlify env:set NEXT_PUBLIC_PAYMENT_SUCCESS_URL "https://circletel-staging.netlify.app/order/confirmation"
 netlify env:set NEXT_PUBLIC_PAYMENT_CANCEL_URL "https://circletel-staging.netlify.app/order/payment"

@@ -21,11 +21,11 @@ INSERT INTO integration_oauth_tokens (
 VALUES (
   'zoho-crm',
   '1000.VTYBCTZDCMNAABFD7R91IG2KPLGVRO',
-  '13e418a304edeaaf1d4fd99dcf08c488c739dd9e86',
+  '<ZOHO_CLIENT_SECRET>',  -- SCRUBBED 2026-07-02: secret was leaked in git; rotate in Zoho console and inject at runtime, never commit
   'https://accounts.zoho.com/oauth/v2/auth',
   'https://accounts.zoho.com/oauth/v2/token',
   ARRAY['ZohoCRM.modules.ALL', 'ZohoCRM.settings.ALL', 'ZohoCRM.users.READ', 'ZohoCRM.org.READ'],
-  '1000.031e47fb8fa6319fa76b79e6f8d50aab.6979006c161f5b02dbc3845c59345895',
+  '<ZOHO_REFRESH_TOKEN>',  -- SCRUBBED 2026-07-02: this refresh token was REVOKED at Zoho (leaked via anon RPC + git); regenerate a fresh one
   'Bearer',
   true
 );
@@ -45,11 +45,11 @@ INSERT INTO integration_oauth_tokens (
 VALUES (
   'zoho-billing',
   '1000.VTYBCTZDCMNAABFD7R91IG2KPLGVRO',
-  '13e418a304edeaaf1d4fd99dcf08c488c739dd9e86',
+  '<ZOHO_CLIENT_SECRET>',  -- SCRUBBED 2026-07-02: secret was leaked in git; rotate in Zoho console and inject at runtime, never commit
   'https://accounts.zoho.com/oauth/v2/auth',
   'https://accounts.zoho.com/oauth/v2/token',
   ARRAY['ZohoSubscriptions.subscriptions.ALL', 'ZohoSubscriptions.invoices.ALL', 'ZohoSubscriptions.customers.ALL', 'ZohoSubscriptions.plans.ALL', 'ZohoSubscriptions.products.ALL'],
-  '1000.031e47fb8fa6319fa76b79e6f8d50aab.6979006c161f5b02dbc3845c59345895',
+  '<ZOHO_REFRESH_TOKEN>',  -- SCRUBBED 2026-07-02: this refresh token was REVOKED at Zoho (leaked via anon RPC + git); regenerate a fresh one
   'Bearer',
   true
 );
@@ -69,11 +69,11 @@ INSERT INTO integration_oauth_tokens (
 VALUES (
   'zoho-sign',
   '1000.VTYBCTZDCMNAABFD7R91IG2KPLGVRO',
-  '13e418a304edeaaf1d4fd99dcf08c488c739dd9e86',
+  '<ZOHO_CLIENT_SECRET>',  -- SCRUBBED 2026-07-02: secret was leaked in git; rotate in Zoho console and inject at runtime, never commit
   'https://accounts.zoho.com/oauth/v2/auth',
   'https://accounts.zoho.com/oauth/v2/token',
   ARRAY['ZohoSign.documents.ALL', 'ZohoSign.templates.ALL', 'ZohoSign.account.READ'],
-  '1000.031e47fb8fa6319fa76b79e6f8d50aab.6979006c161f5b02dbc3845c59345895',
+  '<ZOHO_REFRESH_TOKEN>',  -- SCRUBBED 2026-07-02: this refresh token was REVOKED at Zoho (leaked via anon RPC + git); regenerate a fresh one
   'Bearer',
   true
 );
