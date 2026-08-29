@@ -33,3 +33,14 @@ echo "# Vendor SQLite staging (host-local tsx — see docs/architecture/CRON_SCH
 echo "*/30 * * * * $RUN ruijie >> $LOG 2>&1"
 echo "0 22 * * * $RUN tarana >> $LOG 2>&1"
 echo "0 * * * * $RUN interstellio >> $LOG 2>&1"
+
+# ---------------------------------------------------------------------------
+# Business knowledge mirror (jdeweedata/circletel-knowledge)
+# Read-only pull so agents coding on this host see the current CircleTel
+# standards and documents. The cloud Claude project is master; the repo is a
+# copy, refreshed manually from the Windows mirror. See LAST-SYNC.md there.
+# Logs: /var/log/circletel-knowledge.log  (-q keeps normal output quiet, so
+# only errors — e.g. an expired token — reach the log)
+# ---------------------------------------------------------------------------
+echo "# Business knowledge mirror — see /home/circletel-knowledge/README.md"
+echo "0 5 * * * cd /home/circletel-knowledge && git pull -q >> /var/log/circletel-knowledge.log 2>&1"
