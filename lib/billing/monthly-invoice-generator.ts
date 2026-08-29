@@ -21,7 +21,7 @@ import { nowISO } from '@/lib/dates';
 
 import { createClient } from '@/lib/supabase/server';
 import { syncInvoiceToZohoBilling } from '@/lib/integrations/zoho/invoice-sync-service';
-import { formatInvoiceNumber, nextInvoiceSequence } from './invoice-amounts';
+import { allocateNextInvoiceNumber } from './allocate-invoice-number';
 import {
   computeMonthlyInvoiceAmounts,
   resolveServicePriceVatBasis,
@@ -725,14 +725,7 @@ export class MonthlyInvoiceGenerator {
     // Generate INV-YYYY-NNNNN — customer_invoices has NO DB sequence/trigger for invoice_number
     // (the legacy sequence was dropped in the baseline squash), so the app must supply it.
     const invoiceYear = now.getFullYear();
-    const { data: yearInvoices } = await supabase
-      .from('customer_invoices')
-      .select('invoice_number')
-      .like('invoice_number', `INV-${invoiceYear}-%`);
-    const invoiceNumber = formatInvoiceNumber(
-      invoiceYear,
-      nextInvoiceSequence((yearInvoices || []).map((r) => r.invoice_number as string), invoiceYear)
-    );
+    const invoiceNumber = await allocateNextInvoiceNumber(supabase, invoiceYear);
 
     // Build line items (current period + optional deferred catch-up adjustments)
     const periodName = now.toLocaleDateString('en-ZA', {
