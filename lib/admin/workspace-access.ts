@@ -47,6 +47,12 @@ export const TEMPLATE_EXTRA_WORKSPACES: Record<string, WorkspaceId[]> = {
   billing_specialist: ['executive', 'finance', 'support'],
   finance_manager: ['executive', 'finance', 'support'],
   cfo: ['executive', 'finance', 'support'],
+  // Marketing templates are not in the 4-value AdminRole union. Without extras
+  // they coerce to viewer and bounce off /admin/products, /admin/marketing, /admin/cms.
+  marketing_manager: ['executive', 'sales', 'support'],
+  content_manager: ['executive', 'sales', 'support'],
+  content_editor: ['executive', 'sales', 'support'],
+  blog_writer: ['executive', 'sales', 'support'],
 };
 
 export function coerceWorkspaceRole(role: string | null | undefined): AdminRole {

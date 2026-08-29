@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CircleTel CMS composer — hi-fi board</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" />
+  <link rel="stylesheet" href="kit.css" />
+</head>
+<body class="board-page">
+  <p class="eyebrow" style="color:#F5841E">Designs · not production</p>
+  <h1>CMS composer mockups</h1>
+  <p class="lede">
+    Admin screens use the backend UI kit (<code>--pm-*</code>, Archivo, Unjani/onboarding chrome).
+    Public screens use marketing DESIGN.md (Manrope / Inter, <code>#1B2A4A</code> / <code>#E87A1E</code>).
+    Direction A is a Framer-like canvas. Direction B is a CircleTel section kit (recommended).
+    Pick from the PNGs before any rewrite.
+  </p>
+  <div class="toc">
+    <a href="png/01-library.png"><strong>01 · Admin</strong>Pages library</a>
+    <a href="png/02-composer-a.png"><strong>02 · A</strong>Canvas composer</a>
+    <a href="png/03-composer-b.png"><strong>03 · B</strong>Section kit composer</a>
+    <a href="png/04-publish.png"><strong>04 · Admin</strong>Publish (no confirm())</a>
+    <a href="png/05-5g-shop.png"><strong>05 · Admin</strong>5G shop chrome</a>
+    <a href="png/06-landing-desktop.png"><strong>06 · Public</strong>Campaign landing /p/winter-5g</a>
+    <a href="png/07-5g-deals-desktop.png"><strong>07 · Public</strong>/5g-deals merchandising vs template</a>
+    <a href="png/08-landing-mobile.png"><strong>08 · Public</strong>Landing · 390px</a>
+  </div>
+  <p class="lede" style="margin-top:40px;font-size:13px">
+    Tokens: <code>docs/design/BACKEND_UI_KIT.md</code>, <code>components/portal/modernist/tokens.ts</code>, <code>DESIGN.md</code>.
+    PNGs export to this folder via <code>node designs/cms-composer/capture.mjs</code>.
+  </p>
+</body>
+</html>
