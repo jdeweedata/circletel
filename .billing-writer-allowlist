@@ -9,6 +9,9 @@ lib/billing/engine/
 
 # ── Delegate-first implementation (still called via engine façade) ─────────
 lib/billing/monthly-invoice-generator.ts
+# Live writers missed from the 2026-07-30 seed (not new paths).
+lib/billing/generate-corporate-consolidated-invoice.ts
+lib/billing/cycle-match/actions.ts
 lib/billing/compliant-billing-service.ts
 lib/billing/billing-service.ts
 lib/billing/failed-debit-handler.ts

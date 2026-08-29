@@ -1,5 +1,6 @@
 import { inngest } from '../client';
 import { createClient } from '@/lib/supabase/server';
+import { formatInvoiceNumber, nextInvoiceSequence } from '@/lib/billing/invoice-amounts';
 
 const VAT_RATE = 0.15;
 
@@ -137,7 +138,17 @@ export const b2bSiteActivationInvoice = inngest.createFunction(
           },
         ];
 
-        const invoiceNumber = `INV-${year}-${String(Math.floor(Math.random() * 99999) + 1).padStart(5, '0')}`;
+        const { data: yearInvoices } = await supabase
+          .from('customer_invoices')
+          .select('invoice_number')
+          .like('invoice_number', `INV-${year}-%`);
+        const invoiceNumber = formatInvoiceNumber(
+          year,
+          nextInvoiceSequence(
+            (yearInvoices || []).map((r) => r.invoice_number as string),
+            year
+          )
+        );
 
         const { data: inv, error } = await supabase
           .from('customer_invoices')
