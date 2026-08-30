@@ -1,21 +1,31 @@
 import { generateCorporateConsolidatedInvoice } from '@/lib/billing/generate-corporate-consolidated-invoice';
+import { buildActiveClinicLineItems } from '@/lib/billing/corporate-clinic-line-items';
 
+// jest.config sets resetMocks: true, which strips any implementation attached
+// inside the factory below before each test — the mock would then resolve to
+// undefined. Bind the return value in beforeEach, which runs after the reset.
 jest.mock('@/lib/billing/corporate-clinic-line-items', () => ({
-  buildActiveClinicLineItems: jest.fn().mockResolvedValue([
-    {
-      description: 'Unjani Connect — Clinic A',
-      site_name: 'Clinic A',
-      site_id: 'site-1',
-      site_code: 'CT-UNJ-001',
-      service: 'Unjani Connect',
-      sku: 'UNJ-MC-001',
-      quantity: 1,
-      unit_price: 450,
-      amount: 450,
-      type: 'recurring',
-    },
-  ]),
+  buildActiveClinicLineItems: jest.fn(),
 }));
+
+const CLINIC_LINE_ITEMS = [
+  {
+    description: 'Unjani Connect — Clinic A',
+    site_name: 'Clinic A',
+    site_id: 'site-1',
+    site_code: 'CT-UNJ-001',
+    service: 'Unjani Connect',
+    sku: 'UNJ-MC-001',
+    quantity: 1,
+    unit_price: 450,
+    amount: 450,
+    type: 'recurring',
+  },
+];
+
+beforeEach(() => {
+  (buildActiveClinicLineItems as jest.Mock).mockResolvedValue(CLINIC_LINE_ITEMS);
+});
 
 type InsertedInvoice = Record<string, unknown> | null;
 
