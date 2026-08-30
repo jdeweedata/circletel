@@ -55,11 +55,12 @@ jobs:
 
       # No --coverage: jest file-level thresholds are tuned for lib/payments and
       # would fail at 0% when only these suites run.
-      - name: Run invoice number tests
+      - name: Run billing guard tests
         run: |
           npm test -- \
             __tests__/lib/billing/allocate-invoice-number.test.ts \
             __tests__/lib/billing/generate-corporate-consolidated-invoice.test.ts \
-            __tests__/lib/billing/invoice-amounts.test.ts
+            __tests__/lib/billing/invoice-amounts.test.ts \
+            __tests__/lib/billing/unjani-npc-pack-billing-start.test.ts
         env:
           NODE_ENV: test
