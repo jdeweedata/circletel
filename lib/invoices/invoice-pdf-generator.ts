@@ -423,15 +423,17 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
     },
     columnStyles: showClinic
       ? {
-          // sums to tableWidth 180
-          0: { cellWidth: 22, fontSize: 7 },
+          // Sums to tableWidth 180. Measured against the real 16-clinic pack:
+          // no body cell wraps, and only QTY and UNIT PRICE (EXCL) headers wrap
+          // — exactly as they already do in the seven-column layout.
+          0: { cellWidth: 21, fontSize: 7 },
           1: { cellWidth: 34 },
-          2: { cellWidth: 26 },
-          3: { cellWidth: 9, halign: 'center' },
-          4: { cellWidth: 24, halign: 'right' },
-          5: { cellWidth: 11, halign: 'center' },
-          6: { cellWidth: 27, halign: 'right' },
-          7: { cellWidth: 27, halign: 'right' },
+          2: { cellWidth: 25 },
+          3: { cellWidth: 10, halign: 'center' },
+          4: { cellWidth: 25, halign: 'right' },
+          5: { cellWidth: 13, halign: 'center' },
+          6: { cellWidth: 26, halign: 'right' },
+          7: { cellWidth: 26, halign: 'right' },
         }
       : showSiteId
       ? {
