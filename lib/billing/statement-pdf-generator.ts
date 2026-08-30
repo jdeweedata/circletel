@@ -381,12 +381,16 @@ export function generateStatementPDF(statement: StatementData): jsPDF {
     COLORS.yellow,        // 30 days — yellow-600
     COLORS.dark,          // Current — normal
     COLORS.primary,       // Amount Due — orange bold
-    COLORS.green,         // Amount Paid — green bold
+    COLORS.green,         // Paid + credits — green bold
   ];
 
   autoTable(doc, {
     startY: yPos,
-    head: [['120+ DAYS', '90 DAYS', '60 DAYS', '30 DAYS', 'CURRENT', 'AMOUNT DUE', 'TOTAL PAID']],
+    // "PAID + CREDITS", not "TOTAL PAID": statement.totalPaid includes applied
+    // credit notes as well as cash received. Unjani close-out, Aug 2026 — Sky City
+    // took R967,50 in cash plus a R241,50 credit note and the column read R1 209,00,
+    // which a clinic reads as cash it has paid.
+    head: [['120+ DAYS', '90 DAYS', '60 DAYS', '30 DAYS', 'CURRENT', 'AMOUNT DUE', 'PAID + CREDITS']],
     body: [agingData],
     theme: 'plain',
     styles: {
