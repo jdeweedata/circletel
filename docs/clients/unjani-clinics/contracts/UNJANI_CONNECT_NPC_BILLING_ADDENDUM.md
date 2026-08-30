@@ -20,13 +20,13 @@ From 1 September 2026 CircleTel bills **Unjani Clinics NPC** once a month. Indiv
 
 ## 2. Monthly pack (all sites, including existing live sites)
 
-On the **last Monday** of each calendar month CircleTel issues **two PDFs**:
+On the **last Monday** of each calendar month CircleTel issues **two PDFs** **in advance** for the **next** calendar month:
 
 1. **Itemized tax invoice** — one line per active Unjani Connect service (clinic name, SKU, period, quantity 1, unit price ex VAT, line amount, charge type `full` | `pro_rata` | `free`).
 2. **Statement of account** — opening balance, this invoice as one debit, payments received, closing balance, aging.
 
 If there are **no queries**, the invoice is payable by **EFT on the Friday of that week**.  
-Example: September 2026 pack issued Monday 28 September, due Friday 2 October.
+Example: September 2026 pack issued Monday 31 August, due Friday 4 September. October 2026 pack issued Monday 28 September, due Friday 2 October.
 
 This operational calendar **replaces the MSA’s 30-day EFT** for Unjani Connect billing from 1 September 2026 and requires Unjani NPC commercial confirmation.
 
