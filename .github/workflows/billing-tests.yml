@@ -17,18 +17,22 @@ on:
       - 'claude/**'
     paths:
       - 'lib/billing/**'
+      - 'lib/invoices/**'
       - 'app/api/admin/billing/**'
       - 'lib/inngest/functions/b2b-site-activation-invoice.ts'
       - '__tests__/lib/billing/**'
+      - '__tests__/lib/invoices/**'
       - '.github/workflows/billing-tests.yml'
   pull_request:
     branches:
       - main
     paths:
       - 'lib/billing/**'
+      - 'lib/invoices/**'
       - 'app/api/admin/billing/**'
       - 'lib/inngest/functions/b2b-site-activation-invoice.ts'
       - '__tests__/lib/billing/**'
+      - '__tests__/lib/invoices/**'
 
 concurrency:
   group: billing-tests-${{ github.event.pull_request.number || github.sha }}
@@ -62,6 +66,7 @@ jobs:
             __tests__/lib/billing/generate-corporate-consolidated-invoice.test.ts \
             __tests__/lib/billing/invoice-amounts.test.ts \
             __tests__/lib/billing/unjani-npc-pack-billing-start.test.ts \
-            __tests__/lib/billing/unjani-connect-rules.test.ts
+            __tests__/lib/billing/unjani-connect-rules.test.ts \
+            __tests__/lib/invoices/invoice-clinic-column.test.ts
         env:
           NODE_ENV: test

@@ -63,6 +63,26 @@ export interface InvoiceLineItem {
   incl_total: number;
   /** Customer-facing clinic site ID (e.g. CT-UNJ-013). Shown only when set. */
   siteId?: string;
+  /** Clinic / site name (e.g. Alexandra). Gets its own column when set. */
+  siteName?: string;
+}
+
+/**
+ * Line description for display when the clinic has its own column.
+ *
+ * Stored descriptions read "Unjani Connect — Alexandra" (see
+ * formatClinicLineDescription). With CLINIC as a separate column the name
+ * would appear twice, so strip the trailing " — {siteName}". Display only —
+ * the stored line_items are untouched.
+ */
+export function invoiceLineDisplayDescription(item: {
+  description: string;
+  siteName?: string;
+}): string {
+  const suffix = item.siteName ? ` — ${item.siteName}` : '';
+  return suffix && item.description.endsWith(suffix)
+    ? item.description.slice(0, -suffix.length).trim()
+    : item.description;
 }
 
 export interface InvoiceCustomer {
@@ -330,10 +350,25 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
   yPos += 4;
 
   const showSiteId = invoice.lineItems.some((item) => Boolean(item.siteId));
+  // Unjani NPC asked for the clinic in its own column (Aug 2026). Only appears
+  // when the line items actually carry a site name, so other invoice types are
+  // unchanged.
+  const showClinic = showSiteId && invoice.lineItems.some((item) => Boolean(item.siteName));
 
   const tableRows = invoice.lineItems.length > 0
     ? invoice.lineItems.map(item =>
-        showSiteId
+        showClinic
+          ? [
+              item.siteId ?? '',
+              item.siteName ?? '',
+              invoiceLineDisplayDescription(item),
+              item.quantity.toString(),
+              formatCurrency(item.unit_price),
+              `${item.vat_percent}%`,
+              formatCurrency(item.excl_total),
+              formatCurrency(item.incl_total),
+            ]
+          : showSiteId
           ? [
               item.siteId ?? '',
               item.description,
@@ -352,12 +387,20 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
               formatCurrency(item.incl_total),
             ]
       )
-    : [showSiteId ? ['', 'Service Invoice', '', '', '', '', ''] : ['Service Invoice', '', '', '', '', '']];
+    : [
+        showClinic
+          ? ['', '', 'Service Invoice', '', '', '', '', '']
+          : showSiteId
+            ? ['', 'Service Invoice', '', '', '', '', '']
+            : ['Service Invoice', '', '', '', '', ''],
+      ];
 
   autoTable(doc, {
     startY: yPos,
     head: [
-      showSiteId
+      showClinic
+        ? ['SITE ID', 'CLINIC', 'DESCRIPTION', 'QTY', 'UNIT PRICE (EXCL)', 'VAT %', 'AMOUNT (EXCL)', 'AMOUNT (INCL)']
+        : showSiteId
         ? ['SITE ID', 'DESCRIPTION', 'QTY', 'UNIT PRICE (EXCL)', 'VAT %', 'AMOUNT (EXCL)', 'AMOUNT (INCL)']
         : ['DESCRIPTION', 'QTY', 'UNIT PRICE (EXCL)', 'VAT %', 'AMOUNT (EXCL)', 'AMOUNT (INCL)'],
     ],
@@ -378,7 +421,21 @@ export function generateInvoicePDF(invoice: InvoiceData): jsPDF {
       fontStyle: 'bold',
       fontSize: 7,
     },
-    columnStyles: showSiteId
+    columnStyles: showClinic
+      ? {
+          // Sums to tableWidth 180. Measured against the real 16-clinic pack:
+          // no body cell wraps, and only QTY and UNIT PRICE (EXCL) headers wrap
+          // — exactly as they already do in the seven-column layout.
+          0: { cellWidth: 21, fontSize: 7 },
+          1: { cellWidth: 34 },
+          2: { cellWidth: 25 },
+          3: { cellWidth: 10, halign: 'center' },
+          4: { cellWidth: 25, halign: 'right' },
+          5: { cellWidth: 13, halign: 'center' },
+          6: { cellWidth: 26, halign: 'right' },
+          7: { cellWidth: 26, halign: 'right' },
+        }
+      : showSiteId
       ? {
           0: { cellWidth: 22, fontSize: 7 },
           1: { cellWidth: 48 },
@@ -670,6 +727,12 @@ export function buildInvoiceData(params: {
           ? item.site_code.trim()
           : typeof item.siteId === 'string' && item.siteId.trim()
             ? item.siteId.trim()
+            : undefined,
+      siteName:
+        typeof item.site_name === 'string' && item.site_name.trim()
+          ? item.site_name.trim()
+          : typeof item.siteName === 'string' && item.siteName.trim()
+            ? item.siteName.trim()
             : undefined,
     };
   });
