@@ -27,39 +27,50 @@ describe('Unjani NPC pack — commercial start date', () => {
     expect(UNJANI_NPC_BILLING_START).toBe('2026-09-01');
   });
 
-  // 31/08/2026 is the last Monday of August, so it clears the schedule gate.
-  // Without the start-date guard it would email Unjani an August tax invoice
-  // for a month already billed per clinic.
-  it('does not issue an August pack on Monday 31 August 2026', async () => {
+  // Last Monday bills the next month in advance. 27 Jul → August service,
+  // which is still per-clinic and must not go to NPC.
+  it('does not issue an August (in-advance) pack on Monday 27 July 2026', async () => {
     const result = await issueUnjaniNpcMonthlyPack(supabase, {
-      now: at('2026-08-31'),
+      now: at('2026-07-27'),
     });
     expect(result.skipped).toBe(true);
     expect(result.reason).toBe('before_npc_billing_start');
   });
 
-  it('force does not cross the cutover', async () => {
+  it('force does not bill a service month before 1 September 2026', async () => {
     const result = await issueUnjaniNpcMonthlyPack(supabase, {
-      now: at('2026-08-31'),
+      now: at('2026-07-27'),
       force: true,
     });
     expect(result.skipped).toBe(true);
     expect(result.reason).toBe('before_npc_billing_start');
   });
 
-  // 28/09/2026 is the last Monday of September and the first official pack.
+  // 31/08/2026 is the last Monday of August and bills September in advance.
   // Reaching the database is the pass condition here.
-  it('issues the September pack on Monday 28 September 2026', async () => {
+  it('issues the September pack on Monday 31 August 2026', async () => {
+    await expect(
+      issueUnjaniNpcMonthlyPack(supabase, { now: at('2026-08-31') })
+    ).rejects.toThrow(TOUCHED);
+  });
+
+  it('issues the October pack on Monday 28 September 2026', async () => {
     await expect(
       issueUnjaniNpcMonthlyPack(supabase, { now: at('2026-09-28') })
     ).rejects.toThrow(TOUCHED);
   });
 
-  it('bills the full calendar month, issued last Monday, due that Friday', () => {
-    expect(packDatesFor(at('2026-09-28'))).toEqual({
-      invoiceDate: '2026-09-28',
+  it('bills the next month in advance, issued last Monday, due that Friday', () => {
+    expect(packDatesFor(at('2026-08-31'))).toEqual({
+      invoiceDate: '2026-08-31',
       periodStart: '2026-09-01',
       periodEnd: '2026-09-30',
+      dueDate: '2026-09-04',
+    });
+    expect(packDatesFor(at('2026-09-28'))).toEqual({
+      invoiceDate: '2026-09-28',
+      periodStart: '2026-10-01',
+      periodEnd: '2026-10-31',
       dueDate: '2026-10-02',
     });
   });

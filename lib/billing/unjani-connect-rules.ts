@@ -2,7 +2,8 @@
  * Unjani Connect commercial rules from 1 September 2026.
  *
  * CircleTel bills Unjani Clinics NPC (not individual clinics): itemized tax
- * invoice + statement of account, issued last Monday, due that Friday.
+ * invoice + statement of account, issued last Monday **in advance** for the
+ * next calendar month, due that Friday.
  *
  * New sites: RFS starts a 30-calendar-day free period, then pro-rata to month
  * end, then full calendar months. 25-month term then month-to-month (30-day
@@ -53,6 +54,18 @@ export function unjaniEffectiveBillingStart(
     : UNJANI_COHORT_BILLING_START;
   if (billingStartDate && billingStartDate > holdFloor) return billingStartDate;
   return holdFloor;
+}
+
+/** True when this site belongs on the NPC pack for a period ending `periodEnd`. */
+export function shouldBillUnjaniSiteOnNpcPeriod(input: {
+  siteName?: string | null;
+  periodEnd: string;
+  billingStartDate?: string | null;
+}): boolean {
+  return (
+    unjaniEffectiveBillingStart(input.siteName, input.billingStartDate) <=
+    input.periodEnd
+  );
 }
 
 /** Bill-to from CircleTel Customer Onboarding Form CT-COF-2026-001 (v1.1). */
@@ -158,6 +171,7 @@ export function npcInvoiceDueDate(invoiceDate: string): string {
   return fridayOfSameWeek(invoiceDate);
 }
 
+/** Last Monday of `month` bills the **next** calendar month in advance. */
 export function npcPackDates(
   year: number,
   month: number
@@ -168,8 +182,8 @@ export function npcPackDates(
   periodEnd: string;
 } {
   const invoiceDate = lastMondayOfMonth(year, month);
-  const periodStart = ymd(new Date(Date.UTC(year, month - 1, 1)));
-  const periodEnd = ymd(new Date(Date.UTC(year, month, 0)));
+  const periodStart = ymd(new Date(Date.UTC(year, month, 1)));
+  const periodEnd = ymd(new Date(Date.UTC(year, month + 1, 0)));
   return {
     invoiceDate,
     dueDate: fridayOfSameWeek(invoiceDate),

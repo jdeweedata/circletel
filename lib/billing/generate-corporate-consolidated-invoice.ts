@@ -28,7 +28,9 @@ export async function generateCorporateConsolidatedInvoice(
     invoiceType = 'recurring',
   } = options;
 
-  const lineItems = await buildActiveClinicLineItems(supabase, organisationId);
+  const lineItems = await buildActiveClinicLineItems(supabase, organisationId, {
+    periodEnd,
+  });
 
   if (lineItems.length === 0) {
     return { skipped: true as const, reason: 'no_active_sites' };
