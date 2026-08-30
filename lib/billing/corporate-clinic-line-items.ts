@@ -4,6 +4,7 @@
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { shouldBillUnjaniSiteOnNpcPeriod } from './unjani-connect-rules';
 
 export interface CorporateClinicLineItem {
   description: string;
@@ -134,8 +135,16 @@ export async function fetchActiveCorporateSites(
 
 export async function buildActiveClinicLineItems(
   supabase: SupabaseClient,
-  organisationId: string
+  organisationId: string,
+  options: { periodEnd: string }
 ): Promise<CorporateClinicLineItem[]> {
   const sites = await fetchActiveCorporateSites(supabase, organisationId);
-  return sites.map((site) => buildClinicLineItem(site));
+  return sites
+    .filter((site) =>
+      shouldBillUnjaniSiteOnNpcPeriod({
+        siteName: site.site_name,
+        periodEnd: options.periodEnd,
+      })
+    )
+    .map((site) => buildClinicLineItem(site));
 }

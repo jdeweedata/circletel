@@ -123,5 +123,10 @@ describe('generateCorporateConsolidatedInvoice numbering', () => {
       invoice_number: 'INV-2026-00079',
     });
     expect(supabase.getInserted()?.invoice_number).toBe('INV-2026-00079');
+    expect(buildActiveClinicLineItems).toHaveBeenCalledWith(
+      expect.anything(),
+      'org-1',
+      { periodEnd: '2026-08-31' }
+    );
   });
 });

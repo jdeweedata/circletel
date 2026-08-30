@@ -55,6 +55,18 @@ export function unjaniEffectiveBillingStart(
   return holdFloor;
 }
 
+/** True when this site belongs on the NPC pack for a period ending `periodEnd`. */
+export function shouldBillUnjaniSiteOnNpcPeriod(input: {
+  siteName?: string | null;
+  periodEnd: string;
+  billingStartDate?: string | null;
+}): boolean {
+  return (
+    unjaniEffectiveBillingStart(input.siteName, input.billingStartDate) <=
+    input.periodEnd
+  );
+}
+
 /** Bill-to from CircleTel Customer Onboarding Form CT-COF-2026-001 (v1.1). */
 export const UNJANI_NPC_BILL_TO = {
   legalName: 'Unjani Clinics NPC',

@@ -20,6 +20,8 @@ import {
   isLegacyLiveUnjaniSite,
   canIssueRfsCertificate,
   includeOnNpcStatement,
+  shouldBillUnjaniSiteOnNpcPeriod,
+  UNJANI_HOLD_SITE_BILLING_START,
 } from '@/lib/billing/unjani-connect-rules';
 
 describe('Unjani Connect NPC billing calendar', () => {
@@ -270,6 +272,44 @@ describe('NPC statement invoice filter', () => {
       includeOnNpcStatement({
         invoice_date: '2026-09-28',
         corporate_site_id: null,
+      })
+    ).toBe(true);
+  });
+});
+
+describe('Unjani hold sites — first bill 1 October 2026', () => {
+  it('holds Alexandra, Sicelo, Oukasie, Phoenix, Chloorkop until October', () => {
+    expect(UNJANI_HOLD_SITE_BILLING_START).toBe('2026-10-01');
+    for (const site of [
+      'Unjani Clinic - Alexandra',
+      'Unjani Clinic - Sicelo',
+      'Unjani Clinic - Oukasie',
+      'Unjani Clinic - Phoenix',
+      'Unjani Clinic - Chloorkop',
+    ]) {
+      expect(
+        shouldBillUnjaniSiteOnNpcPeriod({
+          siteName: site,
+          periodEnd: '2026-09-30',
+          billingStartDate: '2026-09-01',
+        })
+      ).toBe(false);
+      expect(
+        shouldBillUnjaniSiteOnNpcPeriod({
+          siteName: site,
+          periodEnd: '2026-10-31',
+          billingStartDate: '2026-10-01',
+        })
+      ).toBe(true);
+    }
+  });
+
+  it('still bills a live non-hold clinic on the September pack', () => {
+    expect(
+      shouldBillUnjaniSiteOnNpcPeriod({
+        siteName: 'Unjani Clinic - Barcelona',
+        periodEnd: '2026-09-30',
+        billingStartDate: '2026-09-01',
       })
     ).toBe(true);
   });
