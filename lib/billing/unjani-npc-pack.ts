@@ -14,6 +14,7 @@ import {
 import {
   UNJANI_CORPORATE_CODE,
   UNJANI_NPC_BILL_TO,
+  UNJANI_NPC_BILLING_START,
   isLastMondayOfMonth,
   npcPackDates,
 } from './unjani-connect-rules';
@@ -178,12 +179,23 @@ export async function issueUnjaniNpcMonthlyPack(
     return { skipped: true, reason: 'not_last_monday' };
   }
 
+  // NPC billing starts 1 September 2026. Before that, Unjani Connect is billed
+  // per clinic (shouldSkipPerClinicInvoice only skips from the same date), so a
+  // pack issued earlier bills the same month twice, to a different payer — and
+  // emails the customer a tax invoice that then has to be credited.
+  // Deliberately NOT bypassed by `force`: force exists to re-run off-schedule,
+  // not to cross a commercial cutover. To bill an earlier month, move
+  // UNJANI_NPC_BILLING_START.
+  const dates = packDatesFor(now);
+  if (dates.periodStart < UNJANI_NPC_BILLING_START) {
+    return { skipped: true, reason: 'before_npc_billing_start' };
+  }
+
   const account = await findUnjaniNpcAccount(supabase);
   if (!account) {
     return { skipped: true, reason: 'unjani_account_not_found' };
   }
 
-  const dates = packDatesFor(now);
   const generated = await generateCorporateConsolidatedInvoice(supabase, {
     organisationId: account.id,
     periodStart: dates.periodStart,
