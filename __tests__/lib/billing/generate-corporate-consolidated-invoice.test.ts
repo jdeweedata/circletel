@@ -31,7 +31,12 @@ type InsertedInvoice = Record<string, unknown> | null;
 
 function createMockSupabase(opts: {
   existingNumbers: string[];
-  duplicate?: { id: string; invoice_number: string } | null;
+  duplicate?: {
+    id: string;
+    invoice_number: string;
+    total_amount?: number;
+    line_items?: unknown[];
+  } | null;
 }) {
   let inserted: InsertedInvoice = null;
 
@@ -128,5 +133,36 @@ describe('generateCorporateConsolidatedInvoice numbering', () => {
       'org-1',
       { periodEnd: '2026-08-31' }
     );
+  });
+
+  it('returns the existing invoice amount when the period already exists', async () => {
+    const supabase = createMockSupabase({
+      existingNumbers: ['INV-2026-00079'],
+      duplicate: {
+        id: 'inv-79',
+        invoice_number: 'INV-2026-00079',
+        total_amount: 7762.5,
+        line_items: [
+          { amount: 517.5 },
+          { amount: 517.5 },
+          { amount: 517.5 },
+        ],
+      },
+    });
+
+    const result = await generateCorporateConsolidatedInvoice(
+      supabase as never,
+      options
+    );
+
+    expect(result).toMatchObject({
+      skipped: true,
+      reason: 'duplicate',
+      invoice_id: 'inv-79',
+      invoice_number: 'INV-2026-00079',
+      total_amount: 7762.5,
+      line_count: 3,
+    });
+    expect(supabase.getInserted()).toBeNull();
   });
 });

@@ -92,7 +92,7 @@ export async function generateCorporateConsolidatedInvoice(
   // Idempotency: one recurring consolidated invoice per org per period
   const { data: dup } = await supabase
     .from('customer_invoices')
-    .select('id, invoice_number')
+    .select('id, invoice_number, total_amount, amount_due, line_items')
     .eq('corporate_account_id', organisationId)
     .eq('invoice_type', invoiceType)
     .eq('period_start', periodStart)
@@ -101,11 +101,17 @@ export async function generateCorporateConsolidatedInvoice(
     .limit(1);
 
   if (dup && dup.length > 0) {
+    const existing = dup[0];
+    const lineItems = Array.isArray(existing.line_items)
+      ? existing.line_items
+      : [];
     return {
       skipped: true as const,
       reason: 'duplicate',
-      invoice_id: dup[0].id,
-      invoice_number: dup[0].invoice_number,
+      invoice_id: existing.id,
+      invoice_number: existing.invoice_number,
+      total_amount: Number(existing.total_amount),
+      line_count: lineItems.length,
     };
   }
 

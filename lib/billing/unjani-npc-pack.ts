@@ -29,6 +29,14 @@ export interface UnjaniNpcPackResult {
   emailed?: boolean;
 }
 
+/** Email body amount from the same invoice row as the PDF — never generate's missing total. */
+export function npcPackEmailAmountFromInvoice(invoice: {
+  amount_due?: string | number | null;
+  total_amount?: string | number | null;
+}): number {
+  return Number(invoice.amount_due ?? invoice.total_amount ?? 0);
+}
+
 function bufferToBase64(buf: ArrayBuffer | Buffer): string {
   return Buffer.from(buf).toString('base64');
 }
@@ -53,7 +61,7 @@ export async function findUnjaniNpcAccount(supabase: SupabaseClient) {
 export async function buildNpcInvoicePdf(
   supabase: SupabaseClient,
   invoiceId: string
-): Promise<{ filename: string; bytes: ArrayBuffer }> {
+): Promise<{ filename: string; bytes: ArrayBuffer; totalAmount: number }> {
   const { data: invoice, error } = await supabase
     .from('customer_invoices')
     .select(
@@ -82,12 +90,14 @@ export async function buildNpcInvoicePdf(
       address: { ...UNJANI_NPC_BILL_TO.address },
     },
   });
+  const totalAmount = npcPackEmailAmountFromInvoice(invoice);
   invoiceData.amountPaid = Number(invoice.amount_paid ?? 0);
-  invoiceData.amountDue = Number(invoice.amount_due ?? invoice.total_amount);
+  invoiceData.amountDue = totalAmount;
 
   return {
     filename: `${invoice.invoice_number}.pdf`,
     bytes: generateInvoicePDFBuffer(invoiceData),
+    totalAmount,
   };
 }
 
@@ -245,7 +255,7 @@ export async function issueUnjaniNpcMonthlyPack(
     cc,
     invoiceNumber,
     dueDate: dates.dueDate,
-    totalAmount: Number(generated.total_amount ?? 0),
+    totalAmount: invoicePdf.totalAmount,
     invoicePdf,
     statementPdf,
   });
