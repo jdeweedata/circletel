@@ -107,20 +107,7 @@ export async function fetchActiveCorporateSites(
   const { data, error } = await supabase
     .from('corporate_sites')
     .select(
-      `
-      id,
-      site_name,
-      account_number,
-      site_code,
-      site_number,
-      monthly_fee,
-      package_id,
-      service_packages (
-        name,
-        sku,
-        price
-      )
-    `
+      'id, site_name, account_number, site_code, site_number, monthly_fee, package_id'
     )
     .eq('corporate_id', organisationId)
     .eq('status', 'active')
