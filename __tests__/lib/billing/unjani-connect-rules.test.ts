@@ -263,11 +263,23 @@ describe('Unjani NPC bill-to (onboarding form CT-COF-2026-001)', () => {
 });
 
 describe('NPC statement invoice filter', () => {
-  it('keeps historical per-clinic invoices before 1 Sep and only org invoices after', () => {
+  it('includes only org invoices, including the in-advance September pack dated 31 Aug', () => {
     expect(
       includeOnNpcStatement({
-        invoice_date: '2026-08-15',
-        corporate_site_id: 'site-1',
+        invoice_date: '2026-07-01',
+        corporate_site_id: 'durban',
+      })
+    ).toBe(false);
+    expect(
+      includeOnNpcStatement({
+        invoice_date: '2026-08-01',
+        corporate_site_id: 'durban',
+      })
+    ).toBe(false);
+    expect(
+      includeOnNpcStatement({
+        invoice_date: '2026-08-31',
+        corporate_site_id: null,
       })
     ).toBe(true);
     expect(
