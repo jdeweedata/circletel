@@ -107,8 +107,16 @@ export async function buildNpcStatementPdf(
   };
 }
 
+export function npcPackRecipients(): { to: string[]; cc: string[] } {
+  return {
+    to: [UNJANI_NPC_BILL_TO.packTo],
+    cc: [...UNJANI_NPC_BILL_TO.packCc],
+  };
+}
+
 async function emailNpcPack(params: {
-  to: string;
+  to: string[];
+  cc: string[];
   invoiceNumber: string;
   dueDate: string;
   totalAmount: number;
@@ -131,7 +139,8 @@ async function emailNpcPack(params: {
     },
     body: JSON.stringify({
       from: `CircleTel Billing <${from}>`,
-      to: [params.to],
+      to: params.to,
+      cc: params.cc,
       reply_to: 'billing@circletel.co.za',
       subject: `Unjani Connect — ${params.invoiceNumber} itemized invoice and statement`,
       text: [
@@ -229,13 +238,11 @@ export async function issueUnjaniNpcMonthlyPack(
     buildNpcStatementPdf(supabase, account.id),
   ]);
 
-  const to =
-    account.billing_contact_email ||
-    account.primary_contact_email ||
-    UNJANI_NPC_BILL_TO.billingEmail;
+  const { to, cc } = npcPackRecipients();
 
   const emailed = await emailNpcPack({
     to,
+    cc,
     invoiceNumber,
     dueDate: dates.dueDate,
     totalAmount: Number(generated.total_amount ?? 0),
