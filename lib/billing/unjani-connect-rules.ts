@@ -77,6 +77,8 @@ export const UNJANI_NPC_BILL_TO = {
   vatNumber: '4220266250',
   accountCode: UNJANI_CORPORATE_CODE,
   billingEmail: 'finance@unjani.org',
+  packTo: 'rbutcher@unjani.org',
+  packCc: ['Darryl.Langford@unjani.org'] as const,
   primaryEmail: 'ltoussaint@unjani.org',
   primaryContact: 'Lynda Toussaint',
   address: {
