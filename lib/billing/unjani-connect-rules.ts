@@ -78,7 +78,11 @@ export const UNJANI_NPC_BILL_TO = {
   accountCode: UNJANI_CORPORATE_CODE,
   billingEmail: 'finance@unjani.org',
   packTo: 'rbutcher@unjani.org',
-  packCc: ['Darryl.Langford@unjani.org'] as const,
+  packCc: [
+    'Darryl.Langford@unjani.org',
+    'tumelom@circletel.co.za',
+    'jeffrey.de.wee@circletel.co.za',
+  ] as const,
   primaryEmail: 'ltoussaint@unjani.org',
   primaryContact: 'Lynda Toussaint',
   address: {

@@ -255,7 +255,11 @@ describe('Unjani NPC bill-to (onboarding form CT-COF-2026-001)', () => {
     expect(UNJANI_NPC_BILL_TO.accountCode).toBe('UNJ');
     expect(UNJANI_NPC_BILL_TO.billingEmail).toBe('finance@unjani.org');
     expect(UNJANI_NPC_BILL_TO.packTo).toBe('rbutcher@unjani.org');
-    expect(UNJANI_NPC_BILL_TO.packCc).toEqual(['Darryl.Langford@unjani.org']);
+    expect(UNJANI_NPC_BILL_TO.packCc).toEqual([
+      'Darryl.Langford@unjani.org',
+      'tumelom@circletel.co.za',
+      'jeffrey.de.wee@circletel.co.za',
+    ]);
     expect(UNJANI_NPC_BILL_TO.address.city).toBe('Midrand');
     expect(UNJANI_NPC_BILL_TO.address.postalCode).toBe('1685');
     expect(UNJANI_NPC_BILL_TO.address.line1).toContain('Central Park');
