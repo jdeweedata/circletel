@@ -66,6 +66,7 @@ jobs:
             __tests__/lib/billing/generate-corporate-consolidated-invoice.test.ts \
             __tests__/lib/billing/invoice-amounts.test.ts \
             __tests__/lib/billing/unjani-npc-pack-billing-start.test.ts \
+            __tests__/lib/billing/unjani-npc-pack-email-amount.test.ts \
             __tests__/lib/billing/unjani-connect-rules.test.ts \
             __tests__/lib/invoices/invoice-clinic-column.test.ts
         env:
