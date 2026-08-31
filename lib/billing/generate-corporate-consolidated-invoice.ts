@@ -141,7 +141,7 @@ export async function generateCorporateConsolidatedInvoice(
       amount_due: totalAmount,
       amount_paid: 0,
       line_items: lineItems,
-      status: 'unpaid',
+      status: 'sent',
       notes: `Consolidated Unjani Connect invoice for ${account.company_name} — ${lineItems.length} active clinic(s)`,
     })
     .select('id, invoice_number, total_amount, line_items')
