@@ -373,6 +373,7 @@ export function includeOnNpcStatement(invoice: {
   invoice_date: string;
   corporate_site_id?: string | null;
 }): boolean {
-  if (invoice.invoice_date < UNJANI_NPC_BILLING_START) return true;
+  // Org invoices only (INV-79 and later). Do not use invoice_date >= 1 Sep:
+  // the first NPC pack is issued in advance on the last Monday of August.
   return invoice.corporate_site_id == null;
 }

@@ -10,7 +10,11 @@ import type {
   AgingBuckets,
 } from './statement-pdf-generator';
 import type { StatementOptions } from './statement-data';
-import { UNJANI_CORPORATE_CODE, UNJANI_NPC_BILL_TO } from './unjani-connect-rules';
+import {
+  UNJANI_CORPORATE_CODE,
+  UNJANI_NPC_BILL_TO,
+  includeOnNpcStatement,
+} from './unjani-connect-rules';
 
 function toYMD(date: Date): string {
   return date.toISOString().split('T')[0];
@@ -99,7 +103,7 @@ export async function assembleCorporateStatementData(
   let query = supabase
     .from('customer_invoices')
     .select(
-      'id, invoice_number, invoice_date, due_date, total_amount, amount_paid, amount_due, status, period_start, period_end, paynow_transaction_ref'
+      'id, invoice_number, invoice_date, due_date, total_amount, amount_paid, amount_due, status, period_start, period_end, paynow_transaction_ref, corporate_site_id'
     )
     .eq('corporate_account_id', organisationId)
     .order('invoice_date', { ascending: true });
@@ -108,12 +112,20 @@ export async function assembleCorporateStatementData(
     query = query.gte('invoice_date', fromDate).lte('invoice_date', toDate);
   }
 
+  if (account.corporate_code === UNJANI_CORPORATE_CODE) {
+    query = query.is('corporate_site_id', null);
+  }
+
   const { data: invoicesRaw, error: invoicesError } = await query;
   if (invoicesError) {
     throw new Error(`Failed to fetch invoices: ${invoicesError.message}`);
   }
 
-  const invoices = invoicesRaw ?? [];
+  const invoices = (invoicesRaw ?? []).filter((inv) =>
+    account.corporate_code === UNJANI_CORPORATE_CODE
+      ? includeOnNpcStatement(inv)
+      : true
+  );
   const transactions: StatementTransaction[] = [];
 
   for (const inv of invoices) {
