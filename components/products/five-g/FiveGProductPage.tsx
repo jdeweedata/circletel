@@ -4,20 +4,19 @@ import {
   PiCheckBold,
   PiDatabaseBold,
   PiGaugeBold,
-  PiMapPinBold,
   PiWifiHighBold,
   PiWifiXBold,
 } from 'react-icons/pi';
 import Link from 'next/link';
 
-import { ShopCta } from '@/components/home/shop/ShopCta';
+import { FiveGProductActions } from '@/components/products/five-g/FiveGProductActions';
 import { getWhatsAppLink } from '@/lib/constants/contact';
 import { getCoveragePromoBadge } from '@/lib/products/coverage-package-inclusions';
+import type { FiveGCashCpeRouter } from '@/lib/products/five-g-cash-cpe';
 import {
   formatFiveGPrice,
   getFiveGListPrice,
   getFiveGProductMedia,
-  getFiveGRouterSiblingSlug,
   getFiveGSellPrice,
   getFiveGSpecLabel,
   getOp19627Promo,
@@ -25,9 +24,11 @@ import {
   type FiveGDealPackage,
 } from '@/lib/products/five-g-deals';
 import { getFiveGCardDataCap, getFiveGOfferTerm } from '@/lib/products/five-g-offer-term';
+import { getTenantConfig } from '@/lib/tenant';
 
 interface FiveGProductPageProps {
   product: FiveGDealPackage;
+  cashCpeRouters?: FiveGCashCpeRouter[];
 }
 
 function formatFup(gb: number): string {
@@ -110,7 +111,7 @@ function specTiles(product: FiveGDealPackage): { label: string; value: string; h
   return tiles;
 }
 
-export function FiveGProductPage({ product }: FiveGProductPageProps) {
+export function FiveGProductPage({ product, cashCpeRouters = [] }: FiveGProductPageProps) {
   const sell = getFiveGSellPrice(product);
   const list = getFiveGListPrice(product);
   const term = getFiveGOfferTerm(product.metadata);
@@ -121,8 +122,9 @@ export function FiveGProductPage({ product }: FiveGProductPageProps) {
       : undefined;
   const badge = getCoveragePromoBadge(product.sku, promoPrice);
   const media = getFiveGProductMedia(product);
-  const siblingSlug = getFiveGRouterSiblingSlug(product.sku);
-  const whatsappHref = getWhatsAppLink(`Hi CircleTel, I'm interested in ${product.name}`);
+  const whatsappHref = getWhatsAppLink(
+    `Hi ${getTenantConfig().branding.companyName}, I'm interested in ${product.name}`
+  );
   const items = benefits(product);
   const tiles = specTiles(product);
 
@@ -255,21 +257,13 @@ export function FiveGProductPage({ product }: FiveGProductPageProps) {
               ))}
             </ul>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <ShopCta href="/coverage" className="gap-2">
-                <PiMapPinBold className="h-4 w-4" aria-hidden="true" />
-                Check coverage
-              </ShopCta>
-              {isSim && siblingSlug ? (
-                <ShopCta href={`/5g-deals/${siblingSlug}`} variant="outline-navy">
-                  Add router
-                </ShopCta>
-              ) : (
-                <ShopCta href={whatsappHref} variant="outline-navy">
-                  WhatsApp us
-                </ShopCta>
-              )}
-            </div>
+            <FiveGProductActions
+              dealSku={product.sku}
+              dealName={product.name}
+              isSim={isSim}
+              routers={cashCpeRouters}
+              whatsappHref={whatsappHref}
+            />
           </div>
         </article>
       </div>

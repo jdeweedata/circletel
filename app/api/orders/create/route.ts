@@ -13,7 +13,12 @@ import type { SkyFibreOrderabilityResult, SkyFibreSegment } from '@/lib/coverage
 import {
   ORDER_PROCESSING_FEE_AMOUNT,
   ORDER_PROCESSING_FEE_LABEL,
+  checkoutPaymentAmount,
 } from '@/lib/payments/payment-amounts';
+import {
+  FIVE_G_CASH_CPE_PRICE_INCL_VAT,
+  hasCashCpeCheckout,
+} from '@/lib/products/five-g-cash-cpe';
 
 // P4: Valid property types (must match ServiceAddressSection.tsx options)
 const VALID_PROPERTY_TYPES = [
@@ -170,6 +175,9 @@ export async function POST(request: NextRequest) {
 
     apiLogger.info('[orders/create] No duplicate found, proceeding with order creation');
 
+    const cashCpe = hasCashCpeCheckout(body);
+    const paymentAmount = checkoutPaymentAmount({ cashCpe });
+
     // Generate order number and payment reference
     const orderNumber = await generateOrderNumber(supabase);
     const paymentReference = `PAY-${orderNumber}`; // Generate payment reference from order number
@@ -211,8 +219,12 @@ export async function POST(request: NextRequest) {
         package_speed: body.package_speed,
         package_price: body.package_price,
         installation_fee: body.installation_fee || 0,
-        router_included: body.router_included || false,
+        router_included: cashCpe ? false : body.router_included || false,
         router_rental_fee: body.router_rental_fee || null,
+        router_fee: cashCpe ? FIVE_G_CASH_CPE_PRICE_INCL_VAT : null,
+        router_model: cashCpe
+          ? body.router_model || 'ZTE G5C 5G CPE WiFi Router'
+          : body.router_model || null,
 
         // References
         coverage_check_id: body.coverage_check_id || null,
@@ -224,7 +236,7 @@ export async function POST(request: NextRequest) {
         total_paid: 0,
         // Authoritative charge for initiation — server-set, never client-trusted.
         // Once-off checkout fee (see payment-amounts.ts). Never client-trusted.
-        payment_amount: ORDER_PROCESSING_FEE_AMOUNT,
+        payment_amount: paymentAmount,
 
         // Status
         status: 'pending',
@@ -245,7 +257,16 @@ export async function POST(request: NextRequest) {
         referral_code: body.referral_code || null,
 
         // Metadata
-        metadata: buildOrderMetadata(body.metadata, body.account_type, skyFibreOrderability),
+        metadata: buildOrderMetadata(
+          body.metadata,
+          body.account_type,
+          skyFibreOrderability,
+          {
+            cashCpe,
+            routerSku: typeof body.router_sku === 'string' ? body.router_sku : 'G5C',
+            paymentAmount,
+          }
+        ),
         internal_notes: null,
       })
       .select()
@@ -324,7 +345,8 @@ function extractOrderCoordinates(value: unknown): { lat: number; lng: number } |
 function buildOrderMetadata(
   metadata: unknown,
   accountType: unknown,
-  skyFibreOrderability: SkyFibreOrderabilityResult | null
+  skyFibreOrderability: SkyFibreOrderabilityResult | null,
+  checkout?: { cashCpe: boolean; routerSku: string; paymentAmount: number }
 ): Record<string, unknown> {
   const base = metadata && typeof metadata === 'object' && !Array.isArray(metadata)
     ? metadata as Record<string, unknown>
@@ -337,9 +359,17 @@ function buildOrderMetadata(
     checkout_charge: {
       type: 'order_processing_fee',
       label: ORDER_PROCESSING_FEE_LABEL,
-      amount: ORDER_PROCESSING_FEE_AMOUNT,
+      amount: checkout?.paymentAmount ?? ORDER_PROCESSING_FEE_AMOUNT,
       refundable: false,
     },
+    ...(checkout?.cashCpe
+      ? {
+          cash_cpe: {
+            sku: checkout.routerSku,
+            router_fee: FIVE_G_CASH_CPE_PRICE_INCL_VAT,
+          },
+        }
+      : {}),
     ...(skyFibreOrderability ? { skyfibre_orderability: skyFibreOrderability } : {}),
   };
 }

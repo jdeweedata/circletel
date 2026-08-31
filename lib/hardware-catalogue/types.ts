@@ -231,6 +231,8 @@ export interface HardwareProductFilters {
   max_price?: number
   page?: number
   page_size?: number
+  /** Public shop default: hide deal-addon-only SKUs. */
+  exclude_deal_addons?: boolean
 }
 
 export interface HardwareProductListResponse {

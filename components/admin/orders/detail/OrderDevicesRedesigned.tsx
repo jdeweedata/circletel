@@ -30,6 +30,12 @@ interface OrderDevicesRedesignedProps {
     status: string;
     credit_decision?: string;
     credit_review?: { hardware_prepaid?: boolean } | null;
+    router_fee?: number | null;
+    hardware_indent?: {
+      id: string;
+      supplier_sku: string;
+      status: string;
+    } | null;
   };
   onUpdate?: () => void;
 }
@@ -262,8 +268,21 @@ export function OrderDevicesRedesigned({
             setSimInput
           )}
 
+          {order.hardware_indent && (
+            <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+              <p className="text-sm font-semibold text-amber-900">
+                Esquire indent {order.hardware_indent.status}
+              </p>
+              <p className="mt-1 text-xs text-amber-800">
+                SKU {order.hardware_indent.supplier_sku}
+                {order.router_model ? ` · ${order.router_model}` : ''}
+                {order.router_fee ? ` · R${Number(order.router_fee).toFixed(2)}` : ''}
+              </p>
+            </div>
+          )}
+
           {/* Router Row */}
-          {order.router_included && renderDeviceRow(
+          {(order.router_included || Boolean(order.hardware_indent) || Number(order.router_fee) > 0) && renderDeviceRow(
             'router',
             <PiBroadcastBold className="h-5 w-5 text-blue-600" />,
             'bg-blue-100',

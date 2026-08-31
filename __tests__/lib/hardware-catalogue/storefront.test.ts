@@ -1,7 +1,9 @@
 import { describe, expect, it } from '@jest/globals'
 
 import {
+  isDealAddonOnly,
   isStorefrontPublished,
+  isStorefrontShopVisible,
   leadTimeFromPromote,
   omitDealerCost,
   storefrontAvailability,
@@ -13,6 +15,23 @@ describe('isStorefrontPublished', () => {
     expect(isStorefrontPublished('draft')).toBe(false)
     expect(isStorefrontPublished('archived')).toBe(false)
     expect(isStorefrontPublished(null)).toBe(false)
+  })
+})
+
+describe('deal-addon listing exception', () => {
+  it('treats cash-CPE metadata as deal-addon-only', () => {
+    expect(isDealAddonOnly({ deal_addon_only: true, cash_cpe: true })).toBe(true)
+    expect(isDealAddonOnly({ cash_cpe: true })).toBe(false)
+    expect(isDealAddonOnly({})).toBe(false)
+    expect(isDealAddonOnly(null)).toBe(false)
+  })
+
+  it('keeps deal-addon SKUs off the public hardware shop', () => {
+    expect(
+      isStorefrontShopVisible('published', { deal_addon_only: true })
+    ).toBe(false)
+    expect(isStorefrontShopVisible('published', {})).toBe(true)
+    expect(isStorefrontShopVisible('draft', {})).toBe(false)
   })
 })
 

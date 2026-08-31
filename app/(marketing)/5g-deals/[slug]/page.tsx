@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { FiveGProductPage } from '@/components/products/five-g/FiveGProductPage';
+import { getFiveGCashCpeRouters } from '@/lib/products/five-g-cash-cpe';
 import {
   FIVE_G_DEAL_SLUGS,
   formatFiveGPrice,
@@ -9,6 +10,7 @@ import {
   getFiveGSellPrice,
 } from '@/lib/products/five-g-deals';
 import { getFiveGOfferTerm } from '@/lib/products/five-g-offer-term';
+import { getTenantConfig } from '@/lib/tenant';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,9 +26,10 @@ export async function generateMetadata({
   params,
 }: FiveGDealProductPageProps): Promise<Metadata> {
   const { slug } = await params;
+  const { branding } = getTenantConfig();
   const deal = await getFiveGDealBySlug(slug);
   if (!deal) {
-    return { title: '5G deal not found | CircleTel' };
+    return { title: `5G deal not found | ${branding.companyName}` };
   }
 
   const sell = formatFiveGPrice(getFiveGSellPrice(deal));
@@ -35,19 +38,20 @@ export async function generateMetadata({
     term.kind === 'mtm_sim'
       ? `${deal.name} at ${sell} per month incl. VAT. SIM only, month-to-month. Check coverage.`
       : `${deal.name} at ${sell} per month incl. VAT. 24-month contract with router included. Check coverage.`;
+  const url = `${branding.websiteUrl}/5g-deals/${slug}`;
 
   return {
-    title: `${deal.name} | 5G Deals | CircleTel`,
+    title: `${deal.name} | 5G Deals | ${branding.companyName}`,
     description,
     openGraph: {
-      title: `${deal.name} | CircleTel`,
+      title: `${deal.name} | ${branding.companyName}`,
       description,
-      url: `https://www.circletel.co.za/5g-deals/${slug}`,
+      url,
       type: 'website',
-      siteName: 'CircleTel',
+      siteName: branding.companyName,
     },
     alternates: {
-      canonical: `https://www.circletel.co.za/5g-deals/${slug}`,
+      canonical: url,
     },
   };
 }
@@ -59,5 +63,8 @@ export default async function FiveGDealProductRoute({ params }: FiveGDealProduct
     notFound();
   }
 
-  return <FiveGProductPage product={deal} />;
+  const term = getFiveGOfferTerm(deal.metadata);
+  const cashCpeRouters = term.kind === 'mtm_sim' ? await getFiveGCashCpeRouters() : [];
+
+  return <FiveGProductPage product={deal} cashCpeRouters={cashCpeRouters} />;
 }

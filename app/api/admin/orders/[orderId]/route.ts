@@ -75,6 +75,12 @@ export async function GET(
 
     const creditReview = await getOrderCreditReview(supabase, orderId);
 
+    const { data: hardwareIndent } = await supabase
+      .from('hardware_indents')
+      .select('id, supplier_sku, status, hardware_product_id, created_at')
+      .eq('consumer_order_id', orderId)
+      .maybeSingle();
+
     // Enrich order data with payment method status and customer account number
     const enrichedOrder = {
       ...order,
@@ -83,6 +89,7 @@ export async function GET(
       payment_method_mandate_status: paymentMethod?.mandate_status || (paymentMethod ? 'active' : null),
       credit_review: creditReview,
       credit_decision: creditReview?.decision ?? 'UNCHECKED',
+      hardware_indent: hardwareIndent || null,
     };
 
     return NextResponse.json({

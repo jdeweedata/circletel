@@ -13,7 +13,9 @@ import {
 } from '@/lib/hardware-catalogue/promote-decision'
 import {
   isBooleanSupplierStock,
+  isDealAddonOnly,
   isStorefrontPublished,
+  isStorefrontShopVisible,
   leadTimeFromPromote,
 } from '@/lib/hardware-catalogue/storefront'
 import type {
@@ -81,15 +83,24 @@ export async function getHardwareProducts(
 
   if (error) throw new Error(`Failed to fetch products: ${error.message}`)
 
+  const attached = await attachStorefrontFields(
+    supabase,
+    (data || []) as HardwareProductDetail[]
+  )
+  const excludeDealAddons =
+    filters.exclude_deal_addons ?? filters.status === 'published'
+  const visible = excludeDealAddons
+    ? attached.filter((row) => isStorefrontShopVisible(row.status, row.metadata))
+    : attached
+
   return {
-    data: await attachStorefrontFields(
-      supabase,
-      (data || []) as HardwareProductDetail[]
-    ),
-    total: count || 0,
+    data: visible,
+    total: excludeDealAddons ? visible.length : count || 0,
     page,
     page_size: pageSize,
-    has_more: (count || 0) > offset + pageSize,
+    has_more: excludeDealAddons
+      ? false
+      : (count || 0) > offset + pageSize,
   }
 }
 
@@ -150,6 +161,9 @@ export async function getHardwareProductBySlug(
 
   if (error || !product) return null
   if (!isStorefrontPublished(product.status)) return null
+  if (isDealAddonOnly(product.metadata as Record<string, unknown> | null)) {
+    return null
+  }
 
   // Fetch supplier links
   const { data: supplierLinks } = await supabase

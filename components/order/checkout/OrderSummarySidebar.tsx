@@ -5,8 +5,15 @@ import {
   ORDER_PROCESSING_FEE_AMOUNT,
   ORDER_PROCESSING_FEE_DESCRIPTION,
   ORDER_PROCESSING_FEE_LABEL,
+  checkoutPaymentAmount,
 } from '@/lib/payments/payment-amounts';
+import {
+  FIVE_G_CASH_CPE_PRICE_INCL_VAT,
+  formatFiveGCashCpePrice,
+} from '@/lib/products/five-g-cash-cpe';
 import { customerExclVat, customerInclVat } from '@/lib/billing/vat';
+import { brandText } from '@/lib/tenant';
+import { cn } from '@/lib/utils';
 
 interface OrderSummarySidebarProps {
   packageName: string;
@@ -18,6 +25,7 @@ interface OrderSummarySidebarProps {
   isSimOnly?: boolean;
   address?: string;
   priceIncludesVat?: boolean;
+  cashCpeName?: string | null;
 }
 
 export function OrderSummarySidebar({
@@ -30,6 +38,7 @@ export function OrderSummarySidebar({
   isSimOnly = false,
   address,
   priceIncludesVat = false,
+  cashCpeName = null,
 }: OrderSummarySidebarProps) {
   const effectivePrice = promotionPrice ?? monthlyPrice;
   const excl = (amount: number) => customerExclVat(amount, priceIncludesVat);
@@ -110,8 +119,27 @@ export function OrderSummarySidebar({
                 {ORDER_PROCESSING_FEE_DESCRIPTION}
               </p>
             </div>
-            <span className="text-3xl font-extrabold text-circleTel-orange">
+            <span className="text-xl font-extrabold text-circleTel-orange">
               R{ORDER_PROCESSING_FEE_AMOUNT.toFixed(2)}
+            </span>
+          </div>
+          {cashCpeName && (
+            <div className="mt-3 flex items-center justify-between gap-4 border-t border-orange-200/70 pt-3">
+              <div>
+                <span className={cn('text-sm font-semibold', brandText.navy)}>{cashCpeName}</span>
+                <p className="mt-1 text-xs leading-relaxed text-gray-500">
+                  Once-off approved 5G router. Ships after payment.
+                </p>
+              </div>
+              <span className={cn('text-xl font-extrabold', brandText.orange)}>
+                {formatFiveGCashCpePrice(FIVE_G_CASH_CPE_PRICE_INCL_VAT)}
+              </span>
+            </div>
+          )}
+          <div className="mt-3 flex items-center justify-between gap-4 border-t border-orange-200/70 pt-3">
+            <span className={cn('text-sm font-semibold', brandText.navy)}>Total today</span>
+            <span className={cn('text-3xl font-extrabold', brandText.orange)}>
+              R{checkoutPaymentAmount({ cashCpe: Boolean(cashCpeName) }).toFixed(2)}
             </span>
           </div>
         </div>

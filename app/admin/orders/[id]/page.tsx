@@ -107,6 +107,12 @@ interface Order {
   terms_accepted_at?: string;
   credit_decision?: string;
   credit_review?: OrderCreditReview | null;
+  router_fee?: number | null;
+  hardware_indent?: {
+    id: string;
+    supplier_sku: string;
+    status: string;
+  } | null;
 }
 
 const TAB_CONFIG = [
