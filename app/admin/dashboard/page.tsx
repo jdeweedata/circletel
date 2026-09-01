@@ -269,7 +269,7 @@ export default function AdminDashboard() {
         icon: PiTargetBold,
         color: 'text-cyan-600',
         bgColor: 'bg-cyan-100',
-        href: '/admin/coverage'
+        href: '/admin/coverage/checker'
       },
       {
         title: 'Quote Acceptance',
@@ -307,7 +307,7 @@ export default function AdminDashboard() {
         icon: PiChartBarBold,
         color: 'text-pink-600',
         bgColor: 'bg-pink-100',
-        href: '/admin/coverage'
+        href: '/admin/coverage/checker'
       },
       {
         title: 'ARPU',
@@ -356,7 +356,7 @@ export default function AdminDashboard() {
       title: 'Coverage Leads',
       description: 'View coverage requests',
       icon: PiTargetBold,
-      href: '/admin/coverage',
+      href: '/admin/coverage/checker',
       permission: PERMISSIONS.DASHBOARD.VIEW_ANALYTICS
     },
     {

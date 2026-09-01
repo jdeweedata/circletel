@@ -313,7 +313,6 @@ export const CIRCLETEL_SITEMAP: SitemapStructure = {
         label: 'Coverage',
         items: [
           { label: 'Dashboard', route: '/admin/coverage', description: 'Coverage overview' },
-          { label: 'Analytics', route: '/admin/coverage/analytics', description: 'Coverage analytics' },
           { label: 'Testing', route: '/admin/coverage/testing', description: 'Coverage testing tools' },
           { label: 'Providers', route: '/admin/coverage/providers', description: 'Provider management' },
           { label: 'Maps', route: '/admin/coverage/maps', description: 'Coverage maps' },

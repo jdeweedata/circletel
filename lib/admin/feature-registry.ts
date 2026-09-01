@@ -326,13 +326,17 @@ export const featureSections: NavSection[] = [
         name: 'Coverage',
         icon: PiRadioBold,
         children: [
-          { name: 'Dashboard', href: '/admin/coverage', icon: PiSquaresFourBold },
-          { name: 'Analytics', href: '/admin/coverage/analytics', icon: PiPulseBold },
+          // Coverage keeps OPERATIONS. Provider-API observability moved to
+          // /admin/integrations — the old Dashboard and Analytics entries read an
+          // in-process monitor and Math.random() respectively.
+          { name: 'Checker', href: '/admin/coverage/checker', icon: PiSquaresFourBold },
           { name: 'Testing', href: '/admin/coverage/testing', icon: PiTestTubeBold },
+          { name: 'MTN Maps', href: '/admin/coverage/mtn-maps', icon: PiMapTrifoldBold },
           { name: 'Providers', href: '/admin/coverage/providers', icon: PiBuildingsBold },
           { name: 'Maps', href: '/admin/coverage/maps', icon: PiMapTrifoldBold },
           { name: 'Base Stations', href: '/admin/coverage/base-stations', icon: PiMapPinBold },
           { name: 'DFA Buildings', href: '/admin/coverage/dfa-buildings', icon: PiBuildingsBold },
+          { name: 'API Health', href: '/admin/integrations/api-health', icon: PiPulseBold },
         ],
       },
       {

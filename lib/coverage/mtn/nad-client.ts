@@ -45,6 +45,12 @@
  */
 
 import { Coordinates } from '../types';
+import {
+  recordProviderCall,
+  normalizeOperation,
+  PROVIDER_ERROR_CODES,
+} from '@/lib/integrations/provider-call-recorder';
+import { provinceNameForCoordinates } from './geo-validation';
 
 export interface NADCorrectionRequest {
   lat: number;
@@ -122,6 +128,12 @@ export class MTNNADClient {
       return cached;
     }
 
+    // Telemetry — see lib/integrations/provider-call-recorder.ts. The queried
+    // coordinates travel in the POST body and are never recorded.
+    const startedAt = Date.now();
+    let success = false;
+    let errorCode: string | null = null;
+
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT);
@@ -147,10 +159,18 @@ export class MTNNADClient {
 
       if (!response.ok) {
         console.warn(`[NAD Client] HTTP ${response.status}: ${response.statusText}`);
+        errorCode =
+          response.status === 429 ? PROVIDER_ERROR_CODES.RATE_LIMITED
+          : response.status >= 500 ? 'SERVICE_UNAVAILABLE'
+          : PROVIDER_ERROR_CODES.PROVIDER_ERROR;
         return this.createFallbackResult(coordinates);
       }
 
       const data: NADResponse = await response.json();
+
+      // The call worked. No NAD match for a coordinate is a valid answer, not a
+      // provider fault — falling back to the original coordinates is by design.
+      success = true;
 
       if (!data.success || !data.results || data.results.length === 0) {
         console.log('[NAD Client] No NAD match found, using original coordinates');
@@ -201,11 +221,23 @@ export class MTNNADClient {
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
         console.warn('[NAD Client] Request timeout');
+        errorCode = PROVIDER_ERROR_CODES.TIMEOUT;
       } else {
         console.error('[NAD Client] Error:', error);
+        errorCode = PROVIDER_ERROR_CODES.TRANSPORT_ERROR;
       }
 
       return this.createFallbackResult(coordinates);
+    } finally {
+      void recordProviderCall({
+        integrationSlug: 'mtn-geocode',
+        operation: normalizeOperation('POST', this.BASE_URL, 'nad-correct'),
+        province: provinceNameForCoordinates(coordinates),
+        durationMs: Date.now() - startedAt,
+        success,
+        errorCode,
+        cacheHit: false,
+      });
     }
   }
 

@@ -120,37 +120,6 @@ export default function CoverageTestingPage() {
     setIsLoading(false);
   };
 
-  const testMonitoringStats = async () => {
-    setIsLoading(true);
-    const startTime = Date.now();
-
-    try {
-      const response = await fetch('/api/coverage/mtn/monitoring?action=stats&window=3600000');
-      const data = await response.json();
-      const responseTime = Date.now() - startTime;
-
-      addTestResult({
-        endpoint: '/api/coverage/mtn/monitoring',
-        method: 'GET',
-        status: response.ok ? 'success' : 'error',
-        responseTime,
-        data: response.ok ? data : null,
-        error: response.ok ? undefined : data.error || 'Unknown error',
-      });
-    } catch (error) {
-      addTestResult({
-        endpoint: '/api/coverage/mtn/monitoring',
-        method: 'GET',
-        status: 'error',
-        responseTime: Date.now() - startTime,
-        data: null,
-        error: error instanceof Error ? error.message : 'Network error',
-      });
-    }
-
-    setIsLoading(false);
-  };
-
   const testWithAddress = async () => {
     setIsLoading(true);
     const startTime = Date.now();
@@ -194,8 +163,6 @@ export default function CoverageTestingPage() {
     await testCoverageCheck();
     await new Promise(resolve => setTimeout(resolve, 500));
     await testGeoValidation();
-    await new Promise(resolve => setTimeout(resolve, 500));
-    await testMonitoringStats();
     await new Promise(resolve => setTimeout(resolve, 500));
     await testWithAddress();
   };
@@ -387,15 +354,6 @@ export default function CoverageTestingPage() {
                   variant="outline"
                 >
                   Test Geographic Validation
-                </Button>
-
-                <Button
-                  onClick={testMonitoringStats}
-                  disabled={isLoading}
-                  className="w-full justify-start"
-                  variant="outline"
-                >
-                  Test Monitoring Stats
                 </Button>
 
                 <Button

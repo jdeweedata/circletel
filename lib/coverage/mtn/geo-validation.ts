@@ -550,6 +550,55 @@ export class GeographicValidator {
 export const geographicValidator = new GeographicValidator();
 
 /**
+ * Province name for a coordinate, or null if outside all provincial bounds.
+ *
+ * Exists so provider telemetry can record coarse geography without holding an
+ * address or coordinate. Province-level across South Africa is non-identifying at
+ * any realistic volume, which is what keeps `provider_api_calls` outside POPIA
+ * scope — see lib/integrations/provider-call-recorder.ts.
+ *
+ * Reuses SOUTH_AFRICAN_PROVINCES rather than duplicating a bounds check.
+ * `GeographicValidator.getProvince` is private and stays that way.
+ */
+export function provinceNameForCoordinates(coordinates: Coordinates): string | null {
+  // Provincial bounding boxes overlap heavily — they are rectangles drawn over
+  // irregular shapes. Sandton (-26.1076, 28.0567) sits inside FOUR of them
+  // (Free State, North West, Gauteng, Mpumalanga), so first-match returns
+  // whichever happens to be declared first: Free State. Wrong.
+  //
+  // Disambiguate by nearest major city among the candidate provinces. Coverage
+  // checks cluster around populated areas, which is exactly where this is most
+  // accurate. Still approximate — it is coarse analytics geography, not a
+  // cadastral boundary — but materially better than declaration order.
+  const candidates = Object.values(SOUTH_AFRICAN_PROVINCES).filter(
+    (province) =>
+      coordinates.lat >= province.bounds.south &&
+      coordinates.lat <= province.bounds.north &&
+      coordinates.lng >= province.bounds.west &&
+      coordinates.lng <= province.bounds.east
+  );
+
+  if (candidates.length === 0) return null;
+  if (candidates.length === 1) return candidates[0].name;
+
+  let best: { name: string; distanceSq: number } | null = null;
+  for (const province of candidates) {
+    for (const city of province.majorCities) {
+      // Squared euclidean on lat/lng is enough to rank candidates; no need for
+      // haversine when we only compare distances.
+      const dLat = city.coordinates.lat - coordinates.lat;
+      const dLng = city.coordinates.lng - coordinates.lng;
+      const distanceSq = dLat * dLat + dLng * dLng;
+      if (!best || distanceSq < best.distanceSq) {
+        best = { name: province.name, distanceSq };
+      }
+    }
+  }
+
+  return best?.name ?? candidates[0].name;
+}
+
+/**
  * Convenience function: Validate South African coordinates
  * @param coordinates - Coordinates to validate
  * @returns ValidationResult with isValid, confidence, province, warnings, etc.

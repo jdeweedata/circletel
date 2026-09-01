@@ -115,16 +115,34 @@ export async function checkIntegrationHealth(
     }
   }
 
-  // Determine overall health status
-  const healthStatus = determineHealthStatus(checks, issues);
+  // Determine overall health status.
+  //
+  // Prefer PASSIVE health derived from real recorded traffic — what customers
+  // actually experienced beats a synthetic ping. Fall back to the probe-based
+  // verdict when the window is too thin to judge.
+  const passive = await derivePassiveHealth(integrationSlug);
+  const healthStatus = passive ? passive.status : determineHealthStatus(checks, issues);
+  const healthSource: HealthSource = passive
+    ? 'traffic'
+    : checks.api || checks.oauth || checks.webhook
+      ? 'probe'
+      : 'none';
+
+  if (passive) {
+    issues.push(
+      `Derived from ${passive.totalCalls} recorded calls in the last ${PASSIVE_WINDOW_MINUTES}min ` +
+        `(${passive.successRate.toFixed(1)}% success, p95 ${passive.p95Ms}ms)`
+    );
+  }
 
   // Update integration registry with health status
   await supabase
     .from('integration_registry')
     .update({
       health_status: healthStatus,
+      health_source: healthSource,
       last_health_check_at: new Date().toISOString(),
-      avg_response_time_ms: checks.api?.responseTime,
+      avg_response_time_ms: passive ? passive.avgMs : checks.api?.responseTime,
       updated_at: new Date().toISOString(),
     })
     .eq('slug', integrationSlug);
@@ -217,13 +235,29 @@ async function checkApiHealth(
     'resend': {
       url: 'https://api.resend.com/emails', // Will return 401 without key, but proves reachable
     },
-    'mtn-coverage': {
-      url: 'https://www.mtn.co.za',
-    },
+    // mtn-coverage and dfa are handled above by probes that assert the service
+    // actually served a result, not merely that some HTTP endpoint answered.
+    // The old 'https://www.mtn.co.za' entry proved a marketing site renders.
     'google-maps': {
       url: 'https://maps.googleapis.com/maps/api/staticmap?center=0,0&zoom=1&size=1x1', // Minimal request
     },
   };
+
+  // Providers whose liveness cannot be judged by "did an HTTP request return".
+  // These own their assertion because a 200 does not mean the service worked.
+  if (integrationSlug === 'dfa') {
+    const { DFACoverageClient } = await import('@/lib/coverage/providers/dfa/dfa-coverage-client');
+    const result = await new DFACoverageClient().checkHealth();
+    return {
+      reachable: result.healthy,
+      statusCode: result.healthy ? 200 : 0,
+      responseTime: result.responseTime,
+    };
+  }
+
+  if (integrationSlug === 'mtn-coverage') {
+    return await probeMtnWmsLayer();
+  }
 
   const endpoint = healthEndpoints[integrationSlug];
   if (!endpoint || !endpoint.url) {
@@ -297,6 +331,151 @@ async function checkWebhookHealth(integrationSlug: string): Promise<{
     totalReceived,
     totalFailed,
   };
+}
+
+/**
+ * Real MTN WMS liveness probe.
+ *
+ * Replaces `fetch('https://www.mtn.co.za')`, which proved only that MTN's
+ * marketing site renders — it returned 200 while the coverage layer was failing,
+ * which is why mtn-coverage read `healthy` throughout.
+ *
+ * Healthy = HTTP 200 AND a parseable GetFeatureInfo body. Deliberately does NOT
+ * require features.length > 0: an empty feature list is a valid "no coverage
+ * here" answer, and requiring coverage would make the probe depend on the
+ * coordinate still being served.
+ *
+ * ⚠️ PROBE_COORDINATE is Johannesburg CBD, taken from lib/coverage/mtn/test-data.ts
+ * where it is MOCK fixture data that has never been validated against live MTN.
+ * It is used here only for a bounding box, and the assertion does not depend on
+ * it having coverage — but if this probe proves flaky, validating the coordinate
+ * is the first thing to check.
+ */
+const PROBE_COORDINATE = { lat: -26.2041, lng: 28.0473 };
+const MTN_WMS_PROBE_URL = 'https://mtnsi.mtn.co.za/cache/geoserver/wms';
+const MTN_PROBE_LAYER = 'mtnsi:MTNSA-Coverage-LTE';
+
+async function probeMtnWmsLayer(): Promise<{
+  reachable: boolean;
+  statusCode: number;
+  responseTime: number;
+}> {
+  const startTime = Date.now();
+  const d = 0.0005; // ~100m box around the coordinate
+  const { lat, lng } = PROBE_COORDINATE;
+
+  const params = new URLSearchParams({
+    SERVICE: 'WMS',
+    VERSION: '1.3.0',
+    REQUEST: 'GetFeatureInfo',
+    LAYERS: MTN_PROBE_LAYER,
+    QUERY_LAYERS: MTN_PROBE_LAYER,
+    INFO_FORMAT: 'application/json',
+    FEATURE_COUNT: '10',
+    CRS: 'CRS:84',
+    BBOX: `${lng - d},${lat - d},${lng + d},${lat + d}`,
+    WIDTH: '256',
+    HEIGHT: '256',
+    I: '128',
+    J: '128',
+  });
+
+  try {
+    const response = await fetch(`${MTN_WMS_PROBE_URL}?${params.toString()}`, {
+      // Anti-bot headers are mandatory — see .claude/rules/coding-standards.md
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        Referer: 'https://www.mtn.co.za/',
+        Origin: 'https://www.mtn.co.za',
+      },
+      signal: AbortSignal.timeout(10000),
+    });
+
+    const responseTime = Date.now() - startTime;
+
+    if (!response.ok) {
+      return { reachable: false, statusCode: response.status, responseTime };
+    }
+
+    // A 200 carrying an unparseable body means the layer is not actually serving.
+    const body = await response.json().catch(() => null);
+    const servedFeatureInfo = body !== null && Array.isArray((body as { features?: unknown }).features);
+
+    return {
+      reachable: servedFeatureInfo,
+      statusCode: response.status,
+      responseTime,
+    };
+  } catch {
+    return { reachable: false, statusCode: 0, responseTime: Date.now() - startTime };
+  }
+}
+
+/**
+ * Passive health thresholds.
+ *
+ * Tighter than the retired MTNCoverageMonitor's 85% because these are REAL
+ * customer checks: at CircleTel's volume, one in twenty coverage checks failing
+ * is already customer-visible.
+ */
+const PASSIVE_WINDOW_MINUTES = 60;
+const PASSIVE_MIN_CALLS = 5;      // below this a single failure swings the rate wildly
+const PASSIVE_HEALTHY_RATE = 95;  // % success
+const PASSIVE_DEGRADED_RATE = 80; // % success; below this is `down`
+const PASSIVE_P95_DEGRADED_MS = 10_000;
+
+export type HealthSource = 'traffic' | 'probe' | 'none';
+
+/**
+ * Derive health from recorded provider calls, or null when there isn't enough
+ * traffic in the window to judge (caller then falls back to the synthetic probe).
+ *
+ * Reads `provider_api_calls` directly rather than the hourly rollup: the rollup
+ * runs at :05 and this runs at :00/:30, so rollup-derived health would be up to
+ * an hour stale — the exact staleness this whole effort exists to remove.
+ */
+async function derivePassiveHealth(integrationSlug: string): Promise<{
+  status: HealthStatus;
+  totalCalls: number;
+  successRate: number;
+  avgMs: number;
+  p95Ms: number;
+} | null> {
+  const supabase = await createClient();
+  const since = new Date(Date.now() - PASSIVE_WINDOW_MINUTES * 60_000).toISOString();
+
+  const { data, error } = await supabase
+    .from('provider_api_calls')
+    .select('success, duration_ms')
+    .eq('integration_slug', integrationSlug)
+    .gte('created_at', since);
+
+  if (error || !data || data.length < PASSIVE_MIN_CALLS) return null;
+
+  const totalCalls = data.length;
+  const successes = data.filter((r) => r.success).length;
+  const successRate = (successes / totalCalls) * 100;
+
+  const durations = data.map((r) => r.duration_ms).sort((a, b) => a - b);
+  const avgMs = Math.round(durations.reduce((s, d) => s + d, 0) / totalCalls);
+  const p95Ms = durations[Math.min(durations.length - 1, Math.ceil(0.95 * durations.length) - 1)];
+
+  let status: HealthStatus;
+  if (successRate < PASSIVE_DEGRADED_RATE) {
+    status = 'down';
+  } else if (successRate < PASSIVE_HEALTHY_RATE) {
+    status = 'degraded';
+  } else {
+    status = 'healthy';
+  }
+
+  // Slow but succeeding is degraded, never healthy.
+  if (status === 'healthy' && p95Ms > PASSIVE_P95_DEGRADED_MS) {
+    status = 'degraded';
+  }
+
+  return { status, totalCalls, successRate, avgMs, p95Ms };
 }
 
 /**
