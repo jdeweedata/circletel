@@ -1,8 +1,10 @@
 /**
  * Pure Netcash statement ↔ Zoho cashbook deposit matcher.
+ * Auto-match requires the same account number, exact name, amount, and date window.
  */
 
 import type { ReconExceptionRow } from './types';
+import { extractAccountNumber, namesEqual } from './party-identity';
 
 export interface BankLineLike {
   id: string;
@@ -19,23 +21,17 @@ export interface BankMatchPair {
   amount: number;
   date: string;
   reference: string | null;
-  status: 'matched' | 'netcash_only' | 'books_only' | 'amount_drift';
+  status: 'matched' | 'netcash_only' | 'books_only' | 'amount_drift' | 'name_mismatch';
   amountDelta?: number;
 }
 
 const AMOUNT_TOLERANCE = 0.05;
 const DATE_WINDOW_DAYS = 2;
+const CASH_QUEUE_HREF = '/admin/finance/reconciliation/cash-queue';
 
 function parseDay(iso: string): number {
   const d = iso.length === 10 ? `${iso}T00:00:00.000Z` : iso;
   return Math.floor(new Date(d).getTime() / 86_400_000);
-}
-
-function normRef(ref: string | null | undefined): string {
-  return String(ref || '')
-    .trim()
-    .toUpperCase()
-    .replace(/\s+/g, '');
 }
 
 function amountsClose(a: number, b: number): boolean {
@@ -46,8 +42,17 @@ function datesClose(a: string, b: string): boolean {
   return Math.abs(parseDay(a) - parseDay(b)) <= DATE_WINDOW_DAYS;
 }
 
+function lineAccount(line: BankLineLike): string | null {
+  return (
+    extractAccountNumber(line.reference) ||
+    extractAccountNumber(line.description) ||
+    null
+  );
+}
+
 /**
- * Greedy match: prefer reference+amount, then amount+date window.
+ * Greedy match: account number + exact name + amount + date window.
+ * Amount+date alone never auto-matches.
  */
 export function matchBankLines(
   netcash: BankLineLike[],
@@ -57,53 +62,46 @@ export function matchBankLines(
   const usedBooks = new Set<string>();
   const usedNetcash = new Set<string>();
 
-  // Pass 1: exact reference + amount
   for (const n of netcash) {
-    const nRef = normRef(n.reference);
-    if (!nRef) continue;
-    const hit = books.find(
+    const nAccount = lineAccount(n);
+    if (!nAccount) continue;
+
+    const sameAccount = books.filter(
       (b) =>
         !usedBooks.has(b.id) &&
+        lineAccount(b) === nAccount &&
         amountsClose(n.amount, b.amount) &&
-        (normRef(b.reference) === nRef ||
-          normRef(b.description).includes(nRef) ||
-          nRef.includes(normRef(b.reference)))
+        datesClose(n.date, b.date)
     );
-    if (hit) {
-      usedBooks.add(hit.id);
+
+    const namedHit = sameAccount.find((b) =>
+      namesEqual(n.payerName, b.payerName)
+    );
+    if (namedHit) {
+      usedBooks.add(namedHit.id);
       usedNetcash.add(n.id);
       pairs.push({
         netcashId: n.id,
-        booksId: hit.id,
+        booksId: namedHit.id,
         amount: n.amount,
         date: n.date,
         reference: n.reference,
         status: 'matched',
       });
+      continue;
     }
-  }
 
-  // Pass 2: amount + date window
-  for (const n of netcash) {
-    if (usedNetcash.has(n.id)) continue;
-    const hit = books.find(
-      (b) =>
-        !usedBooks.has(b.id) &&
-        amountsClose(n.amount, b.amount) &&
-        datesClose(n.date, b.date)
-    );
-    if (hit) {
+    if (sameAccount.length > 0) {
+      const hit = sameAccount[0];
       usedBooks.add(hit.id);
       usedNetcash.add(n.id);
-      const drift = Math.abs(parseDay(n.date) - parseDay(hit.date)) > 0;
       pairs.push({
         netcashId: n.id,
         booksId: hit.id,
         amount: n.amount,
         date: n.date,
         reference: n.reference,
-        status: drift ? 'amount_drift' : 'matched',
-        amountDelta: Math.round((n.amount - hit.amount) * 100) / 100,
+        status: 'name_mismatch',
       });
     }
   }
@@ -153,7 +151,7 @@ export function bankPairsToExceptionRows(pairs: BankMatchPair[]): ReconException
         reasonCode: 'bank_netcash_no_books',
         reasonLabel: 'Netcash settled — no Zoho bank/payment match',
         severity: 'red',
-        href: '/admin/finance/reconciliation',
+        href: CASH_QUEUE_HREF,
       });
     } else if (p.status === 'books_only') {
       rows.push({
@@ -185,7 +183,23 @@ export function bankPairsToExceptionRows(pairs: BankMatchPair[]): ReconException
         reasonCode: 'bank_amount_drift',
         reasonLabel: 'Netcash ↔ Books bank amount/date drift',
         severity: 'amber',
-        href: '/admin/finance/reconciliation',
+        href: CASH_QUEUE_HREF,
+      });
+    } else if (p.status === 'name_mismatch') {
+      rows.push({
+        id: `bank-name-${p.netcashId}-${p.booksId}`,
+        kind: 'bank_match',
+        date: p.date,
+        netcashRef: p.reference,
+        amount: p.amount,
+        invoiceId: null,
+        invoiceNumber: null,
+        invoiceStatus: null,
+        zohoStatus: 'n/a',
+        reasonCode: 'name_mismatch',
+        reasonLabel: 'Account matched — customer/business name does not match',
+        severity: 'red',
+        href: CASH_QUEUE_HREF,
       });
     }
   }
@@ -198,5 +212,6 @@ export function summarizeBankPairs(pairs: BankMatchPair[]) {
     netcashOnlyCount: pairs.filter((p) => p.status === 'netcash_only').length,
     booksOnlyCount: pairs.filter((p) => p.status === 'books_only').length,
     driftCount: pairs.filter((p) => p.status === 'amount_drift').length,
+    nameMismatchCount: pairs.filter((p) => p.status === 'name_mismatch').length,
   };
 }

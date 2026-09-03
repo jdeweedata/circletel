@@ -25,6 +25,7 @@ const FILTER_CHIPS: Array<{ id: ThreeWayMatchFilter; label: string }> = [
   { id: 'ct_paid_books_open', label: 'CT paid / Books open' },
   { id: 'netcash_unmatched', label: 'Netcash gap' },
   { id: 'amount_mismatch', label: 'Amount mismatch' },
+  { id: 'name_mismatch', label: 'Name mismatch' },
 ];
 
 const ZOHO_VARIANT: Record<ZohoStatus, StatusVariant> = {
@@ -160,7 +161,8 @@ export function ThreeWayInvoiceTable({ invoices }: ThreeWayInvoiceTableProps) {
                     const flag =
                       row.matchFlags.ctPaidBooksOpen ||
                       row.matchFlags.amountMismatch ||
-                      row.matchFlags.netcashUnmatchedPaid;
+                      row.matchFlags.netcashUnmatchedPaid ||
+                      row.matchFlags.nameMismatch;
                     return (
                       <tr
                         key={row.id}
@@ -183,12 +185,20 @@ export function ThreeWayInvoiceTable({ invoices }: ThreeWayInvoiceTableProps) {
                           </div>
                         </td>
                         <td className="px-3 py-2.5">
+                          <div className="text-xs font-medium text-slate-800">
+                            {row.customerDisplayName || '—'}
+                          </div>
                           <div className="font-mono text-xs text-slate-700">
                             {row.accountNumber || '—'}
                           </div>
                           <div className="text-xs text-slate-500">
                             {row.serviceName || '—'}
                           </div>
+                          {row.matchFlags.nameMismatch ? (
+                            <div className="text-[11px] font-medium text-amber-700">
+                              Books name differs
+                            </div>
+                          ) : null}
                         </td>
                         <td className="whitespace-nowrap px-3 py-2.5">
                           <StatusBadge

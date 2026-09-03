@@ -18,6 +18,7 @@ import { createClient } from '@/lib/supabase/server';
 import { cashbookService } from '@/lib/integrations/zoho/cashbook-service';
 import { matchInvoiceByReference } from '@/lib/billing/invoice-matcher';
 import { syncPaymentToZohoBilling } from '@/lib/integrations/zoho/payment-sync-service';
+import { syncPaymentToZohoBooks } from '@/lib/integrations/zoho/books-payment-sync';
 import { cronLogger } from '@/lib/logging';
 
 // =============================================================================
@@ -232,9 +233,17 @@ export const eftReconciliationFunction = inngest.createFunction(
           }
 
           // Match reference to an invoice
-          const matchResult = await matchInvoiceByReference(reference, supabase);
+          const matchResult = await matchInvoiceByReference(reference, supabase, {
+            payerName: deposit.payerName || undefined,
+          });
 
-          if (!matchResult.matched || !matchResult.invoice) {
+          // Account-only (no exact name) or name mismatch: queue, do not auto-apply
+          if (
+            !matchResult.matched ||
+            !matchResult.invoice ||
+            matchResult.error === 'name_mismatch' ||
+            matchResult.matchConfidence === 'low'
+          ) {
             counters.unmatched++;
 
             // Queue for admin review
@@ -341,6 +350,13 @@ export const eftReconciliationFunction = inngest.createFunction(
                 cronLogger.warn('[EFTRecon] Zoho billing sync failed (non-fatal)', {
                   paymentId: paymentRecord.id,
                   error: zohoResult.error,
+                });
+              }
+              const booksResult = await syncPaymentToZohoBooks(paymentRecord.id);
+              if (!booksResult.success) {
+                cronLogger.warn('[EFTRecon] Zoho Books payment sync failed (non-fatal)', {
+                  paymentId: paymentRecord.id,
+                  error: booksResult.error,
                 });
               }
             } catch (zohoError) {

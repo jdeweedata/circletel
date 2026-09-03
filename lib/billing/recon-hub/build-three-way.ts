@@ -9,6 +9,7 @@ import type {
   ThreeWayMatchFilter,
   ZohoStatus,
 } from './types';
+import { namesEqual } from './party-identity';
 
 const INVOICE_HREF_PREFIX = '/admin/billing/invoices/';
 
@@ -84,6 +85,13 @@ export function buildThreeWayInvoiceRow(inv: ThreeWayInvoiceLike): ThreeWayInvoi
     (ctStatus === 'paid' || ctStatus === 'partial') &&
     netcashState === 'unmatched';
 
+  const customerDisplayName = inv.customer_display_name ?? null;
+  const nameMismatch = Boolean(
+    customerDisplayName &&
+      inv.books_customer_name &&
+      !namesEqual(customerDisplayName, inv.books_customer_name)
+  );
+
   return {
     id: inv.id,
     invoiceNumber: inv.invoice_number,
@@ -92,6 +100,7 @@ export function buildThreeWayInvoiceRow(inv: ThreeWayInvoiceLike): ThreeWayInvoi
     ctTotal,
     ctDue: money(inv.amount_due),
     accountNumber: inv.account_number ?? null,
+    customerDisplayName,
     serviceName: inv.service_name ?? null,
     monthlyPrice:
       inv.monthly_price != null ? money(inv.monthly_price) : null,
@@ -107,6 +116,7 @@ export function buildThreeWayInvoiceRow(inv: ThreeWayInvoiceLike): ThreeWayInvoi
       amountMismatch,
       booksUnlinked,
       netcashUnmatchedPaid,
+      nameMismatch,
     },
     href: `${INVOICE_HREF_PREFIX}${inv.id}`,
   };
@@ -143,6 +153,8 @@ export function filterThreeWayInvoices(
       return rows.filter((r) => r.matchFlags.netcashUnmatchedPaid);
     case 'amount_mismatch':
       return rows.filter((r) => r.matchFlags.amountMismatch);
+    case 'name_mismatch':
+      return rows.filter((r) => r.matchFlags.nameMismatch);
     case 'bank_mismatch':
       return [];
     case 'all':
@@ -165,7 +177,8 @@ export function threeWayToExceptionHints(
   reasonCode:
     | 'ct_paid_books_open'
     | 'amount_mismatch'
-    | 'books_unlinked';
+    | 'books_unlinked'
+    | 'name_mismatch';
   severity: 'red' | 'amber' | 'neutral';
   href: string;
   booksInvoiceId: string | null;
@@ -208,6 +221,25 @@ export function threeWayToExceptionHints(
         zohoStatus: r.booksSyncStatus,
         reasonCode: 'amount_mismatch',
         severity: 'amber',
+        href: r.href,
+        booksInvoiceId: r.booksInvoiceId,
+        booksStatus: r.booksStatus,
+        booksBalance: r.booksBalance,
+        netcashState: r.netcashState,
+        serviceName: r.serviceName,
+        accountNumber: r.accountNumber,
+      });
+    } else if (r.matchFlags.nameMismatch) {
+      out.push({
+        id: `tw-name-${r.id}`,
+        date: r.invoiceDate || '',
+        amount: r.ctTotal,
+        invoiceId: r.id,
+        invoiceNumber: r.invoiceNumber,
+        invoiceStatus: r.ctStatus,
+        zohoStatus: r.booksSyncStatus,
+        reasonCode: 'name_mismatch',
+        severity: 'red',
         href: r.href,
         booksInvoiceId: r.booksInvoiceId,
         booksStatus: r.booksStatus,

@@ -114,7 +114,7 @@ export async function runThreeWayBankMatch(
     const supabase = await createClient();
     const { data: queue } = await supabase
       .from('reconciliation_queue')
-      .select('id, amount, source_date, source_reference, payer_reference, source, status')
+      .select('id, amount, source_date, source_reference, payer_reference, payer_name, source, status')
       .in('source', ['netcash_statement', 'zoho_cashbook', 'netcash_paynow', 'netcash'])
       .eq('status', 'pending')
       .gte('source_date', fromDate)
@@ -131,6 +131,7 @@ export async function runThreeWayBankMatch(
           (row.source_reference as string | null) ||
           (row.payer_reference as string | null) ||
           null,
+        payerName: (row.payer_name as string | null) || null,
       };
       if (src.includes('zoho') || src === 'zoho_cashbook') {
         if (!booksLines.some((b) => b.id === line.id)) booksLines.push(line);

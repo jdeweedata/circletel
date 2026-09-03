@@ -22,6 +22,7 @@ import {
   countCtPaidBooksOpen,
 } from '@/lib/billing/recon-hub/build-three-way';
 import { runThreeWayBankMatch } from '@/lib/billing/recon-hub/run-bank-match';
+import { displayName } from '@/lib/billing/recon-hub/party-identity';
 import { getZohoBooksClient } from '@/lib/integrations/zoho/books-api-client';
 import type {
   OpenArLike,
@@ -202,8 +203,13 @@ async function loadPendingQueueUnmatched(
 
 async function enrichBooksStatus(
   linkedIds: string[]
-): Promise<Map<string, { status: string; total: number; balance: number }>> {
-  const map = new Map<string, { status: string; total: number; balance: number }>();
+): Promise<
+  Map<string, { status: string; total: number; balance: number; customerName: string | null }>
+> {
+  const map = new Map<
+    string,
+    { status: string; total: number; balance: number; customerName: string | null }
+  >();
   if (linkedIds.length === 0) return map;
 
   try {
@@ -217,6 +223,7 @@ async function enrichBooksStatus(
             status: inv.status,
             total: Number(inv.total ?? 0),
             balance: Number(inv.balance ?? 0),
+            customerName: inv.customer_name ?? null,
           });
         } catch {
           // leave uncached
@@ -280,7 +287,7 @@ export async function GET(request: NextRequest) {
         .select(
           `id, invoice_number, status, invoice_date, due_date, total_amount, amount_due, amount_paid,
            zoho_books_invoice_id, zoho_sync_status, paynow_transaction_ref, customer_id,
-           customer:customers(account_number)`
+           customer:customers(account_number, first_name, last_name, business_name)`
         )
         .or(
           `invoice_date.gte.${windowFrom.slice(0, 10)},paid_at.gte.${windowFrom},updated_at.gte.${windowFrom}`
@@ -521,12 +528,28 @@ export async function GET(request: NextRequest) {
         const booksId = inv.zoho_books_invoice_id as string | null;
         const books = booksId ? booksMap.get(booksId) : undefined;
         const customer = inv.customer as
-          | { account_number?: string | null }
-          | { account_number?: string | null }[]
+          | {
+              account_number?: string | null;
+              first_name?: string | null;
+              last_name?: string | null;
+              business_name?: string | null;
+            }
+          | {
+              account_number?: string | null;
+              first_name?: string | null;
+              last_name?: string | null;
+              business_name?: string | null;
+            }[]
           | null;
-        const accountNumber = Array.isArray(customer)
-          ? customer[0]?.account_number
-          : customer?.account_number;
+        const cust = Array.isArray(customer) ? customer[0] : customer;
+        const accountNumber = cust?.account_number;
+        const customerDisplayName = cust
+          ? displayName({
+              first_name: cust.first_name,
+              last_name: cust.last_name,
+              business_name: cust.business_name,
+            })
+          : null;
 
         return {
           id: inv.id as string,
@@ -543,6 +566,8 @@ export async function GET(request: NextRequest) {
             (inv.paynow_transaction_ref as string | null) ?? null,
           customer_id: cid,
           account_number: accountNumber ?? null,
+          customer_display_name: customerDisplayName || null,
+          books_customer_name: books?.customerName ?? null,
           service_name: svc?.name ?? null,
           monthly_price: svc?.monthly ?? null,
           books_status: books?.status ?? null,
