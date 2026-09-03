@@ -27,7 +27,7 @@ export interface PlaceInstallOrderInput {
 }
 
 export const INSTALL_ORDER_NPC_GATE_ERROR =
-  'Process install order after Unjani NPC confirms the nomination and coverage.';
+  'Process install order after Unjani NPC confirms clinic details and coverage.';
 
 export function installOrderStageForClinic(input: {
   site?: { status?: string | null; installed_at?: string | null } | null;
@@ -57,7 +57,15 @@ async function loadStock(db: Db): Promise<WarehouseStockLine[]> {
   }));
 }
 
-async function reserveKit(db: Db, orderId: string, createdBy?: string) {
+async function reserveKit(
+  db: Db,
+  orderId: string,
+  createdBy?: string,
+  corporateSiteId?: string | null
+) {
+  const notes = corporateSiteId
+    ? `Booked out against site ${corporateSiteId}`
+    : 'Booked out against install order';
   for (const line of UNJANI_CONNECT_KIT) {
     const { data: stock, error } = await db
       .from('warehouse_stock')
@@ -78,6 +86,7 @@ async function reserveKit(db: Db, orderId: string, createdBy?: string) {
       movement_type: 'reserve',
       qty: line.qty,
       install_order_id: orderId,
+      notes,
       created_by: createdBy ?? null,
     });
     if (moveError) throw new Error(moveError.message);
@@ -148,7 +157,7 @@ export async function receiveReplenishmentsForOrder(db: Db, orderId: string, cre
 export async function tryReserveOpenOrder(db: Db, orderId: string, createdBy?: string) {
   const { data: order, error } = await db
     .from('unjani_install_orders')
-    .select('id, stock_status, status')
+    .select('id, stock_status, status, corporate_site_id')
     .eq('id', orderId)
     .single();
   if (error || !order) throw new Error(error?.message || 'Install order not found');
@@ -157,7 +166,7 @@ export async function tryReserveOpenOrder(db: Db, orderId: string, createdBy?: s
   const stock = await loadStock(db);
   if (!canReserveKit(stock)) return order;
 
-  await reserveKit(db, orderId, createdBy);
+  await reserveKit(db, orderId, createdBy, order.corporate_site_id);
   const { data: updated, error: updateError } = await db
     .from('unjani_install_orders')
     .update({ stock_status: 'reserved', updated_at: new Date().toISOString() })
@@ -165,6 +174,14 @@ export async function tryReserveOpenOrder(db: Db, orderId: string, createdBy?: s
     .select()
     .single();
   if (updateError) throw new Error(updateError.message);
+  return updated;
+}
+
+export async function assignKitToSite(db: Db, orderId: string, createdBy?: string) {
+  const updated = await tryReserveOpenOrder(db, orderId, createdBy);
+  if (updated.stock_status !== 'reserved') {
+    throw new Error('Kit cannot be booked out until stock is on hand');
+  }
   return updated;
 }
 
@@ -332,7 +349,7 @@ export async function placeUnjaniInstallOrder(db: Db, input: PlaceInstallOrderIn
   if (insertError || !order) throw new Error(insertError?.message || 'Failed to create install order');
 
   if (reserved) {
-    await reserveKit(db, order.id, input.createdBy);
+    await reserveKit(db, order.id, input.createdBy, order.corporate_site_id);
   } else {
     await raiseReplenishments(db, order.id, orderedAt, input.createdBy);
   }

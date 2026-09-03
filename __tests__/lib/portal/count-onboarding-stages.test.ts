@@ -156,6 +156,56 @@ describe('countOnboardingStages', () => {
     expect(stageByClinicKey(refs)).toEqual({ suurman: 'nominated' });
   });
 
+  it('counts Delmas (pending + approved, no visit) as details_confirmed', () => {
+    const result = countOnboardingStages({
+      sites: [
+        {
+          id: 'site-delmas',
+          site_name: 'Unjani Clinic - Delmas',
+          status: 'pending',
+          installed_at: null,
+        },
+      ],
+      customers: [
+        {
+          id: 'cust-delmas',
+          business_name: 'Unjani Clinic - Delmas',
+          corporate_site_id: 'site-delmas',
+        },
+      ],
+      bestSubmission: {
+        'cust-delmas': { status: 'approved', rejection_reason: null },
+      },
+      linkSent: new Set(['cust-delmas']),
+    });
+
+    expect(result.stageCounts.details_confirmed).toBe(1);
+    expect(result.stageCounts.installing).toBe(0);
+    expect(result.stageBySiteId['site-delmas']).toBe('details_confirmed');
+  });
+
+  it('counts a confirmed visit as visit_booked and kit issue as installing', () => {
+    const booked = countOnboardingStages({
+      sites: [{ id: 'site-1', status: 'pending', installed_at: null }],
+      customers: [{ id: 'cust-1', corporate_site_id: 'site-1' }],
+      bestSubmission: { 'cust-1': { status: 'approved', rejection_reason: null } },
+      linkSent: new Set(['cust-1']),
+      installBySiteId: { 'site-1': { visitDate: '2026-09-10' } },
+    });
+    expect(booked.stageBySiteId['site-1']).toBe('visit_booked');
+
+    const installing = countOnboardingStages({
+      sites: [{ id: 'site-1', status: 'pending', installed_at: null }],
+      customers: [{ id: 'cust-1', corporate_site_id: 'site-1' }],
+      bestSubmission: { 'cust-1': { status: 'approved', rejection_reason: null } },
+      linkSent: new Set(['cust-1']),
+      installBySiteId: {
+        'site-1': { visitDate: '2026-09-10', kitIssuedAt: '2026-09-10T08:00:00.000Z' },
+      },
+    });
+    expect(installing.stageBySiteId['site-1']).toBe('installing');
+  });
+
   it('maps introduced clinics by clinic key for the coverage feed', () => {
     const counted = countOnboardingStages({
       sites: [],

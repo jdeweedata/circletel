@@ -24,7 +24,6 @@ describe('place Unjani install order', () => {
 describe('canProcessInstallOrder', () => {
   const feasible = { tarana: { feasible: true } };
   const allowed: StageKey[] = [
-    'introduced',
     'details_confirmed',
     'changes_requested',
     'visit_booked',
@@ -45,12 +44,13 @@ describe('canProcessInstallOrder', () => {
     expect(
       canProcessInstallOrder({
         results: { tarana: { feasible: false } },
-        stage: 'introduced',
+        stage: 'details_confirmed',
       })
     ).toBe(false);
   });
 
-  it('allows Process install order once coverage is feasible and the clinic is past nominated', () => {
+  it('allows Process install order only after clinic details are confirmed', () => {
+    expect(canProcessInstallOrder({ results: feasible, stage: 'introduced' })).toBe(false);
     for (const stage of allowed) {
       expect(canProcessInstallOrder({ results: feasible, stage })).toBe(true);
     }
@@ -59,10 +59,13 @@ describe('canProcessInstallOrder', () => {
   it('tells admin to wait for Unjani NPC when coverage is feasible but still nominated', () => {
     expect(adminInstallOrderPrompt({ results: feasible, stage: 'nominated' })).toBe('await_npc');
     expect(adminInstallOrderPrompt({ results: feasible, stage: undefined })).toBe('await_npc');
+    expect(adminInstallOrderPrompt({ results: feasible, stage: 'introduced' })).toBe('await_npc');
   });
 
-  it('unlocks the Process install order prompt after Introduction', () => {
-    expect(adminInstallOrderPrompt({ results: feasible, stage: 'introduced' })).toBe('process');
+  it('unlocks the Process install order prompt after clinic details are confirmed', () => {
+    expect(adminInstallOrderPrompt({ results: feasible, stage: 'details_confirmed' })).toBe(
+      'process'
+    );
   });
 });
 
@@ -141,7 +144,7 @@ describe('placeUnjaniInstallOrder NPC gate', () => {
         address: 'Suurman Village',
       })
     ).rejects.toThrow(
-      'Process install order after Unjani NPC confirms the nomination and coverage.'
+      'Process install order after Unjani NPC confirms clinic details and coverage.'
     );
   });
 });

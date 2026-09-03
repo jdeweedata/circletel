@@ -56,14 +56,13 @@ export function canPlaceInstallOrder(results: CoverageCheckResults | null | unde
 }
 
 const INSTALL_ORDER_STAGES: ReadonlySet<StageKey> = new Set([
-  'introduced',
   'details_confirmed',
   'changes_requested',
   'visit_booked',
   'installing',
 ]);
 
-/** Coverage feasible and Unjani NPC has confirmed nomination (past `nominated`, not live). */
+/** Coverage feasible and Unjani NPC has confirmed clinic details (not live). */
 export function canProcessInstallOrder(input: {
   results: CoverageCheckResults | null | undefined;
   stage: StageKey | null | undefined;

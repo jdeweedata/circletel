@@ -101,12 +101,16 @@ export interface StageSignals {
   submissionRejectionReason?: string | null;
   /** An onboarding link has been sent to the clinic. */
   onboardingLinkSent?: boolean;
+  /** Scheduler-confirmed visit (YYYY-MM-DD). A proposed ops slot does not count. */
+  visitDate?: string | null;
+  /** Kit physically issued for the confirmed visit. */
+  kitIssuedAt?: string | null;
 }
 
 /**
- * Most-advanced-evidence-wins. A site is only "Go live" once it is active with a
- * recorded go-live date, and only "Survey, install and test" once the visit is
- * booked (submission approved) and a site record is standing by.
+ * Most-advanced-evidence-wins. Approved details stay on Clinic details confirmed
+ * until the scheduler writes a visit date. Survey/install starts after that
+ * confirmed visit once the kit is issued — not merely because a pending site exists.
  */
 export function deriveStage(signals: StageSignals): StageKey {
   const {
@@ -115,13 +119,17 @@ export function deriveStage(signals: StageSignals): StageKey {
     submissionStatus,
     submissionRejectionReason,
     onboardingLinkSent,
+    visitDate,
+    kitIssuedAt,
   } = signals;
 
   if (siteStatus === 'active' && installedAt) return 'live';
-  if (siteStatus === 'pending' && submissionStatus === 'approved') return 'installing';
-  if (submissionStatus === 'approved') return 'visit_booked';
+  if (visitDate && kitIssuedAt) return 'installing';
+  if (visitDate) return 'visit_booked';
   if (submissionRejectionReason) return 'changes_requested';
-  if (submissionStatus === 'submitted') return 'details_confirmed';
+  if (submissionStatus === 'submitted' || submissionStatus === 'approved') {
+    return 'details_confirmed';
+  }
   if (onboardingLinkSent) return 'introduced';
   return 'nominated';
 }

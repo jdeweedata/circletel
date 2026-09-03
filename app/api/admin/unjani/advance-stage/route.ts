@@ -148,20 +148,42 @@ export async function POST(request: NextRequest) {
 
       const { data: stockOrder } = await supabase
         .from('unjani_install_orders')
-        .select('id, stock_status')
+        .select('id, stock_status, field_job_id, technician_id, fulfil_by_max, visit_date')
         .eq('customer_id', customerId)
         .in('status', ['open', 'scheduled', 'in_progress'])
         .order('ordered_at', { ascending: false })
         .limit(1)
         .maybeSingle();
-      if (stockOrder && stockOrder.stock_status !== 'reserved') {
+      if (!stockOrder?.field_job_id) {
         return NextResponse.json(
           {
             success: false,
-            error: 'Booking is blocked until the Unjani Connect kit is reserved',
+            error: 'Open a job card after the kit is booked out before confirming the visit',
           },
           { status: 400 }
         );
+      }
+      if (stockOrder.stock_status !== 'reserved') {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Booking is blocked until the Unjani Connect kit is booked out against the site',
+          },
+          { status: 400 }
+        );
+      }
+      if (!stockOrder.visit_date) {
+        const { error: visitError } = await supabase
+          .from('unjani_install_orders')
+          .update({
+            visit_date: visitDate,
+            status: 'scheduled',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', stockOrder.id);
+        if (visitError) {
+          return NextResponse.json({ success: false, error: visitError.message }, { status: 500 });
+        }
       }
 
       const notes = bookVisitNotes(visitDate, typeof body.notes === 'string' ? body.notes : undefined);

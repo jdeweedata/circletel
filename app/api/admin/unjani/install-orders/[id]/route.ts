@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireUnjaniAdmin } from '@/lib/admin/require-unjani-admin';
-import { createFieldJob } from '@/lib/services/technician-service';
+import { createFieldJob, updateFieldJob } from '@/lib/services/technician-service';
 import { bookVisitNotes } from '@/lib/admin/unjani-advance-stage';
-import { assertScheduleAllowed } from '@/lib/admin/unjani-warehouse';
 import { installJobType } from '@/lib/admin/unjani-install-schedule';
 import { recommendedAccess } from '@/lib/portal/coverage-summary';
 import {
+  assignKitToSite,
   issueKitForOrder,
   receiveReplenishmentsForOrder,
-  tryReserveOpenOrder,
 } from '@/lib/admin/unjani-install-orders';
+import {
+  assertConfirmSlotAllowed,
+  assertOpenJobAllowed,
+} from '@/lib/admin/unjani-install-desk';
 import { uploadFile } from '@/lib/storage/supabase-upload';
 import { canIssueRfsCertificate } from '@/lib/billing/unjani-connect-rules';
 import { apiLogger } from '@/lib/logging/logger';
@@ -99,7 +102,7 @@ export async function POST(
     const action = String(body.action || '');
 
     if (action === 'assign_kit') {
-      const updated = await tryReserveOpenOrder(auth.supabase, order.id, auth.adminUser.id);
+      const updated = await assignKitToSite(auth.supabase, order.id, auth.adminUser.id);
       return NextResponse.json({ order: updated });
     }
 
@@ -147,24 +150,38 @@ export async function POST(
     }
 
     if (action === 'schedule') {
-      const visitDate = String(body.visitDate || '').trim();
+      return NextResponse.json(
+        { error: 'Use open_job then confirm_slot. One-click schedule is closed.' },
+        { status: 400 }
+      );
+    }
+
+    if (action === 'open_job') {
+      const proposedDate = String(body.visitDate || body.proposedDate || '').trim();
       const technicianId = String(body.technicianId || '').trim();
       const timeStart = String(body.timeStart || '08:00').trim();
       const timeEnd = String(body.timeEnd || '12:00').trim();
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(visitDate) || !technicianId) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(proposedDate) || !technicianId) {
         return NextResponse.json(
-          { error: 'technicianId and visitDate (YYYY-MM-DD) are required' },
+          { error: 'technicianId and proposedDate (YYYY-MM-DD) are required' },
           { status: 400 }
         );
       }
-      assertScheduleAllowed({
+      assertOpenJobAllowed({
         stockStatus: order.stock_status,
-        visitDate,
+        technicianId,
+        proposedDate,
         fulfilByMax: order.fulfil_by_max,
       });
       if (!order.customer_id) {
         return NextResponse.json(
-          { error: 'Register the clinic (customer) before booking a technician visit' },
+          { error: 'Register the clinic (customer) before opening a job card' },
+          { status: 400 }
+        );
+      }
+      if (order.field_job_id) {
+        return NextResponse.json(
+          { error: 'A job card is already open for this clinic' },
           { status: 400 }
         );
       }
@@ -187,7 +204,7 @@ export async function POST(
         customer_name: order.contact_name || order.clinic_name || undefined,
         customer_phone: order.contact_phone || undefined,
         customer_email: order.contact_email || undefined,
-        scheduled_date: visitDate,
+        scheduled_date: proposedDate,
         scheduled_time_start: timeStart,
         scheduled_time_end: timeEnd,
         estimated_duration_minutes: 180,
@@ -195,49 +212,71 @@ export async function POST(
         customer_id: order.customer_id,
       });
 
-      await issueKitForOrder(auth.supabase, order.id, auth.adminUser.id);
+      const { data: updated, error: updateError } = await auth.supabase
+        .from('unjani_install_orders')
+        .update({
+          field_job_id: job.id,
+          technician_id: technicianId,
+          corporate_site_id: order.corporate_site_id,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', order.id)
+        .select()
+        .single();
+      if (updateError) {
+        return NextResponse.json({ error: updateError.message }, { status: 500 });
+      }
+      return NextResponse.json({ order: updated, job });
+    }
+
+    if (action === 'confirm_slot') {
+      const visitDate = String(body.visitDate || '').trim();
+      const timeStart = String(body.timeStart || '08:00').trim();
+      const timeEnd = String(body.timeEnd || '12:00').trim();
+      const technicianId = String(body.technicianId || order.technician_id || '').trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(visitDate)) {
+        return NextResponse.json(
+          { error: 'visitDate (YYYY-MM-DD) is required' },
+          { status: 400 }
+        );
+      }
+      assertConfirmSlotAllowed({
+        fieldJobId: order.field_job_id,
+        technicianId,
+        stockStatus: order.stock_status,
+        visitDate,
+        fulfilByMax: order.fulfil_by_max,
+      });
+
+      const job = await updateFieldJob(order.field_job_id, {
+        scheduled_date: visitDate,
+        scheduled_time_start: timeStart,
+        scheduled_time_end: timeEnd,
+        assigned_technician_id: technicianId,
+        status: 'assigned',
+      });
 
       const notes = bookVisitNotes(visitDate, typeof body.notes === 'string' ? body.notes : undefined);
-      if (order.corporate_site_id) {
+      const siteId = order.corporate_site_id;
+      if (siteId) {
         await auth.supabase
           .from('corporate_sites')
           .update({ rfi_notes: notes, status: 'pending' })
-          .eq('id', order.corporate_site_id);
+          .eq('id', siteId);
         await auth.supabase.from('corporate_site_events').insert({
-          site_id: order.corporate_site_id,
+          site_id: siteId,
           event_type: 'visit_booked',
           new_value: { visit_date: visitDate, field_job_id: job.id, technician_id: technicianId },
           performed_by: auth.adminUser.id,
           notes,
         });
-      } else {
-        const { data: customer } = await auth.supabase
-          .from('customers')
-          .select('id, corporate_site_id')
-          .eq('id', order.customer_id)
-          .maybeSingle();
-        if (customer?.corporate_site_id) {
-          await auth.supabase
-            .from('corporate_sites')
-            .update({ rfi_notes: notes, status: 'pending' })
-            .eq('id', customer.corporate_site_id);
-          await auth.supabase.from('corporate_site_events').insert({
-            site_id: customer.corporate_site_id,
-            event_type: 'visit_booked',
-            new_value: { visit_date: visitDate, field_job_id: job.id },
-            performed_by: auth.adminUser.id,
-            notes,
-          });
-        }
       }
 
       const { data: updated, error: updateError } = await auth.supabase
         .from('unjani_install_orders')
         .update({
-          field_job_id: job.id,
           visit_date: visitDate,
           technician_id: technicianId,
-          corporate_site_id: order.corporate_site_id,
           status: 'scheduled',
           updated_at: new Date().toISOString(),
         })
@@ -250,10 +289,25 @@ export async function POST(
       return NextResponse.json({ order: updated, job });
     }
 
+    if (action === 'issue_kit') {
+      if (!order.visit_date) {
+        return NextResponse.json(
+          { error: 'Issue the kit on the confirmed visit day' },
+          { status: 400 }
+        );
+      }
+      const updated = await issueKitForOrder(auth.supabase, order.id, auth.adminUser.id);
+      return NextResponse.json({ order: updated });
+    }
+
     return NextResponse.json({ error: `Unknown action: ${action}` }, { status: 400 });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Internal server error';
-    const status = /reserved|25th|21 business|Register the clinic/i.test(message) ? 400 : 500;
+    const status = /reserved|booked out|job card|technician|25th|21 business|Register the clinic/i.test(
+      message
+    )
+      ? 400
+      : 500;
     apiLogger.error('[Unjani install-orders id] POST failed', { error });
     return NextResponse.json({ error: message }, { status });
   }

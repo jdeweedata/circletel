@@ -66,12 +66,60 @@ export function scopeOnboardingCustomers<T extends CountableCustomer>(
   });
 }
 
+export interface InstallStageEvidence {
+  visitDate?: string | null;
+  kitIssuedAt?: string | null;
+}
+
+export interface CountableInstallOrder {
+  customer_id?: string | null;
+  corporate_site_id?: string | null;
+  visit_date?: string | null;
+  kit_issued_at?: string | null;
+  status?: string | null;
+}
+
+const ACTIVE_INSTALL_STATUSES = new Set(['open', 'scheduled', 'in_progress']);
+
+export function indexInstallEvidence(orders: CountableInstallOrder[] = []): {
+  byCustomerId: Record<string, InstallStageEvidence>;
+  bySiteId: Record<string, InstallStageEvidence>;
+} {
+  const byCustomerId: Record<string, InstallStageEvidence> = {};
+  const bySiteId: Record<string, InstallStageEvidence> = {};
+  for (const order of orders) {
+    if (order.status && !ACTIVE_INSTALL_STATUSES.has(order.status)) continue;
+    const evidence: InstallStageEvidence = {
+      visitDate: order.visit_date ?? null,
+      kitIssuedAt: order.kit_issued_at ?? null,
+    };
+    if (order.customer_id) byCustomerId[order.customer_id] = evidence;
+    if (order.corporate_site_id) bySiteId[order.corporate_site_id] = evidence;
+  }
+  return { byCustomerId, bySiteId };
+}
+
+function evidenceFor(
+  maps: {
+    byCustomerId?: Record<string, InstallStageEvidence>;
+    bySiteId?: Record<string, InstallStageEvidence>;
+  },
+  customerId?: string,
+  siteId?: string
+): InstallStageEvidence {
+  if (siteId && maps.bySiteId?.[siteId]) return maps.bySiteId[siteId];
+  if (customerId && maps.byCustomerId?.[customerId]) return maps.byCustomerId[customerId];
+  return {};
+}
+
 export function countOnboardingStages(input: {
   sites: CountableSite[];
   customers: CountableCustomer[];
   bestSubmission: Record<string, CountableSubmission | undefined>;
   linkSent: Set<string> | Iterable<string>;
   nominatedCheckKeys?: Iterable<string>;
+  installByCustomerId?: Record<string, InstallStageEvidence>;
+  installBySiteId?: Record<string, InstallStageEvidence>;
 }): {
   stageCounts: Record<StageKey, number>;
   stageByCustomerId: Record<string, StageKey>;
@@ -105,12 +153,19 @@ export function countOnboardingStages(input: {
     }
     const customerId = customerBySite.get(site.id);
     const submission = customerId ? input.bestSubmission[customerId] : undefined;
+    const install = evidenceFor(
+      { byCustomerId: input.installByCustomerId, bySiteId: input.installBySiteId },
+      customerId,
+      site.id
+    );
     const stage = deriveStage({
       siteStatus: site.status,
       installedAt: site.installed_at,
       submissionStatus: submission?.status,
       submissionRejectionReason: submission?.rejection_reason,
       onboardingLinkSent: customerId ? linkSent.has(customerId) : false,
+      visitDate: install.visitDate,
+      kitIssuedAt: install.kitIssuedAt,
     });
     if (stage === 'nominated' && !customerId && !nominatedKeys.has(clinicKey(site.site_name))) {
       continue;
@@ -127,10 +182,17 @@ export function countOnboardingStages(input: {
     if (countedCustomers.has(customer.id)) continue;
     const submission = input.bestSubmission[customer.id];
     if (!submission && !linkSent.has(customer.id)) continue;
+    const install = evidenceFor(
+      { byCustomerId: input.installByCustomerId, bySiteId: input.installBySiteId },
+      customer.id,
+      customer.corporate_site_id ?? undefined
+    );
     const stage = deriveStage({
       submissionStatus: submission?.status,
       submissionRejectionReason: submission?.rejection_reason,
       onboardingLinkSent: linkSent.has(customer.id),
+      visitDate: install.visitDate,
+      kitIssuedAt: install.kitIssuedAt,
     });
     stageCounts[stage]++;
     stageByCustomerId[customer.id] = stage;
