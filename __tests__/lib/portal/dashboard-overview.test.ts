@@ -3,6 +3,7 @@ import {
   pipelineClinicsForFilter,
   pipelineOverviewRows,
   pipelineSiteListRows,
+  sitesForListFilter,
 } from '@/lib/portal/dashboard-overview';
 import type { StageClinicRef } from '@/lib/portal/count-onboarding-stages';
 
@@ -131,6 +132,27 @@ describe('pipelineSiteListRows', () => {
     expect(rows.map((row) => ({ name: row.name, siteId: row.siteId, stage: row.stage }))).toEqual([
       { name: 'Delmas', siteId: 'site-delmas', stage: 'installing' },
       { name: 'Suurman', siteId: undefined, stage: 'nominated' },
+    ]);
+  });
+});
+
+describe('sitesForListFilter', () => {
+  const sites = [
+    { id: 'live', stage: 'live' as const },
+    { id: 'installing', stage: 'installing' as const },
+    { id: 'nominated', stage: 'nominated' as const },
+  ];
+
+  it('still applies onboarding and live filters when pipeline clinics are missing', () => {
+    expect(sitesForListFilter(sites, 'onboarding').map((site) => site.id)).toEqual([
+      'installing',
+      'nominated',
+    ]);
+    expect(sitesForListFilter(sites, 'live').map((site) => site.id)).toEqual(['live']);
+    expect(sitesForListFilter(sites, 'all').map((site) => site.id)).toEqual([
+      'live',
+      'installing',
+      'nominated',
     ]);
   });
 });

@@ -24,6 +24,7 @@ import {
   parseSiteListFilter,
   pipelineClinicsForFilter,
   pipelineSiteListRows,
+  sitesForListFilter,
   type SiteListFilter,
 } from '@/lib/portal/dashboard-overview';
 
@@ -111,8 +112,8 @@ export default function SiteListTable() {
     }
     return {
       all: sites.length,
-      onboarding: sites.filter((s) => s.stage !== 'live').length,
-      live: sites.filter((s) => s.stage === 'live').length,
+      onboarding: sitesForListFilter(sites, 'onboarding').length,
+      live: sitesForListFilter(sites, 'live').length,
     };
   }, [sites, stageClinics]);
 
@@ -146,7 +147,7 @@ export default function SiteListTable() {
         siteId: row.siteId,
       }));
     }
-    return sites.map((site) => ({
+    return sitesForListFilter(sites, filter).map((site) => ({
       key: site.id,
       site,
       name: formatClinicShortName(site.site_name),

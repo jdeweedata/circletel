@@ -39,13 +39,20 @@ export function isInOnboardingStage(stage: StageKey): boolean {
   return stage !== 'live';
 }
 
+export function sitesForListFilter<T extends { stage: StageKey }>(
+  sites: T[],
+  filter: SiteListFilter
+): T[] {
+  if (filter === 'onboarding') return sites.filter((site) => isInOnboardingStage(site.stage));
+  if (filter === 'live') return sites.filter((site) => site.stage === 'live');
+  return sites;
+}
+
 export function pipelineClinicsForFilter(
   clinics: StageClinicRef[],
   filter: SiteListFilter
 ): StageClinicRef[] {
-  if (filter === 'onboarding') return clinics.filter((clinic) => isInOnboardingStage(clinic.stage));
-  if (filter === 'live') return clinics.filter((clinic) => clinic.stage === 'live');
-  return clinics;
+  return sitesForListFilter(clinics, filter);
 }
 
 function toOverviewRows(
