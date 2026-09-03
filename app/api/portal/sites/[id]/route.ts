@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requirePortalCapability } from '@/lib/portal/require-portal-user';
 import { deriveStage, submissionRank } from '@/lib/portal/onboarding-stage';
+import { indexInstallEvidence } from '@/lib/portal/count-onboarding-stages';
 
 /** Columns that exist on corporate_sites — verified against information_schema. */
 const SITE_DETAIL_COLUMNS = `
@@ -96,13 +97,46 @@ export async function GET(
     onboardingLinkSent = (tokenCount ?? 0) > 0;
   }
 
+  const { data: installOrders } = await adminDb
+    .from('unjani_install_orders')
+    .select('visit_date, stock_status, status, kit_issued_at, customer_id, corporate_site_id')
+    .eq('organisation_id', portalUser.organisation_id)
+    .or(
+      [
+        `corporate_site_id.eq.${id}`,
+        customer ? `customer_id.eq.${customer.id}` : null,
+      ]
+        .filter(Boolean)
+        .join(',')
+    )
+    .in('status', ['open', 'scheduled', 'in_progress'])
+    .order('ordered_at', { ascending: false })
+    .limit(1);
+
+  const installRow = installOrders?.[0] ?? null;
+  const installEvidence = indexInstallEvidence(installRow ? [installRow] : []);
+  const installSignals =
+    installEvidence.bySiteId[id] ||
+    (customer ? installEvidence.byCustomerId[customer.id] : undefined) ||
+    {};
+
   const stage = deriveStage({
     siteStatus: site.status,
     installedAt: site.installed_at,
     submissionStatus,
     submissionRejectionReason,
     onboardingLinkSent,
+    visitDate: installSignals.visitDate,
+    kitIssuedAt: installSignals.kitIssuedAt,
   });
+
+  const install = installRow
+    ? {
+        visit_date: installRow.visit_date ?? null,
+        stock_status: installRow.stock_status,
+        status: installRow.status,
+      }
+    : null;
 
   let latestHealth = null;
   let recentAlerts: unknown[] = [];
@@ -130,6 +164,7 @@ export async function GET(
 
   return NextResponse.json({
     site: { ...site, customer_id: customer?.id ?? null, stage },
+    install,
     health: latestHealth,
     alerts: recentAlerts,
   });

@@ -20,10 +20,10 @@ import {
   PmButton,
   PortalModernistShell,
 } from '@/components/portal/modernist/PortalModernistShell';
-import {
-  StageBadge,
-  OnboardingProgress,
-} from '@/components/portal/modernist/StageIndicators';
+import { StageBadge } from '@/components/portal/modernist/StageIndicators';
+import { ClinicNowCard } from '@/components/portal/modernist/ClinicNowCard';
+import { ClinicPlacePeople } from '@/components/portal/modernist/ClinicPlacePeople';
+import { OnboardingStepper } from '@/components/portal/modernist/OnboardingStepper';
 import type { StageKey } from '@/lib/portal/onboarding-stage';
 import { usePortalCapability } from '@/lib/portal/use-portal-capability';
 
@@ -56,6 +56,11 @@ interface SiteDetail {
     customer_id: string | null;
     stage: StageKey;
   };
+  install: {
+    visit_date: string | null;
+    stock_status: string;
+    status: string;
+  } | null;
   health: {
     health_score: number;
     online_clients: number;
@@ -106,10 +111,11 @@ export default function PortalSiteDetailPage() {
     );
   }
 
-  const { site, health } = data;
+  const { site, health, install } = data;
   const isLive = site.stage === 'live';
   const hasMonitoring = !!site.ruijie_device_sn;
   const address = formatSiteStreet(site);
+  const showInstallFacts = site.stage === 'visit_booked' || site.stage === 'installing';
 
   return (
     <PortalModernistShell className="space-y-6">
@@ -132,16 +138,19 @@ export default function PortalSiteDetailPage() {
       />
 
       {isUnjani && (
-        <section aria-labelledby="onboarding-progress-heading">
-          <h2
-            id="onboarding-progress-heading"
-            className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
-            style={{ color: '#13274A' }}
-          >
-            Onboarding progress
-          </h2>
-          <OnboardingProgress stage={site.stage} />
-        </section>
+        <>
+          <ClinicNowCard stage={site.stage} visitDate={install?.visit_date} />
+          <OnboardingStepper stage={site.stage} />
+          <ClinicPlacePeople
+            address={address}
+            province={site.province}
+            lat={site.lat}
+            lng={site.lng}
+            contactName={site.site_contact_name}
+            contactPhone={site.site_contact_phone}
+            contactEmail={site.site_contact_email}
+          />
+        </>
       )}
 
       {isLive && (
@@ -184,20 +193,23 @@ export default function PortalSiteDetailPage() {
           <InfoRow label="Technology" value={formatTechnology(site.technology)} />
           <InfoRow label="Site Code" value={site.site_code} />
           <InfoRow label="Monthly fee" value={formatZar(site.monthly_fee)} />
-          <InfoRow label="Contact" value={site.site_contact_name} />
-          <InfoRow label="Phone" value={site.site_contact_phone} />
-          <InfoRow label="Email" value={site.site_contact_email} />
+          {!isUnjani && <InfoRow label="Contact" value={site.site_contact_name} />}
+          {!isUnjani && <InfoRow label="Phone" value={site.site_contact_phone} />}
+          {!isUnjani && <InfoRow label="Email" value={site.site_contact_email} />}
+          {showInstallFacts && (
+            <InfoRow label="Visit date" value={install?.visit_date || 'Visit date not booked yet'} />
+          )}
+          {showInstallFacts && install?.stock_status && (
+            <InfoRow label="Kit" value={install.stock_status === 'reserved' ? 'Assigned' : install.stock_status} />
+          )}
           <InfoRow label="Job card" value={site.job_card_number} />
           {site.rfi_notes && <InfoRow label="Notes" value={site.rfi_notes} />}
         </dl>
       </div>
 
-      <div className="flex gap-4">
-        <Link
-          href={href('/support')}
-          className="text-sm text-circleTel-orange hover:underline"
-        >
-          Raise support ticket for this site
+      <div>
+        <Link href={href('/support')}>
+          <PmButton variant="cta">Raise support ticket</PmButton>
         </Link>
       </div>
     </PortalModernistShell>

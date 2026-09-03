@@ -5,6 +5,7 @@ import CoverageExplorer from '@/components/portal/coverage/CoverageExplorer';
 import { PmButton, RuledTable } from '@/components/portal/modernist/PortalModernistShell';
 import { UNJANI_CONNECT_KIT } from '@/lib/admin/unjani-warehouse';
 import { countTechnicianWorkload } from '@/lib/admin/unjani-install-schedule';
+import { fulfilmentDesk, isKitBookedOut } from '@/lib/admin/unjani-install-desk';
 import { ONSITE_CHECKLIST, canGoLiveFromFulfilment } from '@/lib/admin/unjani-onsite';
 
 interface StockRow {
@@ -30,8 +31,11 @@ interface InstallOrderRow {
   job_card_approved_at: string | null;
   customer_id: string | null;
   corporate_site_id: string | null;
+  field_job_id: string | null;
+  technician_id: string | null;
   contact_name: string | null;
   contact_phone: string | null;
+  contact_email: string | null;
 }
 
 interface TechnicianRow {
@@ -45,6 +49,12 @@ interface JobRow {
   assigned_technician_id?: string | null;
   scheduled_date?: string | null;
   status?: string | null;
+}
+
+function waHref(phone: string): string {
+  const digits = phone.replace(/\D/g, '');
+  const intl = digits.startsWith('0') ? `27${digits.slice(1)}` : digits;
+  return `https://wa.me/${intl}`;
 }
 
 export function UnjaniFulfilmentPanel({
@@ -132,6 +142,19 @@ export function UnjaniFulfilmentPanel({
     });
   }, [stock]);
 
+  const opsOrders = orders.filter((order) => fulfilmentDesk(order) === 'ops');
+  const schedulerOrders = orders.filter((order) => fulfilmentDesk(order) === 'scheduler');
+  const onsiteOrders = orders.filter((order) => fulfilmentDesk(order) === 'onsite');
+
+  function slotFor(order: InstallOrderRow) {
+    return (
+      schedule[order.id] ?? {
+        technicianId: order.technician_id || technicians[0]?.id || '',
+        visitDate: visitDays[0] ?? '',
+      }
+    );
+  }
+
   return (
     <section id="coverage" className="mb-8 space-y-6">
       <div>
@@ -145,8 +168,8 @@ export function UnjaniFulfilmentPanel({
           Check coverage, then process an install order
         </h2>
         <p className="mt-1 text-sm" style={{ color: 'var(--pm-body)' }}>
-          Same map as /unjani/coverage. After a feasible check, place the CircleTel install order
-          (kit reserve or 5-business-day stock PO, 14–21 business day fulfil window).
+          After clinic details are confirmed, ops books the kit out against the site, assigns a
+          technician, and opens a job card. The scheduler then confirms the slot with the clinic.
         </p>
       </div>
 
@@ -181,30 +204,211 @@ export function UnjaniFulfilmentPanel({
         </p>
       )}
 
-      <div>
-        <p
-          className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
-          style={{ color: 'var(--pm-navy)' }}
-        >
-          Install orders
-        </p>
+      <Desk heading="Ops — kit and job card">
         <RuledTable
-          headers={['Clinic', 'Stock', 'Fulfil by', 'Visit', 'On-site / RFS']}
+          headers={['Clinic', 'Kit', 'Technician and proposed slot']}
           className="mt-3 rounded-xl shadow-sm ring-1 ring-black/[0.06]"
         >
-          {orders.length === 0 ? (
-            <tr>
-              <td colSpan={5} className="px-4 py-6 text-sm" style={{ color: 'var(--pm-body)' }}>
-                No install orders yet. Process install order unlocks after Unjani NPC
-                confirms nomination and coverage.
-              </td>
-            </tr>
+          {opsOrders.length === 0 ? (
+            <EmptyRow cols={3} text="No clinics waiting for kit or a job card." />
           ) : (
-            orders.map((order) => {
-              const slot = schedule[order.id] ?? {
-                technicianId: technicians[0]?.id ?? '',
-                visitDate: visitDays[0] ?? '',
-              };
+            opsOrders.map((order) => {
+              const slot = slotFor(order);
+              const bookedOut = isKitBookedOut(order.stock_status);
+              return (
+                <tr key={order.id} style={{ borderBottom: '1px solid var(--pm-divider)' }}>
+                  <td className="px-4 py-3 align-top">
+                    <span className="block font-extrabold" style={{ color: 'var(--pm-navy)' }}>
+                      {order.clinic_name || 'Clinic'}
+                    </span>
+                    <span className="text-xs" style={{ color: '#6B7280' }}>
+                      {order.contact_name || order.contact_phone || order.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 align-top text-sm" style={{ color: 'var(--pm-body)' }}>
+                    <p>{bookedOut ? 'Booked out against site' : 'On order (+5 BD)'}</p>
+                    {!bookedOut && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        <PmButton
+                          variant="secondary"
+                          disabled={busyId === order.id}
+                          onClick={() => postAction(order.id, { action: 'receive_stock' })}
+                        >
+                          Receive stock
+                        </PmButton>
+                        <PmButton
+                          variant="cta"
+                          disabled={busyId === order.id}
+                          onClick={() => postAction(order.id, { action: 'assign_kit' })}
+                        >
+                          Assign kit
+                        </PmButton>
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 align-top text-sm">
+                    <div className="space-y-2">
+                      <select
+                        value={slot.technicianId}
+                        onChange={(e) =>
+                          setSchedule((prev) => ({
+                            ...prev,
+                            [order.id]: { ...slot, technicianId: e.target.value },
+                          }))
+                        }
+                        className="min-h-11 w-full rounded-lg px-2 py-1 text-sm"
+                        style={{ border: '1px solid var(--pm-divider)' }}
+                        disabled={!bookedOut}
+                      >
+                        <option value="">Technician</option>
+                        {technicians.map((tech) => {
+                          const loadCount = slot.visitDate
+                            ? countTechnicianWorkload(jobs, tech.id, slot.visitDate)
+                            : 0;
+                          return (
+                            <option key={tech.id} value={tech.id}>
+                              {tech.first_name} {tech.last_name}
+                              {slot.visitDate ? ` · ${loadCount} jobs` : ''}
+                            </option>
+                          );
+                        })}
+                      </select>
+                      <select
+                        value={slot.visitDate}
+                        onChange={(e) =>
+                          setSchedule((prev) => ({
+                            ...prev,
+                            [order.id]: { ...slot, visitDate: e.target.value },
+                          }))
+                        }
+                        className="min-h-11 w-full rounded-lg px-2 py-1 text-sm"
+                        style={{ border: '1px solid var(--pm-divider)' }}
+                        disabled={!bookedOut}
+                      >
+                        <option value="">Proposed visit date</option>
+                        {visitDays
+                          .filter((day) => day <= order.fulfil_by_max)
+                          .map((day) => (
+                            <option key={day} value={day}>
+                              {day}
+                            </option>
+                          ))}
+                      </select>
+                      <PmButton
+                        variant="cta"
+                        disabled={
+                          busyId === order.id ||
+                          !bookedOut ||
+                          !slot.technicianId ||
+                          !slot.visitDate
+                        }
+                        onClick={() =>
+                          postAction(order.id, {
+                            action: 'open_job',
+                            technicianId: slot.technicianId,
+                            proposedDate: slot.visitDate,
+                          })
+                        }
+                      >
+                        Open job card
+                      </PmButton>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
+          )}
+        </RuledTable>
+      </Desk>
+
+      <Desk heading="Ready for scheduling">
+        <RuledTable
+          headers={['Clinic contact', 'Proposed slot', 'Confirm']}
+          className="mt-3 rounded-xl shadow-sm ring-1 ring-black/[0.06]"
+        >
+          {schedulerOrders.length === 0 ? (
+            <EmptyRow cols={3} text="No job cards waiting for a confirmed clinic slot." />
+          ) : (
+            schedulerOrders.map((order) => {
+              const slot = slotFor(order);
+              return (
+                <tr key={order.id} style={{ borderBottom: '1px solid var(--pm-divider)' }}>
+                  <td className="px-4 py-3 align-top">
+                    <span className="block font-extrabold" style={{ color: 'var(--pm-navy)' }}>
+                      {order.clinic_name || 'Clinic'}
+                    </span>
+                    <span className="block text-sm" style={{ color: 'var(--pm-body)' }}>
+                      {order.contact_name || 'On-site contact'}
+                    </span>
+                    {order.contact_phone && (
+                      <div className="mt-2 flex flex-wrap gap-3 text-sm">
+                        <a href={`tel:${order.contact_phone}`} className="font-semibold">
+                          Call {order.contact_phone}
+                        </a>
+                        <a
+                          href={waHref(order.contact_phone)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-semibold"
+                        >
+                          WhatsApp
+                        </a>
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 align-top text-sm">
+                    <select
+                      value={slot.visitDate}
+                      onChange={(e) =>
+                        setSchedule((prev) => ({
+                          ...prev,
+                          [order.id]: { ...slot, visitDate: e.target.value },
+                        }))
+                      }
+                      className="min-h-11 w-full rounded-lg px-2 py-1 text-sm"
+                      style={{ border: '1px solid var(--pm-divider)' }}
+                    >
+                      <option value="">Visit date</option>
+                      {visitDays
+                        .filter((day) => day <= order.fulfil_by_max)
+                        .map((day) => (
+                          <option key={day} value={day}>
+                            {day}
+                          </option>
+                        ))}
+                    </select>
+                  </td>
+                  <td className="px-4 py-3 align-top">
+                    <PmButton
+                      variant="cta"
+                      disabled={busyId === order.id || !slot.visitDate}
+                      onClick={() =>
+                        postAction(order.id, {
+                          action: 'confirm_slot',
+                          visitDate: slot.visitDate,
+                          technicianId: slot.technicianId || order.technician_id,
+                        })
+                      }
+                    >
+                      Confirm booking slot
+                    </PmButton>
+                  </td>
+                </tr>
+              );
+            })
+          )}
+        </RuledTable>
+      </Desk>
+
+      <Desk heading="On-site / RFS">
+        <RuledTable
+          headers={['Clinic', 'Visit', 'On-site / RFS']}
+          className="mt-3 rounded-xl shadow-sm ring-1 ring-black/[0.06]"
+        >
+          {onsiteOrders.length === 0 ? (
+            <EmptyRow cols={3} text="No confirmed visits yet." />
+          ) : (
+            onsiteOrders.map((order) => {
               const rfsReady = canGoLiveFromFulfilment({
                 stockStatus: order.stock_status,
                 kitIssuedAt: order.kit_issued_at,
@@ -219,100 +423,17 @@ export function UnjaniFulfilmentPanel({
                     <span className="block font-extrabold" style={{ color: 'var(--pm-navy)' }}>
                       {order.clinic_name || 'Clinic'}
                     </span>
-                    <span className="text-xs" style={{ color: '#6B7280' }}>
-                      {order.contact_name || order.contact_phone || order.status}
-                    </span>
                   </td>
                   <td className="px-4 py-3 align-top text-sm" style={{ color: 'var(--pm-body)' }}>
-                    <p>{order.stock_status === 'reserved' ? 'Kit reserved' : 'On order (+5 BD)'}</p>
-                    {order.stock_status !== 'reserved' && (
-                      <div className="mt-2 flex flex-wrap gap-2">
+                    <p>{order.visit_date}</p>
+                    {!order.kit_issued_at && (
+                      <div className="mt-2">
                         <PmButton
                           variant="secondary"
                           disabled={busyId === order.id}
-                          onClick={() => postAction(order.id, { action: 'receive_stock' })}
+                          onClick={() => postAction(order.id, { action: 'issue_kit' })}
                         >
-                          Receive stock
-                        </PmButton>
-                        <PmButton
-                          variant="ghost"
-                          disabled={busyId === order.id}
-                          onClick={() => postAction(order.id, { action: 'assign_kit' })}
-                        >
-                          Assign kit
-                        </PmButton>
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 align-top text-sm tabular-nums" style={{ color: 'var(--pm-body)' }}>
-                    {order.fulfil_by_min} – {order.fulfil_by_max}
-                  </td>
-                  <td className="px-4 py-3 align-top text-sm">
-                    {order.visit_date ? (
-                      <p style={{ color: 'var(--pm-body)' }}>{order.visit_date}</p>
-                    ) : (
-                      <div className="space-y-2">
-                        <select
-                          value={slot.technicianId}
-                          onChange={(e) =>
-                            setSchedule((prev) => ({
-                              ...prev,
-                              [order.id]: { ...slot, technicianId: e.target.value },
-                            }))
-                          }
-                          className="min-h-11 w-full rounded-lg px-2 py-1 text-sm"
-                          style={{ border: '1px solid var(--pm-divider)' }}
-                        >
-                          <option value="">Technician</option>
-                          {technicians.map((tech) => {
-                            const loadCount = slot.visitDate
-                              ? countTechnicianWorkload(jobs, tech.id, slot.visitDate)
-                              : 0;
-                            return (
-                              <option key={tech.id} value={tech.id}>
-                                {tech.first_name} {tech.last_name}
-                                {slot.visitDate ? ` · ${loadCount} jobs` : ''}
-                              </option>
-                            );
-                          })}
-                        </select>
-                        <select
-                          value={slot.visitDate}
-                          onChange={(e) =>
-                            setSchedule((prev) => ({
-                              ...prev,
-                              [order.id]: { ...slot, visitDate: e.target.value },
-                            }))
-                          }
-                          className="min-h-11 w-full rounded-lg px-2 py-1 text-sm"
-                          style={{ border: '1px solid var(--pm-divider)' }}
-                        >
-                          <option value="">Visit date</option>
-                          {visitDays
-                            .filter((day) => day <= order.fulfil_by_max)
-                            .map((day) => (
-                              <option key={day} value={day}>
-                                {day}
-                              </option>
-                            ))}
-                        </select>
-                        <PmButton
-                          variant="cta"
-                          disabled={
-                            busyId === order.id ||
-                            order.stock_status !== 'reserved' ||
-                            !slot.technicianId ||
-                            !slot.visitDate
-                          }
-                          onClick={() =>
-                            postAction(order.id, {
-                              action: 'schedule',
-                              technicianId: slot.technicianId,
-                              visitDate: slot.visitDate,
-                            })
-                          }
-                        >
-                          Book vs workload
+                          Issue kit
                         </PmButton>
                       </div>
                     )}
@@ -348,7 +469,7 @@ export function UnjaniFulfilmentPanel({
                       />
                     </label>
                     <label className="mt-2 block text-xs">
-                      Job card
+                      Completed job card PDF
                       <input
                         type="file"
                         accept="image/png,image/jpeg,application/pdf"
@@ -410,7 +531,31 @@ export function UnjaniFulfilmentPanel({
             })
           )}
         </RuledTable>
-      </div>
+      </Desk>
     </section>
+  );
+}
+
+function Desk({ heading, children }: { heading: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p
+        className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+        style={{ color: 'var(--pm-navy)' }}
+      >
+        {heading}
+      </p>
+      {children}
+    </div>
+  );
+}
+
+function EmptyRow({ cols, text }: { cols: number; text: string }) {
+  return (
+    <tr>
+      <td colSpan={cols} className="px-4 py-6 text-sm" style={{ color: 'var(--pm-body)' }}>
+        {text}
+      </td>
+    </tr>
   );
 }

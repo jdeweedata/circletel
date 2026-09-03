@@ -17,6 +17,7 @@ import {
 import { clinicKey, isNominatedCoverageCheck } from '@/lib/portal/coverage-summary';
 import {
   countOnboardingStages,
+  indexInstallEvidence,
   scopeOnboardingCustomers,
   stageClinicRefs,
 } from '@/lib/portal/count-onboarding-stages';
@@ -129,6 +130,13 @@ export async function GET(request: NextRequest) {
       for (const token of tokens ?? []) linkSent.add(token.customer_id);
     }
 
+    const { data: installOrders } = await supabase
+      .from('unjani_install_orders')
+      .select('customer_id, corporate_site_id, visit_date, kit_issued_at, status')
+      .eq('organisation_id', org.id)
+      .in('status', ['open', 'scheduled', 'in_progress']);
+    const installEvidence = indexInstallEvidence(installOrders ?? []);
+
     const nominatedChecks = (checks ?? []).filter(isNominatedCoverageCheck);
     const { stageCounts, stageByCustomerId, stageBySiteId } = countOnboardingStages({
       sites: siteList,
@@ -136,6 +144,8 @@ export async function GET(request: NextRequest) {
       bestSubmission,
       linkSent,
       nominatedCheckKeys: nominatedChecks.map((check) => check.clinic_name ?? ''),
+      installByCustomerId: installEvidence.byCustomerId,
+      installBySiteId: installEvidence.bySiteId,
     });
 
     const siteCustomerIds = customerList

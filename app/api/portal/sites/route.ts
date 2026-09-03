@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requirePortalCapability } from '@/lib/portal/require-portal-user';
 import { deriveStage, submissionRank } from '@/lib/portal/onboarding-stage';
+import { indexInstallEvidence } from '@/lib/portal/count-onboarding-stages';
 
 /** Columns that exist on corporate_sites — verified against information_schema. */
 const SITE_COLUMNS = `
@@ -139,9 +140,20 @@ export async function GET() {
     for (const t of tokens ?? []) linkSent.add(t.customer_id);
   }
 
+  const { data: installOrders } = await adminDb
+    .from('unjani_install_orders')
+    .select('customer_id, corporate_site_id, visit_date, kit_issued_at, status')
+    .eq('organisation_id', portalUser.organisation_id)
+    .in('status', ['open', 'scheduled', 'in_progress']);
+  const installEvidence = indexInstallEvidence(installOrders ?? []);
+
   const enriched = siteList.map((site) => {
     const customerId = customerBySite.get(site.id) ?? null;
     const submission = customerId ? bestSubmission[customerId] : undefined;
+    const install =
+      installEvidence.bySiteId[site.id] ||
+      (customerId ? installEvidence.byCustomerId[customerId] : undefined) ||
+      {};
     return {
       ...site,
       customer_id: customerId,
@@ -152,6 +164,8 @@ export async function GET() {
         submissionStatus: submission?.status,
         submissionRejectionReason: submission?.rejection_reason,
         onboardingLinkSent: customerId ? linkSent.has(customerId) : false,
+        visitDate: install.visitDate,
+        kitIssuedAt: install.kitIssuedAt,
       }),
     };
   });

@@ -3,6 +3,7 @@ import { requirePortalUser } from '@/lib/portal/require-portal-user';
 import { clinicKey, isNominatedCoverageCheck } from '@/lib/portal/coverage-summary';
 import {
   countOnboardingStages,
+  indexInstallEvidence,
   scopeOnboardingCustomers,
   stageClinicRefs,
 } from '@/lib/portal/count-onboarding-stages';
@@ -111,6 +112,13 @@ export async function GET() {
     for (const t of tokens ?? []) linkSent.add(t.customer_id);
   }
 
+  const { data: installOrders } = await adminDb
+    .from('unjani_install_orders')
+    .select('customer_id, corporate_site_id, visit_date, kit_issued_at, status')
+    .eq('organisation_id', portalUser.organisation_id)
+    .in('status', ['open', 'scheduled', 'in_progress']);
+  const installEvidence = indexInstallEvidence(installOrders ?? []);
+
   const nominatedChecks = (checks ?? []).filter(isNominatedCoverageCheck);
   const { stageCounts, stageBySiteId, stageByCustomerId } = countOnboardingStages({
     sites: siteList,
@@ -118,6 +126,8 @@ export async function GET() {
     bestSubmission,
     linkSent,
     nominatedCheckKeys: nominatedChecks.map((check) => check.clinic_name ?? ''),
+    installByCustomerId: installEvidence.byCustomerId,
+    installBySiteId: installEvidence.bySiteId,
   });
 
   const checkByKey = new Map(

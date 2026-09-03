@@ -6,6 +6,7 @@ import {
 } from '@/lib/portal/coverage-summary';
 import {
   countOnboardingStages,
+  indexInstallEvidence,
   stageByClinicKey as mapStageByClinicKey,
   stageClinicRefs,
 } from '@/lib/portal/count-onboarding-stages';
@@ -77,6 +78,13 @@ export async function listUnjaniCoverageFeed(
     for (const token of tokens ?? []) linkSent.add(token.customer_id);
   }
 
+  const { data: installOrders } = await adminDb
+    .from('unjani_install_orders')
+    .select('customer_id, corporate_site_id, visit_date, kit_issued_at, status')
+    .eq('organisation_id', organisationId)
+    .in('status', ['open', 'scheduled', 'in_progress']);
+  const installEvidence = indexInstallEvidence(installOrders ?? []);
+
   const nominatedChecks = checks.filter(isNominatedCoverageCheck);
   const counted = countOnboardingStages({
     sites: siteList,
@@ -86,6 +94,8 @@ export async function listUnjaniCoverageFeed(
     nominatedCheckKeys: nominatedChecks.map(
       (check: { clinic_name?: string | null }) => check.clinic_name ?? ''
     ),
+    installByCustomerId: installEvidence.byCustomerId,
+    installBySiteId: installEvidence.bySiteId,
   });
   const refs = stageClinicRefs({
     sites: siteList,
