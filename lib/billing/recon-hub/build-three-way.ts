@@ -1,5 +1,5 @@
 /**
- * Pure builders for CircleTel ↔ Zoho Books ↔ Netcash invoice rows.
+ * Pure builders for Platform ↔ Zoho Books ↔ Netcash invoice rows.
  */
 
 import type {

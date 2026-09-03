@@ -13,7 +13,7 @@ const INVOICE_HREF_PREFIX = '/admin/billing/invoices/';
 const UNMATCHED_HREF = '/admin/finance/reconciliation';
 
 const REASON_LABELS: Record<ReconExceptionRow['reasonCode'], string> = {
-  no_ct_invoice: 'Cash received — no CircleTel invoice',
+  no_ct_invoice: 'Cash received — no platform invoice',
   paynow_unmatched: 'PayNow cash unmatched to invoice',
   zoho_payment_pending: 'Zoho payment sync pending',
   zoho_payment_failed: 'Zoho payment sync failed',

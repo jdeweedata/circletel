@@ -1,7 +1,7 @@
 /**
  * GET /api/admin/billing/recon-hub
  *
- * Three-way cash-match hub: CircleTel invoices ↔ Zoho Books ↔ Netcash.
+ * Three-way cash-match hub: platform invoices ↔ Zoho Books ↔ Netcash.
  * Day-done = zero unmatched NetCash→CT AND zero CT-paid/Books-open in window.
  *
  * Query: ?window=today|yesterday|48h (default: yesterday)

@@ -123,7 +123,7 @@ export interface BuildExceptionRowsInput {
   bankMismatchRows?: ReconExceptionRow[];
 }
 
-/** CircleTel invoice row enriched for three-way match. */
+/** Platform invoice row enriched for three-way match. */
 export interface ThreeWayInvoiceLike {
   id: string;
   invoice_number: string | null;

@@ -1,5 +1,5 @@
 /**
- * Post a completed CircleTel payment onto Zoho Books (the 3-way ledger).
+ * Post a completed platform payment onto Zoho Books (the 3-way ledger).
  * Separate from Zoho Billing sync.
  */
 

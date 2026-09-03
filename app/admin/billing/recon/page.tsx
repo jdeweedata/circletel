@@ -129,7 +129,7 @@ export default function BillingReconHubPage() {
               Cash day board
             </h1>
             <p className="mt-1 text-sm text-slate-500">
-              CircleTel invoices (SoR) · Zoho Books mirror · Netcash cash
+              Platform ledger invoices (SoR) · Zoho Books mirror · Netcash cash
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">

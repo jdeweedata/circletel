@@ -81,7 +81,7 @@ export function ThreeWayInvoiceTable({ invoices }: ThreeWayInvoiceTableProps) {
             Three-way invoices
           </CardTitle>
           <p className="text-xs text-slate-500">
-            CircleTel (SoR) · Zoho Books mirror · Netcash settlement
+            Platform ledger (SoR) · Zoho Books mirror · Netcash settlement
           </p>
         </div>
         <span className="text-xs font-medium text-slate-500">{rows.length} shown</span>
