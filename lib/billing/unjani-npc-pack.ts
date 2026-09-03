@@ -159,7 +159,7 @@ async function emailNpcPack(params: {
         `Please find attached this month's Unjani Connect itemized tax invoice (${params.invoiceNumber}) and statement of account.`,
         '',
         `Amount due: R${params.totalAmount.toFixed(2)} (incl VAT)`,
-        `Due date: ${params.dueDate} (Friday of the invoice week, if no queries).`,
+        `Due date: ${params.dueDate} (30 days from invoice date).`,
         '',
         'Queries on line items should be raised before the due date. If there are no queries the invoice is payable by EFT.',
         '',

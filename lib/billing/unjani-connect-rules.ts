@@ -173,8 +173,9 @@ export function isLastMondayOfMonth(iso: string): boolean {
   return lastMondayOfMonth(year, month) === iso.slice(0, 10);
 }
 
+/** Signed Unjani terms: 30 days from invoice date. */
 export function npcInvoiceDueDate(invoiceDate: string): string {
-  return fridayOfSameWeek(invoiceDate);
+  return addCalendarDays(invoiceDate, 30);
 }
 
 /** Last Monday of `month` bills the **next** calendar month in advance. */
@@ -192,7 +193,7 @@ export function npcPackDates(
   const periodEnd = ymd(new Date(Date.UTC(year, month + 1, 0)));
   return {
     invoiceDate,
-    dueDate: fridayOfSameWeek(invoiceDate),
+    dueDate: npcInvoiceDueDate(invoiceDate),
     periodStart,
     periodEnd,
   };
