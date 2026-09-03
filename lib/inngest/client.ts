@@ -411,6 +411,18 @@ export type ZohoSyncFailedEvent = {
   };
 };
 
+export type WarehouseZohoPushEvent = {
+  name: 'warehouse/zoho.push';
+  data: {
+    movementId: string;
+  };
+};
+
+export type WarehouseZohoPollEvent = {
+  name: 'warehouse/zoho.poll';
+  data?: Record<string, never>;
+};
+
 // =============================================================================
 // WHATSAPP NOTIFICATION EVENTS
 // =============================================================================
@@ -934,6 +946,8 @@ export type InngestEvents = {
   'zoho/sync.requested': ZohoSyncRequestedEvent;
   'zoho/sync.completed': ZohoSyncCompletedEvent;
   'zoho/sync.failed': ZohoSyncFailedEvent;
+  'warehouse/zoho.push': WarehouseZohoPushEvent;
+  'warehouse/zoho.poll': WarehouseZohoPollEvent;
   // WhatsApp notification events
   'billing/whatsapp.requested': WhatsAppNotificationRequestedEvent;
   'billing/whatsapp.completed': WhatsAppNotificationCompletedEvent;

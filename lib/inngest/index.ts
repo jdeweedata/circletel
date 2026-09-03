@@ -365,6 +365,11 @@ import {
   siteUsageReportZipFunction,
 } from './functions/site-usage-report-zip';
 
+import {
+  warehouseZohoPushFunction,
+  warehouseZohoPollFunction,
+} from './functions/warehouse-zoho-sync';
+
 export const functions = [
   // Competitor analysis
   competitorScrapeFunction,
@@ -472,6 +477,9 @@ export const functions = [
   siteUsageReportPurgeFunction,
   // On-demand ZIP generation for usage report jobs with more than five sites
   siteUsageReportZipFunction,
+  // Zoho Inventory hybrid stock events
+  warehouseZohoPushFunction,
+  warehouseZohoPollFunction,
 ];
 
 export { ruijieSyncCompleted, ruijieSyncSessions } from './events/ruijie';

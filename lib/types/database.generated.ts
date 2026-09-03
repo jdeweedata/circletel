@@ -21501,6 +21501,7 @@ export type Database = {
           qty: number
           replenishment_id: string | null
           sku: string
+          zoho_adjustment_id: string | null
         }
         Insert: {
           created_at?: string
@@ -21512,6 +21513,7 @@ export type Database = {
           qty: number
           replenishment_id?: string | null
           sku: string
+          zoho_adjustment_id?: string | null
         }
         Update: {
           created_at?: string
@@ -21523,6 +21525,7 @@ export type Database = {
           qty?: number
           replenishment_id?: string | null
           sku?: string
+          zoho_adjustment_id?: string | null
         }
         Relationships: [
           {
@@ -21603,6 +21606,7 @@ export type Database = {
           kit_role: string | null
           name: string
           sku: string
+          zoho_item_id: string | null
         }
         Insert: {
           created_at?: string
@@ -21610,6 +21614,7 @@ export type Database = {
           kit_role?: string | null
           name: string
           sku: string
+          zoho_item_id?: string | null
         }
         Update: {
           created_at?: string
@@ -21617,6 +21622,7 @@ export type Database = {
           kit_role?: string | null
           name?: string
           sku?: string
+          zoho_item_id?: string | null
         }
         Relationships: []
       }
@@ -21626,18 +21632,21 @@ export type Database = {
           qty_reserved: number
           sku: string
           updated_at: string
+          zoho_over_reserved_at: string | null
         }
         Insert: {
           qty_on_hand?: number
           qty_reserved?: number
           sku: string
           updated_at?: string
+          zoho_over_reserved_at?: string | null
         }
         Update: {
           qty_on_hand?: number
           qty_reserved?: number
           sku?: string
           updated_at?: string
+          zoho_over_reserved_at?: string | null
         }
         Relationships: [
           {
@@ -21646,6 +21655,56 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "warehouse_skus"
             referencedColumns: ["sku"]
+          },
+        ]
+      }
+      warehouse_zoho_sync_events: {
+        Row: {
+          actor: string
+          created_at: string
+          direction: string
+          error: string | null
+          id: string
+          movement_id: string | null
+          qty: number | null
+          sku: string | null
+          status: string
+          updated_at: string
+          zoho_id: string | null
+        }
+        Insert: {
+          actor?: string
+          created_at?: string
+          direction: string
+          error?: string | null
+          id?: string
+          movement_id?: string | null
+          qty?: number | null
+          sku?: string | null
+          status: string
+          updated_at?: string
+          zoho_id?: string | null
+        }
+        Update: {
+          actor?: string
+          created_at?: string
+          direction?: string
+          error?: string | null
+          id?: string
+          movement_id?: string | null
+          qty?: number | null
+          sku?: string | null
+          status?: string
+          updated_at?: string
+          zoho_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "warehouse_zoho_sync_events_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: false
+            referencedRelation: "warehouse_movements"
+            referencedColumns: ["id"]
           },
         ]
       }
