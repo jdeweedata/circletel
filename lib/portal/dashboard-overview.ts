@@ -28,15 +28,33 @@ export interface PipelineOverviewRow {
   technology: string | null;
 }
 
-export function pipelineOverviewRows(input: {
-  stage: StageKey;
-  clinics: StageClinicRef[];
-  sites?: PipelineOverviewSite[];
-}): PipelineOverviewRow[] {
-  const siteById = new Map((input.sites ?? []).map((site) => [site.id, site]));
+export type SiteListFilter = 'all' | 'onboarding' | 'live';
 
-  return input.clinics
-    .filter((clinic) => clinic.stage === input.stage)
+export function parseSiteListFilter(value: string | null | undefined): SiteListFilter {
+  if (value === 'onboarding' || value === 'live' || value === 'all') return value;
+  return 'all';
+}
+
+export function isInOnboardingStage(stage: StageKey): boolean {
+  return stage !== 'live';
+}
+
+export function pipelineClinicsForFilter(
+  clinics: StageClinicRef[],
+  filter: SiteListFilter
+): StageClinicRef[] {
+  if (filter === 'onboarding') return clinics.filter((clinic) => isInOnboardingStage(clinic.stage));
+  if (filter === 'live') return clinics.filter((clinic) => clinic.stage === 'live');
+  return clinics;
+}
+
+function toOverviewRows(
+  clinics: StageClinicRef[],
+  sites?: PipelineOverviewSite[]
+): PipelineOverviewRow[] {
+  const siteById = new Map((sites ?? []).map((site) => [site.id, site]));
+
+  return clinics
     .map((clinic) => {
       const site = clinic.siteId ? siteById.get(clinic.siteId) : undefined;
       const location = site
@@ -56,4 +74,23 @@ export function pipelineOverviewRows(input: {
       };
     })
     .sort((left, right) => left.name.localeCompare(right.name));
+}
+
+export function pipelineOverviewRows(input: {
+  stage: StageKey;
+  clinics: StageClinicRef[];
+  sites?: PipelineOverviewSite[];
+}): PipelineOverviewRow[] {
+  return toOverviewRows(
+    input.clinics.filter((clinic) => clinic.stage === input.stage),
+    input.sites
+  );
+}
+
+export function pipelineSiteListRows(input: {
+  filter: SiteListFilter;
+  clinics: StageClinicRef[];
+  sites?: PipelineOverviewSite[];
+}): PipelineOverviewRow[] {
+  return toOverviewRows(pipelineClinicsForFilter(input.clinics, input.filter), input.sites);
 }

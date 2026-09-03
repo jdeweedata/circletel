@@ -1,4 +1,9 @@
-import { pipelineOverviewRows } from '@/lib/portal/dashboard-overview';
+import {
+  parseSiteListFilter,
+  pipelineClinicsForFilter,
+  pipelineOverviewRows,
+  pipelineSiteListRows,
+} from '@/lib/portal/dashboard-overview';
 import type { StageClinicRef } from '@/lib/portal/count-onboarding-stages';
 
 const clinics: StageClinicRef[] = [
@@ -80,5 +85,52 @@ describe('pipelineOverviewRows', () => {
         clinics,
       })
     ).toEqual([]);
+  });
+});
+
+describe('parseSiteListFilter', () => {
+  it('reads the dashboard card query and ignores unknown values', () => {
+    expect(parseSiteListFilter('onboarding')).toBe('onboarding');
+    expect(parseSiteListFilter('live')).toBe('live');
+    expect(parseSiteListFilter('all')).toBe('all');
+    expect(parseSiteListFilter(null)).toBe('all');
+    expect(parseSiteListFilter('sites')).toBe('all');
+  });
+});
+
+describe('pipelineClinicsForFilter', () => {
+  it('lists the same in-onboarding clinics as Pipeline by stage, not live sites', () => {
+    const rows = pipelineClinicsForFilter(clinics, 'onboarding');
+    expect(rows.map((row) => row.name)).toEqual([
+      'Unjani Clinic - Suurman',
+      'Unjani Clinic - Daggakraal',
+      'Unjani Clinic - Stinkwater',
+      'Unjani Clinic - Delmas',
+    ]);
+  });
+});
+
+describe('pipelineSiteListRows', () => {
+  it('keeps nominated coverage-check clinics that have no corporate_sites row', () => {
+    const rows = pipelineSiteListRows({
+      filter: 'onboarding',
+      clinics: [
+        { stage: 'live', siteId: 'site-live', customerId: 'c-live', name: 'Unjani Clinic - Lens' },
+        { stage: 'installing', siteId: 'site-delmas', customerId: 'c-delmas', name: 'Unjani Clinic - Delmas' },
+        { stage: 'nominated', customerId: null, coverageCheckId: 'chk-suurman', name: 'Suurman' },
+      ],
+      sites: [
+        {
+          id: 'site-delmas',
+          province: 'Mpumalanga',
+          technology: 'LTE',
+        },
+      ],
+    });
+
+    expect(rows.map((row) => ({ name: row.name, siteId: row.siteId, stage: row.stage }))).toEqual([
+      { name: 'Delmas', siteId: 'site-delmas', stage: 'installing' },
+      { name: 'Suurman', siteId: undefined, stage: 'nominated' },
+    ]);
   });
 });

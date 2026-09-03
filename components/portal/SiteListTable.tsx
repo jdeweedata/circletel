@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   PmButton,
   RuledTable,
@@ -17,8 +18,26 @@ import {
   type PortalSite,
 } from '@/lib/portal/site-format';
 import { usePortalApp } from '@/lib/portal/portal-app-context';
+import type { StageClinicRef } from '@/lib/portal/count-onboarding-stages';
+import type { StageKey } from '@/lib/portal/onboarding-stage';
+import {
+  parseSiteListFilter,
+  pipelineClinicsForFilter,
+  pipelineSiteListRows,
+  type SiteListFilter,
+} from '@/lib/portal/dashboard-overview';
 
-type Filter = 'all' | 'onboarding' | 'live';
+type Filter = SiteListFilter;
+
+type ListRow = {
+  key: string;
+  site: PortalSite | null;
+  name: string;
+  stage: StageKey;
+  location: string;
+  technology: string | null;
+  siteId?: string;
+};
 
 const PAGE_SIZE = 10;
 
@@ -26,10 +45,22 @@ function siteProvince(site: PortalSite): string | null {
   return site.province || siteAddress(site).province || null;
 }
 
+function rowProvince(row: ListRow): string | null {
+  if (row.site) return siteProvince(row.site);
+  return row.location === '—' ? null : row.location;
+}
+
 export default function SiteListTable() {
   const { href } = usePortalApp();
+  const router = useRouter();
+  const pathname = usePathname();
   const [sites, setSites] = useState<PortalSite[]>([]);
-  const [filter, setFilter] = useState<Filter>('all');
+  const [stageClinics, setStageClinics] = useState<StageClinicRef[]>([]);
+  const [filter, setFilter] = useState<Filter>(() =>
+    parseSiteListFilter(
+      typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get('filter')
+    )
+  );
   const [query, setQuery] = useState('');
   const [province, setProvince] = useState('all');
   const [page, setPage] = useState(1);
@@ -38,12 +69,16 @@ export default function SiteListTable() {
 
   useEffect(() => {
     let mounted = true;
-    fetch('/api/portal/sites')
-      .then((r) => r.json())
-      .then((data) => {
+    Promise.all([
+      fetch('/api/portal/sites').then((r) => r.json()),
+      fetch('/api/portal/dashboard').then((r) => r.json()),
+    ])
+      .then(([sitesData, summaryData]) => {
         if (!mounted) return;
-        const next = (data.sites ?? []) as PortalSite[];
+        const next = (sitesData.sites ?? []) as PortalSite[];
+        const clinics = (summaryData?.stageClinics ?? []) as StageClinicRef[];
         setSites(next);
+        setStageClinics(clinics);
         if (next[0]) setSelectedId(next[0].id);
       })
       .catch(console.error)
@@ -55,14 +90,31 @@ export default function SiteListTable() {
     };
   }, []);
 
-  const counts = useMemo(
-    () => ({
+  const applyFilter = (next: Filter) => {
+    setFilter(next);
+    const params = new URLSearchParams(
+      typeof window === 'undefined' ? '' : window.location.search
+    );
+    if (next === 'all') params.delete('filter');
+    else params.set('filter', next);
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  };
+
+  const counts = useMemo(() => {
+    if (stageClinics.length > 0) {
+      return {
+        all: sites.length,
+        onboarding: pipelineClinicsForFilter(stageClinics, 'onboarding').length,
+        live: pipelineClinicsForFilter(stageClinics, 'live').length,
+      };
+    }
+    return {
       all: sites.length,
       onboarding: sites.filter((s) => s.stage !== 'live').length,
       live: sites.filter((s) => s.stage === 'live').length,
-    }),
-    [sites]
-  );
+    };
+  }, [sites, stageClinics]);
 
   const liveSpend = useMemo(
     () =>
@@ -81,25 +133,47 @@ export default function SiteListTable() {
     return [...set].sort();
   }, [sites]);
 
+  const rows = useMemo<ListRow[]>(() => {
+    if (filter !== 'all' && stageClinics.length > 0) {
+      const siteById = new Map(sites.map((site) => [site.id, site]));
+      return pipelineSiteListRows({ filter, clinics: stageClinics, sites }).map((row) => ({
+        key: row.key,
+        site: row.siteId ? siteById.get(row.siteId) ?? null : null,
+        name: row.name,
+        stage: row.stage,
+        location: row.location,
+        technology: row.technology,
+        siteId: row.siteId,
+      }));
+    }
+    return sites.map((site) => ({
+      key: site.id,
+      site,
+      name: formatClinicShortName(site.site_name),
+      stage: site.stage,
+      location: formatSiteLocation(site),
+      technology: site.technology,
+      siteId: site.id,
+    }));
+  }, [filter, sites, stageClinics]);
+
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return sites.filter((site) => {
-      if (filter === 'live' && site.stage !== 'live') return false;
-      if (filter === 'onboarding' && site.stage === 'live') return false;
-      if (province !== 'all' && siteProvince(site) !== province) return false;
+    return rows.filter((row) => {
+      if (province !== 'all' && rowProvince(row) !== province) return false;
       if (!q) return true;
       const hay = [
-        site.site_name,
-        formatClinicShortName(site.site_name),
-        formatSiteCode(site) ?? '',
-        formatSiteLocation(site),
-        formatTechnology(site.technology),
+        row.name,
+        row.site?.site_name,
+        row.site ? formatSiteCode(row.site) ?? '' : '',
+        row.location,
+        formatTechnology(row.technology),
       ]
         .join(' ')
         .toLowerCase();
       return hay.includes(q);
     });
-  }, [sites, filter, province, query]);
+  }, [rows, province, query]);
 
   useEffect(() => {
     setPage(1);
@@ -113,7 +187,7 @@ export default function SiteListTable() {
   }, [visible, currentPage]);
 
   const selected =
-    visible.find((s) => s.id === selectedId) ?? paged[0] ?? null;
+    visible.find((row) => row.key === selectedId) ?? paged[0] ?? null;
 
   if (loading) {
     return (
@@ -123,7 +197,7 @@ export default function SiteListTable() {
     );
   }
 
-  if (sites.length === 0) {
+  if (sites.length === 0 && stageClinics.length === 0) {
     return (
       <div className="py-16 text-center text-sm" style={{ color: 'var(--pm-body)' }}>
         No sites found for your organisation.
@@ -167,7 +241,7 @@ export default function SiteListTable() {
             <button
               key={card.key}
               type="button"
-              onClick={() => setFilter(card.key)}
+              onClick={() => applyFilter(card.key)}
               className="rounded-xl bg-white px-4 py-4 text-left shadow-sm ring-1 ring-black/[0.06] transition-opacity hover:opacity-90"
               style={{
                 borderBottom: `3px solid ${card.accent}`,
@@ -267,62 +341,80 @@ export default function SiteListTable() {
             headers={['Clinic', 'Location', 'Technology', 'Stage', 'Monthly', '']}
             className="mt-3 rounded-xl shadow-sm ring-1 ring-black/[0.06]"
           >
-            {paged.map((site) => {
-              const on = site.id === selected?.id;
-              const code = formatSiteCode(site);
-              return (
-                <tr
-                  key={site.id}
-                  onClick={() => setSelectedId(site.id)}
-                  className="cursor-pointer"
-                  style={{
-                    borderBottom: '1px solid var(--pm-divider)',
-                    background: on
-                      ? 'color-mix(in srgb, #13274A 6%, #FFFFFF)'
-                      : undefined,
-                  }}
+            {paged.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="px-4 py-8 text-center text-sm"
+                  style={{ color: 'var(--pm-body)' }}
                 >
-                  <td className="px-4 py-3">
-                    <span
-                      className="block font-extrabold"
-                      style={{ color: 'var(--pm-navy)' }}
-                    >
-                      {formatClinicShortName(site.site_name)}
-                    </span>
-                    {code && (
-                      <span className="block text-xs" style={{ color: '#6B7280' }}>
-                        {code}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-sm" style={{ color: 'var(--pm-body)' }}>
-                    {formatSiteLocation(site)}
-                  </td>
-                  <td className="px-4 py-3 text-sm" style={{ color: 'var(--pm-body)' }}>
-                    {formatTechnology(site.technology)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <StageBadge stage={site.stage} size="sm" />
-                  </td>
-                  <td
-                    className="px-4 py-3 text-right text-sm tabular-nums"
-                    style={{ color: 'var(--pm-body)' }}
+                  {filter === 'onboarding'
+                    ? 'No clinics in the onboarding pipeline.'
+                    : 'No clinics match this filter.'}
+                </td>
+              </tr>
+            ) : (
+              paged.map((row) => {
+                const on = row.key === selected?.key;
+                const code = row.site ? formatSiteCode(row.site) : null;
+                return (
+                  <tr
+                    key={row.key}
+                    onClick={() => setSelectedId(row.key)}
+                    className="cursor-pointer"
+                    style={{
+                      borderBottom: '1px solid var(--pm-divider)',
+                      background: on
+                        ? 'color-mix(in srgb, #13274A 6%, #FFFFFF)'
+                        : undefined,
+                    }}
                   >
-                    {site.stage === 'live' ? formatZar(site.monthly_fee) : '—'}
-                  </td>
-                  <td className="px-4 py-3">
-                    <Link
-                      href={href(`/sites/${site.id}`)}
-                      onClick={(e) => e.stopPropagation()}
+                    <td className="px-4 py-3">
+                      <span
+                        className="block font-extrabold"
+                        style={{ color: 'var(--pm-navy)' }}
+                      >
+                        {row.name}
+                      </span>
+                      {code && (
+                        <span className="block text-xs" style={{ color: '#6B7280' }}>
+                          {code}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-sm" style={{ color: 'var(--pm-body)' }}>
+                      {row.location}
+                    </td>
+                    <td className="px-4 py-3 text-sm" style={{ color: 'var(--pm-body)' }}>
+                      {formatTechnology(row.technology)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <StageBadge stage={row.stage} size="sm" />
+                    </td>
+                    <td
+                      className="px-4 py-3 text-right text-sm tabular-nums"
+                      style={{ color: 'var(--pm-body)' }}
                     >
-                      <PmButton variant="cta" className="whitespace-nowrap">
-                        View
-                      </PmButton>
-                    </Link>
-                  </td>
-                </tr>
-              );
-            })}
+                      {row.stage === 'live' && row.site
+                        ? formatZar(row.site.monthly_fee)
+                        : '—'}
+                    </td>
+                    <td className="px-4 py-3">
+                      {row.siteId ? (
+                        <Link
+                          href={href(`/sites/${row.siteId}`)}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <PmButton variant="cta" className="whitespace-nowrap">
+                            View
+                          </PmButton>
+                        </Link>
+                      ) : null}
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </RuledTable>
 
           {totalPages > 1 && (
@@ -361,14 +453,14 @@ export default function SiteListTable() {
                 Site
               </p>
               <p className="text-lg font-extrabold" style={{ color: 'var(--pm-navy)' }}>
-                {formatClinicShortName(selected.site_name)}
+                {selected.name}
               </p>
               <p className="mt-1 text-sm" style={{ color: 'var(--pm-body)' }}>
-                {formatSiteLocation(selected)}
+                {selected.location}
               </p>
-              {formatSiteCode(selected) && (
+              {selected.site && formatSiteCode(selected.site) && (
                 <p className="mt-1 text-xs" style={{ color: '#6B7280' }}>
-                  {formatSiteCode(selected)}
+                  {formatSiteCode(selected.site)}
                 </p>
               )}
               <div className="mt-3">
@@ -378,25 +470,27 @@ export default function SiteListTable() {
                 <li>Technology — {formatTechnology(selected.technology)}</li>
                 <li>
                   Monthly —{' '}
-                  {selected.stage === 'live'
-                    ? formatZar(selected.monthly_fee)
+                  {selected.stage === 'live' && selected.site
+                    ? formatZar(selected.site.monthly_fee)
                     : 'Not billed yet'}
                 </li>
-                {selected.site_contact_name && (
-                  <li>On-site — {selected.site_contact_name}</li>
+                {selected.site?.site_contact_name && (
+                  <li>On-site — {selected.site.site_contact_name}</li>
                 )}
-                {selected.site_contact_phone && (
-                  <li>{selected.site_contact_phone}</li>
+                {selected.site?.site_contact_phone && (
+                  <li>{selected.site.site_contact_phone}</li>
                 )}
-                {selected.site_contact_email && (
-                  <li>{selected.site_contact_email}</li>
+                {selected.site?.site_contact_email && (
+                  <li>{selected.site.site_contact_email}</li>
                 )}
               </ul>
-              <div className="mt-4">
-                <Link href={href(`/sites/${selected.id}`)}>
-                  <PmButton variant="cta">View site</PmButton>
-                </Link>
-              </div>
+              {selected.siteId ? (
+                <div className="mt-4">
+                  <Link href={href(`/sites/${selected.siteId}`)}>
+                    <PmButton variant="cta">View site</PmButton>
+                  </Link>
+                </div>
+              ) : null}
             </div>
           ) : (
             <div className="rounded-xl bg-white p-4 text-sm shadow-sm ring-1 ring-black/[0.06]"
