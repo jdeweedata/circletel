@@ -9,35 +9,49 @@ import {
 const nc = (overrides: Partial<BankLineLike> = {}): BankLineLike => ({
   id: 'nc-1',
   date: '2026-08-01',
-  amount: 1150,
-  reference: 'CT-INV-001',
+  amount: 999,
+  reference: 'CT-2025-00030',
+  payerName: 'Prins Mhlanga',
   ...overrides,
 });
 
 const zb = (overrides: Partial<BankLineLike> = {}): BankLineLike => ({
   id: 'zb-1',
   date: '2026-08-01',
-  amount: 1150,
-  reference: 'CT-INV-001',
+  amount: 999,
+  reference: 'CT-2025-00030',
+  payerName: 'Prins Mhlanga',
   ...overrides,
 });
 
 describe('matchBankLines', () => {
-  it('matches by reference + amount', () => {
+  it('matches when account, exact name, amount, and date agree', () => {
     const pairs = matchBankLines([nc()], [zb()]);
     expect(pairs).toHaveLength(1);
     expect(pairs[0].status).toBe('matched');
     expect(summarizeBankPairs(pairs).matchedCount).toBe(1);
   });
 
-  it('matches by amount + date window when refs differ', () => {
+  it('queues name_mismatch when account hits but names differ', () => {
     const pairs = matchBankLines(
-      [nc({ reference: 'PAY-A' })],
-      [zb({ id: 'zb-2', reference: 'OTHER', date: '2026-08-02' })]
+      [nc()],
+      [zb({ payerName: 'Shaun Robertson' })]
     );
-    expect(pairs.some((p) => p.status === 'matched' || p.status === 'amount_drift')).toBe(
-      true
+    expect(pairs.some((p) => p.status === 'name_mismatch')).toBe(true);
+    expect(summarizeBankPairs(pairs).nameMismatchCount).toBe(1);
+    expect(
+      bankPairsToExceptionRows(pairs).some((e) => e.reasonCode === 'name_mismatch')
+    ).toBe(true);
+  });
+
+  it('does not auto-match on amount and date alone', () => {
+    const pairs = matchBankLines(
+      [nc({ reference: 'PAY-A', payerName: 'A' })],
+      [zb({ id: 'zb-2', reference: 'OTHER', payerName: 'B', date: '2026-08-02' })]
     );
+    expect(pairs.some((p) => p.status === 'matched')).toBe(false);
+    expect(summarizeBankPairs(pairs).netcashOnlyCount).toBe(1);
+    expect(summarizeBankPairs(pairs).booksOnlyCount).toBe(1);
   });
 
   it('emits netcash_only and books_only exceptions', () => {

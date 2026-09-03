@@ -16,6 +16,7 @@ export type ExceptionFilter =
   | 'netcash_unmatched'
   | 'amount_mismatch'
   | 'bank_mismatch'
+  | 'name_mismatch'
   | 'all';
 
 export type ExceptionReasonCode =
@@ -29,7 +30,8 @@ export type ExceptionReasonCode =
   | 'books_unlinked'
   | 'bank_netcash_no_books'
   | 'bank_books_no_netcash'
-  | 'bank_amount_drift';
+  | 'bank_amount_drift'
+  | 'name_mismatch';
 
 export type ExceptionSeverity = 'red' | 'amber' | 'neutral';
 
@@ -56,6 +58,7 @@ export type ThreeWayMatchFilter =
   | 'netcash_unmatched'
   | 'amount_mismatch'
   | 'bank_mismatch'
+  | 'name_mismatch'
   | 'all';
 
 export interface ReconExceptionRow {
@@ -120,7 +123,7 @@ export interface BuildExceptionRowsInput {
   bankMismatchRows?: ReconExceptionRow[];
 }
 
-/** CircleTel invoice row enriched for three-way match. */
+/** Platform invoice row enriched for three-way match. */
 export interface ThreeWayInvoiceLike {
   id: string;
   invoice_number: string | null;
@@ -135,6 +138,8 @@ export interface ThreeWayInvoiceLike {
   paynow_transaction_ref: string | null;
   customer_id: string;
   account_number?: string | null;
+  customer_display_name?: string | null;
+  books_customer_name?: string | null;
   service_name?: string | null;
   monthly_price?: number | null;
   /** Cached/live Books status when linked */
@@ -155,6 +160,7 @@ export interface ThreeWayInvoiceRow {
   ctTotal: number;
   ctDue: number;
   accountNumber: string | null;
+  customerDisplayName: string | null;
   serviceName: string | null;
   monthlyPrice: number | null;
   booksInvoiceId: string | null;
@@ -169,6 +175,7 @@ export interface ThreeWayInvoiceRow {
     amountMismatch: boolean;
     booksUnlinked: boolean;
     netcashUnmatchedPaid: boolean;
+    nameMismatch: boolean;
   };
   href: string;
 }

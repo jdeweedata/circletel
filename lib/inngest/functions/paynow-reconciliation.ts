@@ -20,6 +20,7 @@ import { createClient } from '@/lib/supabase/server';
 import { netcashStatementService } from '@/lib/payments/netcash-statement-service';
 import { matchInvoiceByReference } from '@/lib/billing/invoice-matcher';
 import { syncPaymentToZohoBilling } from '@/lib/integrations/zoho/payment-sync-service';
+import { syncPaymentToZohoBooks } from '@/lib/integrations/zoho/books-payment-sync';
 import { cronLogger } from '@/lib/logging';
 
 // =============================================================================
@@ -485,16 +486,23 @@ export const paynowReconciliationFunction = inngest.createFunction(
               const zohoResult = await syncPaymentToZohoBilling(
                 paymentRecord.id
               );
+              const booksResult = await syncPaymentToZohoBooks(paymentRecord.id);
+              if (!booksResult.success) {
+                cronLogger.warn('[PayNowRecon] Zoho Books payment sync failed (non-fatal)', {
+                  paymentId: paymentRecord.id,
+                  error: booksResult.error,
+                });
+              }
               if (zohoResult.success) {
-                cronLogger.info('[PayNowRecon] Payment synced to Zoho', {
+                cronLogger.info('[PayNowRecon] Payment synced to Zoho Billing', {
                   paymentId: paymentRecord.id,
                   zohoPaymentId: zohoResult.zoho_payment_id,
                 });
               } else {
-                cronLogger.warn(
-                  '[PayNowRecon] Zoho sync failed (non-fatal)',
-                  { paymentId: paymentRecord.id, error: zohoResult.error }
-                );
+                cronLogger.warn('[PayNowRecon] Zoho Billing sync failed (non-fatal)', {
+                  paymentId: paymentRecord.id,
+                  error: zohoResult.error,
+                });
               }
             } catch (zohoError) {
               cronLogger.warn(

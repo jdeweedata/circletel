@@ -27,7 +27,19 @@ describe('buildThreeWayInvoiceRow', () => {
     const row = buildThreeWayInvoiceRow(base());
     expect(row.matchFlags.booksUnlinked).toBe(true);
     expect(row.matchFlags.ctPaidBooksOpen).toBe(false);
+    expect(row.matchFlags.nameMismatch).toBe(false);
     expect(row.href).toBe('/admin/billing/invoices/inv-1');
+  });
+
+  it('flags exact name mismatch between CircleTel and Books', () => {
+    const row = buildThreeWayInvoiceRow(
+      base({
+        customer_display_name: 'Prins Mhlanga',
+        books_customer_name: 'Shaun Robertson',
+      })
+    );
+    expect(row.matchFlags.nameMismatch).toBe(true);
+    expect(filterThreeWayInvoices([row], 'name_mismatch')).toHaveLength(1);
   });
 
   it('flags CT paid with Books balance open', () => {

@@ -18,6 +18,7 @@ export function isBrokenThreeWay(r: ThreeWayInvoiceRow): boolean {
     r.matchFlags.ctPaidBooksOpen ||
     r.matchFlags.amountMismatch ||
     r.matchFlags.netcashUnmatchedPaid ||
+    r.matchFlags.nameMismatch ||
     (r.matchFlags.booksUnlinked && r.ctStatus !== 'paid') ||
     r.booksSyncStatus === 'failed' ||
     r.netcashState === 'unmatched'

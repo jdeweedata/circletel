@@ -13,7 +13,7 @@ const INVOICE_HREF_PREFIX = '/admin/billing/invoices/';
 const UNMATCHED_HREF = '/admin/finance/reconciliation';
 
 const REASON_LABELS: Record<ReconExceptionRow['reasonCode'], string> = {
-  no_ct_invoice: 'Cash received — no CircleTel invoice',
+  no_ct_invoice: 'Cash received — no platform invoice',
   paynow_unmatched: 'PayNow cash unmatched to invoice',
   zoho_payment_pending: 'Zoho payment sync pending',
   zoho_payment_failed: 'Zoho payment sync failed',
@@ -24,6 +24,7 @@ const REASON_LABELS: Record<ReconExceptionRow['reasonCode'], string> = {
   bank_netcash_no_books: 'Netcash settled — no Zoho bank/payment match',
   bank_books_no_netcash: 'Zoho bank deposit — no Netcash line',
   bank_amount_drift: 'Netcash ↔ Books bank amount/date drift',
+  name_mismatch: 'Account matched — customer/business name does not match',
 };
 
 function normalizeZohoStatus(raw: string | null | undefined): ZohoStatus {
@@ -244,8 +245,11 @@ export function filterExceptions(
         (r) =>
           r.reasonCode === 'bank_netcash_no_books' ||
           r.reasonCode === 'bank_books_no_netcash' ||
-          r.reasonCode === 'bank_amount_drift'
+          r.reasonCode === 'bank_amount_drift' ||
+          r.reasonCode === 'name_mismatch'
       );
+    case 'name_mismatch':
+      return rows.filter((r) => r.reasonCode === 'name_mismatch');
     case 'all':
     default:
       return rows;

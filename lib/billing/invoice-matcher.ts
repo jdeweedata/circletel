@@ -2,11 +2,16 @@
 
 import { SupabaseClient } from '@supabase/supabase-js';
 import { parsePayNowReference } from './invoice-reference-parser';
+import {
+  displayName,
+  extractAccountNumber,
+  namesEqual,
+} from './recon-hub/party-identity';
 
-// Postgres error code for "no rows returned"
 const PGRST_NO_ROWS = 'PGRST116';
 
-// Simple logger (no shared billingLogger exists in this codebase)
+const OPEN_INVOICE_STATUSES = ['sent', 'partial', 'overdue', 'unpaid'];
+
 const billingLogger = {
   debug: (msg: string, data?: unknown) => console.debug(msg, data),
   info: (msg: string, data?: unknown) => console.info(msg, data),
@@ -14,13 +19,8 @@ const billingLogger = {
   error: (msg: string, data?: unknown) => console.error(msg, data),
 };
 
-/**
- * Result of invoice matching attempt
- */
 export interface InvoiceMatchResult {
-  /** Whether an invoice was found */
   matched: boolean;
-  /** The matched invoice (if found) */
   invoice?: {
     id: string;
     invoice_number: string;
@@ -31,38 +31,148 @@ export interface InvoiceMatchResult {
     amount_due?: number;
     [key: string]: unknown;
   };
-  /** How the invoice was matched */
   matchMethod?: 'invoice_number' | 'paynow_transaction_ref' | 'account_number';
-  /** Error message if matching failed */
+  /** high = account + exact name, or invoice-number / paynow ref */
+  matchConfidence?: 'high' | 'low';
   error?: string;
 }
 
+export interface InvoiceMatchOptions {
+  payerName?: string;
+}
+
+function isDbError(error: { code?: string; message?: string } | null): boolean {
+  return Boolean(error && error.code !== PGRST_NO_ROWS);
+}
+
+async function findOldestOpenInvoice(
+  supabase: SupabaseClient,
+  customerId: string
+) {
+  return supabase
+    .from('customer_invoices')
+    .select('*')
+    .eq('customer_id', customerId)
+    .in('status', OPEN_INVOICE_STATUSES)
+    .order('due_date', { ascending: true })
+    .limit(1)
+    .single();
+}
+
+async function matchByAccountNumber(
+  supabase: SupabaseClient,
+  accountNumber: string,
+  payerName?: string
+): Promise<InvoiceMatchResult> {
+  const { data: customer, error: customerError } = await supabase
+    .from('customers')
+    .select('id, first_name, last_name, business_name, account_number')
+    .eq('account_number', accountNumber)
+    .single();
+
+  if (isDbError(customerError)) {
+    billingLogger.error('[InvoiceMatcher] Database error on customer lookup by account_number', {
+      error: customerError?.message,
+      accountNumber,
+    });
+    return {
+      matched: false,
+      error: `Database error: ${customerError?.message}`,
+    };
+  }
+
+  if (!customer) {
+    return { matched: false };
+  }
+
+  if (payerName && !namesEqual(displayName(customer), payerName)) {
+    billingLogger.warn('[InvoiceMatcher] Account matched but name mismatch', {
+      accountNumber,
+      expected: displayName(customer),
+    });
+    return {
+      matched: false,
+      error: 'name_mismatch',
+      matchMethod: 'account_number',
+    };
+  }
+
+  const { data: invoice, error: invoiceError } = await findOldestOpenInvoice(
+    supabase,
+    customer.id
+  );
+
+  if (isDbError(invoiceError)) {
+    billingLogger.error('[InvoiceMatcher] Database error on open invoice lookup', {
+      error: invoiceError?.message,
+      customerId: customer.id,
+    });
+    return {
+      matched: false,
+      error: `Database error: ${invoiceError?.message}`,
+    };
+  }
+
+  if (!invoice) {
+    return { matched: false };
+  }
+
+  const matchConfidence: 'high' | 'low' = payerName ? 'high' : 'low';
+  billingLogger.info('[InvoiceMatcher] Matched by account_number', {
+    invoiceId: invoice.id,
+    invoiceNumber: invoice.invoice_number,
+    customerId: customer.id,
+    accountNumber,
+    matchConfidence,
+  });
+
+  return {
+    matched: true,
+    invoice,
+    matchMethod: 'account_number',
+    matchConfidence,
+  };
+}
+
 /**
- * Match a PayNow reference to an invoice using multiple strategies
+ * Match a payment reference to an invoice.
  *
  * Strategy chain:
- * 1. Parse reference to extract invoice number (CT-INV... → INV-...)
- * 2. If invoice number found, query by invoice_number
- * 3. Fallback: query by paynow_transaction_ref
- * 4. Fallback: match by customer account number (CT-YYYY-NNNNN) → oldest unpaid invoice
+ * 1. Account number (CT-YYYY-NNNNN) anywhere in the reference — primary key
+ * 2. Invoice number parsed from the reference
+ * 3. paynow_transaction_ref fallback
  *
- * @param reference - The PayNow reference string
- * @param supabase - Supabase client instance
- * @returns Match result with invoice data or error
+ * When payerName is supplied, account matches require an exact normalized name.
+ * Account-only matches (no payer name) return matchConfidence 'low' so EFT
+ * can queue instead of auto-applying.
  */
 export async function matchInvoiceByReference(
   reference: string,
-  supabase: SupabaseClient
+  supabase: SupabaseClient,
+  options: InvoiceMatchOptions = {}
 ): Promise<InvoiceMatchResult> {
   const parsed = parsePayNowReference(reference);
+  const accountNumber =
+    extractAccountNumber(reference) || parsed.accountNumber || null;
 
   billingLogger.debug('[InvoiceMatcher] Parsing reference', {
     reference,
     type: parsed.type,
     invoiceNumber: parsed.invoiceNumber,
+    accountNumber,
   });
 
-  // Strategy 1: Try by extracted invoice number (always attempt; returns no rows when null)
+  if (accountNumber) {
+    const accountResult = await matchByAccountNumber(
+      supabase,
+      accountNumber,
+      options.payerName
+    );
+    if (accountResult.matched || accountResult.error) {
+      return accountResult;
+    }
+  }
+
   {
     const { data: invoice, error } = await supabase
       .from('customer_invoices')
@@ -70,14 +180,14 @@ export async function matchInvoiceByReference(
       .eq('invoice_number', parsed.invoiceNumber ?? null)
       .single();
 
-    if (error && error.code !== PGRST_NO_ROWS) {
+    if (isDbError(error)) {
       billingLogger.error('[InvoiceMatcher] Database error on invoice_number lookup', {
-        error: error.message,
+        error: error?.message,
         invoiceNumber: parsed.invoiceNumber,
       });
       return {
         matched: false,
-        error: `Database error: ${error.message}`,
+        error: `Database error: ${error?.message}`,
       };
     }
 
@@ -90,25 +200,25 @@ export async function matchInvoiceByReference(
         matched: true,
         invoice,
         matchMethod: 'invoice_number',
+        matchConfidence: 'high',
       };
     }
   }
 
-  // Strategy 2: Fallback to paynow_transaction_ref
   const { data: invoiceByRef, error: refError } = await supabase
     .from('customer_invoices')
     .select('*')
     .eq('paynow_transaction_ref', reference)
     .single();
 
-  if (refError && refError.code !== PGRST_NO_ROWS) {
+  if (isDbError(refError)) {
     billingLogger.error('[InvoiceMatcher] Database error on paynow_transaction_ref lookup', {
-      error: refError.message,
+      error: refError?.message,
       reference,
     });
     return {
       matched: false,
-      error: `Database error: ${refError.message}`,
+      error: `Database error: ${refError?.message}`,
     };
   }
 
@@ -121,88 +231,16 @@ export async function matchInvoiceByReference(
       matched: true,
       invoice: invoiceByRef,
       matchMethod: 'paynow_transaction_ref',
+      matchConfidence: 'high',
     };
   }
 
-  // Strategy 3: Match by customer account number (CT-YYYY-NNNNN pattern)
-  if (parsed.type === 'account' && parsed.accountNumber) {
-    const accountNumberRegex = /^CT-\d{4}-\d{5}$/i;
-    if (accountNumberRegex.test(parsed.accountNumber)) {
-      billingLogger.debug('[InvoiceMatcher] Attempting account number match', {
-        accountNumber: parsed.accountNumber,
-      });
-
-      // Find customer by account_number
-      const { data: customer, error: customerError } = await supabase
-        .from('customers')
-        .select('id')
-        .eq('account_number', parsed.accountNumber)
-        .single();
-
-      if (customerError && customerError.code !== PGRST_NO_ROWS) {
-        billingLogger.error('[InvoiceMatcher] Database error on customer lookup by account_number', {
-          error: customerError.message,
-          accountNumber: parsed.accountNumber,
-        });
-        return {
-          matched: false,
-          error: `Database error: ${customerError.message}`,
-        };
-      }
-
-      if (customer) {
-        // Find oldest unpaid invoice for this customer
-        const { data: invoice, error: invoiceError } = await supabase
-          .from('customer_invoices')
-          .select('*')
-          .eq('customer_id', customer.id)
-          .in('status', ['unpaid', 'overdue'])
-          .order('due_date', { ascending: true })
-          .limit(1)
-          .single();
-
-        if (invoiceError && invoiceError.code !== PGRST_NO_ROWS) {
-          billingLogger.error('[InvoiceMatcher] Database error on unpaid invoice lookup', {
-            error: invoiceError.message,
-            customerId: customer.id,
-          });
-          return {
-            matched: false,
-            error: `Database error: ${invoiceError.message}`,
-          };
-        }
-
-        if (invoice) {
-          billingLogger.info('[InvoiceMatcher] Matched by account_number', {
-            invoiceId: invoice.id,
-            invoiceNumber: invoice.invoice_number,
-            customerId: customer.id,
-            accountNumber: parsed.accountNumber,
-          });
-          return {
-            matched: true,
-            invoice,
-            matchMethod: 'account_number',
-          };
-        }
-
-        billingLogger.debug('[InvoiceMatcher] Account found but no unpaid invoices', {
-          accountNumber: parsed.accountNumber,
-          customerId: customer.id,
-        });
-      }
-    }
-  }
-
-  // No match found
   billingLogger.warn('[InvoiceMatcher] No invoice match found', {
     reference,
     parsedType: parsed.type,
     parsedInvoiceNumber: parsed.invoiceNumber,
-    parsedAccountNumber: parsed.accountNumber,
+    accountNumber,
   });
 
-  return {
-    matched: false,
-  };
+  return { matched: false };
 }

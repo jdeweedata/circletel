@@ -1,11 +1,19 @@
 // __tests__/lib/billing/invoice-matcher.test.ts
 import { matchInvoiceByReference, type InvoiceMatchResult } from '@/lib/billing/invoice-matcher';
 
-// Mock Supabase client
 const mockSingle = jest.fn();
-const mockEq = jest.fn();
-const mockSelect = jest.fn();
 const mockFrom = jest.fn();
+
+function queryChain() {
+  const chain: Record<string, unknown> = {};
+  chain.eq = jest.fn(() => chain);
+  chain.in = jest.fn(() => chain);
+  chain.order = jest.fn(() => chain);
+  chain.limit = jest.fn(() => chain);
+  chain.select = jest.fn(() => chain);
+  chain.single = mockSingle;
+  return chain;
+}
 
 const mockSupabase = {
   from: mockFrom,
@@ -13,10 +21,7 @@ const mockSupabase = {
 
 describe('matchInvoiceByReference', () => {
   beforeEach(() => {
-    // Reinitialize chain implementations (resetMocks: true in jest.config.js clears them)
-    mockEq.mockImplementation(() => ({ single: mockSingle }));
-    mockSelect.mockImplementation(() => ({ eq: mockEq }));
-    mockFrom.mockImplementation(() => ({ select: mockSelect }));
+    mockFrom.mockImplementation(() => queryChain());
   });
 
   describe('matching by invoice number', () => {
@@ -39,10 +44,10 @@ describe('matchInvoiceByReference', () => {
         matched: true,
         invoice: mockInvoice,
         matchMethod: 'invoice_number',
+        matchConfidence: 'high',
       });
 
       expect(mockFrom).toHaveBeenCalledWith('customer_invoices');
-      expect(mockEq).toHaveBeenCalledWith('invoice_number', 'INV-2026-00002');
     });
 
     it('returns not matched when invoice number not found', async () => {
@@ -82,7 +87,85 @@ describe('matchInvoiceByReference', () => {
         matched: true,
         invoice: mockInvoice,
         matchMethod: 'paynow_transaction_ref',
+        matchConfidence: 'high',
       });
+    });
+  });
+
+  describe('account number as primary key', () => {
+    it('matches a sent invoice by embedded account number and exact name', async () => {
+      const customer = {
+        id: 'cust-prins',
+        first_name: 'Prins',
+        last_name: 'Mhlanga',
+        business_name: null,
+        account_number: 'CT-2025-00030',
+      };
+      const invoice = {
+        id: 'inv-81',
+        invoice_number: 'INV-2026-00081',
+        status: 'sent',
+        customer_id: 'cust-prins',
+      };
+
+      mockSingle
+        .mockResolvedValueOnce({ data: customer, error: null })
+        .mockResolvedValueOnce({ data: invoice, error: null });
+
+      const result = await matchInvoiceByReference(
+        'EFT Prins Mhlanga CT-2025-00030',
+        mockSupabase,
+        { payerName: 'Prins Mhlanga' }
+      );
+
+      expect(result.matched).toBe(true);
+      expect(result.matchMethod).toBe('account_number');
+      expect(result.matchConfidence).toBe('high');
+      expect(result.invoice?.invoice_number).toBe('INV-2026-00081');
+    });
+
+    it('rejects account match when payer name does not match exactly', async () => {
+      const customer = {
+        id: 'cust-prins',
+        first_name: 'Prins',
+        last_name: 'Mhlanga',
+        business_name: null,
+        account_number: 'CT-2025-00030',
+      };
+      mockSingle.mockResolvedValueOnce({ data: customer, error: null });
+
+      const result = await matchInvoiceByReference(
+        'CT-2025-00030',
+        mockSupabase,
+        { payerName: 'Shaun Robertson' }
+      );
+
+      expect(result.matched).toBe(false);
+      expect(result.error).toBe('name_mismatch');
+    });
+
+    it('returns low confidence when account matches but payer name is missing', async () => {
+      const customer = {
+        id: 'cust-prins',
+        first_name: 'Prins',
+        last_name: 'Mhlanga',
+        business_name: null,
+        account_number: 'CT-2025-00030',
+      };
+      const invoice = {
+        id: 'inv-81',
+        invoice_number: 'INV-2026-00081',
+        status: 'sent',
+        customer_id: 'cust-prins',
+      };
+      mockSingle
+        .mockResolvedValueOnce({ data: customer, error: null })
+        .mockResolvedValueOnce({ data: invoice, error: null });
+
+      const result = await matchInvoiceByReference('CT-2025-00030', mockSupabase);
+
+      expect(result.matched).toBe(true);
+      expect(result.matchConfidence).toBe('low');
     });
   });
 

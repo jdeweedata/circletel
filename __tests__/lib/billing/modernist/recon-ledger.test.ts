@@ -33,6 +33,7 @@ const row = (over: Partial<ThreeWayInvoiceRow>): ThreeWayInvoiceRow =>
       amountMismatch: false,
       booksUnlinked: false,
       netcashUnmatchedPaid: false,
+      nameMismatch: false,
     },
     href: '/admin/billing/invoices/1',
     ...over,
@@ -51,6 +52,7 @@ describe('isBrokenThreeWay', () => {
             amountMismatch: false,
             booksUnlinked: false,
             netcashUnmatchedPaid: true,
+            nameMismatch: false,
           },
           netcashState: 'unmatched',
         })
@@ -69,6 +71,7 @@ describe('filterLedgerRows', () => {
         amountMismatch: false,
         booksUnlinked: false,
         netcashUnmatchedPaid: false,
+        nameMismatch: false,
       },
       booksSyncStatus: 'pending',
     }),
@@ -87,7 +90,7 @@ describe('tones', () => {
   });
   it('maps books pending to warn', () => {
     expect(toneForBooks(row({ booksSyncStatus: 'pending', matchFlags: {
-      ctPaidBooksOpen: true, amountMismatch: false, booksUnlinked: false, netcashUnmatchedPaid: false,
+      ctPaidBooksOpen: true, amountMismatch: false, booksUnlinked: false, netcashUnmatchedPaid: false, nameMismatch: false,
     } }))).toBe('warn');
   });
 });

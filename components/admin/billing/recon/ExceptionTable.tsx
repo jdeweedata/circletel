@@ -27,6 +27,7 @@ const FILTER_CHIPS: Array<{ id: ExceptionFilter; label: string }> = [
   { id: 'zoho_lag', label: 'Zoho lag' },
   { id: 'amount_mismatch', label: 'Amount mismatch' },
   { id: 'bank_mismatch', label: 'Bank mismatch' },
+  { id: 'name_mismatch', label: 'Name mismatch' },
   { id: 'open_ar', label: 'Open AR' },
   { id: 'all', label: 'All' },
 ];
