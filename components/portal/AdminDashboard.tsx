@@ -26,6 +26,8 @@ import {
   type PortalSite,
 } from '@/lib/portal/site-format';
 import { spendNote } from '@/lib/portal/dashboard-kpis';
+import { pipelineOverviewRows } from '@/lib/portal/dashboard-overview';
+import type { StageClinicRef } from '@/lib/portal/count-onboarding-stages';
 import type { StageKey } from '@/lib/portal/onboarding-stage';
 
 interface Invoice {
@@ -44,6 +46,7 @@ interface DashboardSummary {
   preQualified: number;
   monthlySpend: number;
   stageCounts: Record<StageKey, number>;
+  stageClinics: StageClinicRef[];
   provinces: Array<{ province: string; count: number }>;
 }
 
@@ -80,12 +83,29 @@ export default function AdminDashboard({ user }: { user: PortalUser }) {
   const overdueInvoices = invoices.filter((i) => i.status === 'overdue');
   const awaitingClinic = summary?.stageCounts.details_confirmed ?? 0;
 
-  const overviewSites = useMemo(() => {
-    const filtered = stageFilter
-      ? sites.filter((site) => site.stage === stageFilter)
-      : sites;
-    return filtered.slice(0, 8);
-  }, [sites, stageFilter]);
+  const overviewRows = useMemo(() => {
+    if (stageFilter && summary?.stageClinics) {
+      return pipelineOverviewRows({
+        stage: stageFilter,
+        clinics: summary.stageClinics,
+        sites,
+      }).map((row) => {
+        const site = row.siteId
+          ? sites.find((candidate) => candidate.id === row.siteId)
+          : undefined;
+        return { ...row, code: site ? formatSiteCode(site) : null };
+      });
+    }
+    return sites.slice(0, 8).map((site) => ({
+      key: site.id,
+      name: formatClinicShortName(site.site_name),
+      stage: site.stage,
+      siteId: site.id,
+      location: formatSiteLocation(site),
+      technology: site.technology,
+      code: formatSiteCode(site),
+    }));
+  }, [sites, stageFilter, summary?.stageClinics]);
 
   if (loading) {
     return (
@@ -235,43 +255,65 @@ export default function AdminDashboard({ user }: { user: PortalUser }) {
             headers={['Site', 'Location', 'Technology', 'Stage']}
             className="mt-3 rounded-xl shadow-sm ring-1 ring-black/[0.06]"
           >
-            {overviewSites.map((site) => {
-              const code = formatSiteCode(site);
-              return (
-                <tr
-                  key={site.id}
-                  style={{ borderBottom: '1px solid var(--pm-divider)' }}
+            {overviewRows.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={4}
+                  className="px-4 py-8 text-center text-sm"
+                  style={{ color: '#6B7280' }}
                 >
-                  <td className="px-4 py-3">
-                    <Link
-                      href={href(`/sites/${site.id}`)}
-                      className="block hover:opacity-80"
+                  {stageFilter
+                    ? 'No clinics in this stage.'
+                    : 'No sites yet.'}
+                </td>
+              </tr>
+            ) : (
+              overviewRows.map((row) => {
+                const name = (
+                  <>
+                    <span
+                      className="block font-extrabold"
+                      style={{ color: 'var(--pm-navy)' }}
                     >
-                      <span
-                        className="block font-extrabold"
-                        style={{ color: 'var(--pm-navy)' }}
-                      >
-                        {formatClinicShortName(site.site_name)}
+                      {row.name}
+                    </span>
+                    {row.code && (
+                      <span className="block text-xs" style={{ color: '#6B7280' }}>
+                        {row.code}
                       </span>
-                      {code && (
-                        <span className="block text-xs" style={{ color: '#6B7280' }}>
-                          {code}
-                        </span>
+                    )}
+                  </>
+                );
+                return (
+                  <tr
+                    key={row.key}
+                    style={{ borderBottom: '1px solid var(--pm-divider)' }}
+                  >
+                    <td className="px-4 py-3">
+                      {row.siteId ? (
+                        <Link
+                          href={href(`/sites/${row.siteId}`)}
+                          className="block hover:opacity-80"
+                        >
+                          {name}
+                        </Link>
+                      ) : (
+                        name
                       )}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
-                    {formatSiteLocation(site)}
-                  </td>
-                  <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
-                    {formatTechnology(site.technology)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <StageBadge stage={site.stage} size="sm" />
-                  </td>
-                </tr>
-              );
-            })}
+                    </td>
+                    <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
+                      {row.location}
+                    </td>
+                    <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
+                      {formatTechnology(row.technology)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <StageBadge stage={row.stage} size="sm" />
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </RuledTable>
         </section>
 

@@ -83,6 +83,39 @@ describe('countOnboardingStages', () => {
     expect(result.stageByCustomerId).toEqual({});
   });
 
+  it('does not put a cancelled live site back on Clinic nominated', () => {
+    const result = countOnboardingStages({
+      sites: [
+        {
+          id: 'site-jabulani',
+          site_name: 'Unjani Clinic - Jabulani',
+          status: 'suspended',
+          installed_at: '2026-03-06T00:00:00+02:00',
+        },
+        {
+          id: 'site-gone',
+          site_name: 'Unjani Clinic - Collected',
+          status: 'decommissioned',
+          installed_at: '2026-01-15T00:00:00+02:00',
+        },
+      ],
+      customers: [
+        {
+          id: 'cust-jabulani',
+          business_name: 'Unjani Clinic - Jabulani',
+          corporate_site_id: 'site-jabulani',
+        },
+      ],
+      bestSubmission: {},
+      linkSent: new Set(),
+      nominatedCheckKeys: ['Jabulani'],
+    });
+
+    expect(result.stageCounts).toEqual(emptyStageCounts());
+    expect(result.stageBySiteId).toEqual({});
+    expect(result.stageByCustomerId).toEqual({});
+  });
+
   it('counts coverage-nominated clinics and lists them for the nominated card', () => {
     const nominatedChecks = [
       {

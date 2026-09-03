@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import { requirePortalUser } from '@/lib/portal/require-portal-user';
 import { clinicKey, isNominatedCoverageCheck } from '@/lib/portal/coverage-summary';
-import { countOnboardingStages, scopeOnboardingCustomers } from '@/lib/portal/count-onboarding-stages';
+import {
+  countOnboardingStages,
+  scopeOnboardingCustomers,
+  stageClinicRefs,
+} from '@/lib/portal/count-onboarding-stages';
 import { submissionRank } from '@/lib/portal/onboarding-stage';
 import { billedSiteIdSet, unjaniDashboardKpis } from '@/lib/portal/dashboard-kpis';
 
@@ -30,7 +34,7 @@ export async function GET() {
       .eq('corporate_id', portalUser.organisation_id),
     adminDb
       .from('b2b_coverage_checks')
-      .select('clinic_name, results')
+      .select('id, clinic_name, address, latitude, longitude, results')
       .eq('organisation_id', portalUser.organisation_id),
   ]);
 
@@ -107,14 +111,35 @@ export async function GET() {
     for (const t of tokens ?? []) linkSent.add(t.customer_id);
   }
 
-  const { stageCounts, stageBySiteId } = countOnboardingStages({
+  const nominatedChecks = (checks ?? []).filter(isNominatedCoverageCheck);
+  const { stageCounts, stageBySiteId, stageByCustomerId } = countOnboardingStages({
     sites: siteList,
     customers: customerList,
     bestSubmission,
     linkSent,
-    nominatedCheckKeys: (checks ?? [])
-      .filter(isNominatedCoverageCheck)
-      .map((check) => check.clinic_name ?? ''),
+    nominatedCheckKeys: nominatedChecks.map((check) => check.clinic_name ?? ''),
+  });
+
+  const checkByKey = new Map(
+    (checks ?? []).map((check) => [clinicKey(check.clinic_name), check])
+  );
+  const stageClinics = stageClinicRefs({
+    sites: siteList,
+    customers: customerList,
+    stageBySiteId,
+    stageByCustomerId,
+    nominatedChecks,
+  }).map((ref) => {
+    if (ref.address) return ref;
+    const check = checkByKey.get(clinicKey(ref.name));
+    if (!check) return ref;
+    return {
+      ...ref,
+      coverageCheckId: ref.coverageCheckId ?? check.id,
+      address: check.address,
+      latitude: check.latitude,
+      longitude: check.longitude,
+    };
   });
 
   const kpis = unjaniDashboardKpis({
@@ -141,6 +166,7 @@ export async function GET() {
   return NextResponse.json({
     ...kpis,
     stageCounts,
+    stageClinics,
     provinces: Object.entries(provinceCounts)
       .map(([province, count]) => ({ province, count }))
       .sort((a, b) => b.count - a.count),

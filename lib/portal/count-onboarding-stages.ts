@@ -4,6 +4,8 @@
  * Same loops as /api/portal/dashboard: count every site, then leftover
  * customers that already have a submission or invite. Coverage-check-only
  * clinics stay out of the strip (they are Pre-qualified, not nominated).
+ * Sites that already went live and are now suspended or decommissioned
+ * leave the strip — they are churned, not Clinic nominated.
  *
  * Stage labels still come from deriveStage() — this file does not invent stages.
  */
@@ -27,6 +29,12 @@ export interface CountableCustomer {
 export interface CountableSubmission {
   status: string | null;
   rejection_reason: string | null;
+}
+
+/** Went live, then cancelled / kit collected — leave the onboarding strip. */
+export function isChurnedLiveSite(site: CountableSite): boolean {
+  if (!site.installed_at) return false;
+  return site.status === 'suspended' || site.status === 'decommissioned';
 }
 
 export function emptyStageCounts(): Record<StageKey, number> {
@@ -90,6 +98,11 @@ export function countOnboardingStages(input: {
   const countedKeys = new Set<string>();
 
   for (const site of sites) {
+    if (isChurnedLiveSite(site)) {
+      const key = clinicKey(site.site_name);
+      if (key) countedKeys.add(key);
+      continue;
+    }
     const customerId = customerBySite.get(site.id);
     const submission = customerId ? input.bestSubmission[customerId] : undefined;
     const stage = deriveStage({
