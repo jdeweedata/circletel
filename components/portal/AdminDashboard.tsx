@@ -145,7 +145,7 @@ export default function AdminDashboard({ user }: { user: PortalUser }) {
           {
             label: 'Sites live',
             value: String(summary?.sitesLive ?? 0),
-            href: href('/sites'),
+            href: href('/sites?filter=live'),
             accent: '#2F9E5E',
             valueColor: '#2F9E5E',
           },
@@ -153,7 +153,7 @@ export default function AdminDashboard({ user }: { user: PortalUser }) {
             label: 'In onboarding',
             value: String(summary?.inOnboarding ?? 0),
             note: 'Across 5 stages',
-            href: href('/sites'),
+            href: href('/sites?filter=onboarding'),
             accent: '#13274A',
           },
           ...(isUnjani
