@@ -1,26 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
 import { createClient } from '@/lib/supabase/server';
 import { applyZohoInventoryWebhook } from '@/lib/admin/warehouse-zoho-sync';
+import {
+  authorizeZohoInventoryWebhook,
+  zohoInventoryWebhookSignature,
+} from '@/lib/integrations/zoho/inventory-webhook-auth';
 import { webhookLogger } from '@/lib/logging';
-
-function verifyWebhookSignature(payload: string, signature: string, secret: string): boolean {
-  try {
-    const expected = crypto.createHmac('sha256', secret).update(payload).digest('hex');
-    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
-  } catch {
-    return false;
-  }
-}
 
 export async function POST(request: NextRequest) {
   try {
-    const signature = request.headers.get('x-zoho-signature');
+    const raw = await request.text();
     const secret =
       process.env.ZOHO_INVENTORY_WEBHOOK_SECRET || process.env.ZOHO_WEBHOOK_SECRET;
-    const raw = await request.text();
+    const signature = zohoInventoryWebhookSignature(request.headers);
 
-    if (secret && signature && !verifyWebhookSignature(raw, signature, secret)) {
+    if (
+      authorizeZohoInventoryWebhook({ payload: raw, signature, secret }) !== 'ok'
+    ) {
       webhookLogger.error('[Zoho Inventory Webhook] Invalid signature');
       return NextResponse.json({ success: false, error: 'Invalid webhook signature' }, { status: 401 });
     }

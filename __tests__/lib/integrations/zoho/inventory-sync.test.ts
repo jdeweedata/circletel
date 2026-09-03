@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import {
   ZOHO_MOVEMENT_REF_PREFIX,
   adjustmentQuantity,
@@ -9,6 +10,10 @@ import {
   parseInventoryWebhookPayload,
   shouldPushMovement,
 } from '@/lib/integrations/zoho/inventory-sync';
+import {
+  authorizeZohoInventoryWebhook,
+  zohoInventoryWebhookSignature,
+} from '@/lib/integrations/zoho/inventory-webhook-auth';
 
 describe('Zoho Inventory hybrid event sync', () => {
   it('builds an idempotent adjustment reference from the warehouse movement id', () => {
@@ -185,5 +190,32 @@ describe('Zoho Inventory hybrid event sync', () => {
       quantityAdjusted: null,
       stockOnHand: 7,
     });
+  });
+});
+
+describe('Zoho Inventory webhook signature', () => {
+  const secret = 'aff5testsecrettoken12';
+  const payload = '{"inventory_adjustment":{"inventory_adjustment_id":"1"}}';
+  const hex = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+
+  it('reads X-Zoho-Webhook-Signature before the legacy header', () => {
+    expect(
+      zohoInventoryWebhookSignature({
+        get: (name: string) =>
+          name.toLowerCase() === 'x-zoho-webhook-signature' ? 'from-inventory' : 'legacy',
+      })
+    ).toBe('from-inventory');
+  });
+
+  it('rejects a missing header when the secret is configured', () => {
+    expect(
+      authorizeZohoInventoryWebhook({ payload, signature: null, secret })
+    ).toBe('unauthorized');
+  });
+
+  it('accepts a valid HMAC from the Inventory webhook header', () => {
+    expect(
+      authorizeZohoInventoryWebhook({ payload, signature: hex, secret })
+    ).toBe('ok');
   });
 });
