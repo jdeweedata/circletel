@@ -60,18 +60,18 @@ describe('Unjani NPC pack — commercial start date', () => {
     ).rejects.toThrow(TOUCHED);
   });
 
-  it('bills the next month in advance, issued last Monday, due that Friday', () => {
+  it('bills the next month in advance, issued last Monday, due 30 days later', () => {
     expect(packDatesFor(at('2026-08-31'))).toEqual({
       invoiceDate: '2026-08-31',
       periodStart: '2026-09-01',
       periodEnd: '2026-09-30',
-      dueDate: '2026-09-04',
+      dueDate: '2026-09-30',
     });
     expect(packDatesFor(at('2026-09-28'))).toEqual({
       invoiceDate: '2026-09-28',
       periodStart: '2026-10-01',
       periodEnd: '2026-10-31',
-      dueDate: '2026-10-02',
+      dueDate: '2026-10-28',
     });
   });
 });

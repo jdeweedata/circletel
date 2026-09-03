@@ -50,19 +50,20 @@ describe('Unjani Connect NPC billing calendar', () => {
   it('bills the next month in advance on the last Monday', () => {
     const augustIssue = npcPackDates(2026, 8);
     expect(augustIssue.invoiceDate).toBe('2026-08-31');
-    expect(augustIssue.dueDate).toBe('2026-09-04');
+    expect(augustIssue.dueDate).toBe('2026-09-30');
     expect(augustIssue.periodStart).toBe('2026-09-01');
     expect(augustIssue.periodEnd).toBe('2026-09-30');
 
     const septemberIssue = npcPackDates(2026, 9);
     expect(septemberIssue.invoiceDate).toBe('2026-09-28');
-    expect(septemberIssue.dueDate).toBe('2026-10-02');
+    expect(septemberIssue.dueDate).toBe('2026-10-28');
     expect(septemberIssue.periodStart).toBe('2026-10-01');
     expect(septemberIssue.periodEnd).toBe('2026-10-31');
   });
 
-  it('uses Friday of the issue week as the invoice due date', () => {
-    expect(npcInvoiceDueDate('2026-09-28')).toBe('2026-10-02');
+  it('uses invoice date plus 30 days as the invoice due date', () => {
+    expect(npcInvoiceDueDate('2026-08-31')).toBe('2026-09-30');
+    expect(npcInvoiceDueDate('2026-09-28')).toBe('2026-10-28');
   });
 });
 
