@@ -8,6 +8,8 @@ import {
   replenishmentDue,
   type WarehouseStockLine,
 } from '@/lib/admin/unjani-warehouse';
+import { enqueueZohoWarehousePush } from '@/lib/admin/warehouse-zoho-sync';
+import { shouldPushMovement } from '@/lib/integrations/zoho/inventory-sync';
 import { deriveStage, submissionRank, type StageKey } from '@/lib/portal/onboarding-stage';
 
 type Db = {
@@ -43,6 +45,29 @@ export function installOrderStageForClinic(input: {
     submissionRejectionReason: input.submission?.rejection_reason,
     onboardingLinkSent: Boolean(input.onboardingLinkSent),
   });
+}
+
+async function recordMovement(
+  db: Db,
+  row: {
+    sku: string;
+    movement_type: string;
+    qty: number;
+    install_order_id?: string | null;
+    replenishment_id?: string | null;
+    notes?: string | null;
+    created_by?: string | null;
+  }
+) {
+  const { data, error } = await db
+    .from('warehouse_movements')
+    .insert(row)
+    .select('id, movement_type')
+    .single();
+  if (error || !data) throw new Error(error?.message || 'Failed to record warehouse movement');
+  if (shouldPushMovement(data.movement_type)) {
+    await enqueueZohoWarehousePush(data.id);
+  }
 }
 
 async function loadStock(db: Db): Promise<WarehouseStockLine[]> {
@@ -81,7 +106,7 @@ async function reserveKit(
       })
       .eq('sku', line.sku);
     if (updateError) throw new Error(updateError.message);
-    const { error: moveError } = await db.from('warehouse_movements').insert({
+    await recordMovement(db, {
       sku: line.sku,
       movement_type: 'reserve',
       qty: line.qty,
@@ -89,7 +114,6 @@ async function reserveKit(
       notes,
       created_by: createdBy ?? null,
     });
-    if (moveError) throw new Error(moveError.message);
   }
 }
 
@@ -140,7 +164,7 @@ export async function receiveReplenishmentsForOrder(db: Db, orderId: string, cre
       .update({ received_at: new Date().toISOString() })
       .eq('id', row.id);
     if (recvError) throw new Error(recvError.message);
-    const { error: moveError } = await db.from('warehouse_movements').insert({
+    await recordMovement(db, {
       sku: row.sku,
       movement_type: 'receive',
       qty: row.qty,
@@ -148,7 +172,6 @@ export async function receiveReplenishmentsForOrder(db: Db, orderId: string, cre
       replenishment_id: row.id,
       created_by: createdBy ?? null,
     });
-    if (moveError) throw new Error(moveError.message);
   }
 
   return tryReserveOpenOrder(db, orderId, createdBy);
@@ -213,14 +236,13 @@ export async function issueKitForOrder(db: Db, orderId: string, createdBy?: stri
       })
       .eq('sku', line.sku);
     if (updateError) throw new Error(updateError.message);
-    const { error: moveError } = await db.from('warehouse_movements').insert({
+    await recordMovement(db, {
       sku: line.sku,
       movement_type: 'issue',
       qty: line.qty,
       install_order_id: orderId,
       created_by: createdBy ?? null,
     });
-    if (moveError) throw new Error(moveError.message);
   }
 
   const { data: updated, error: updateError } = await db
