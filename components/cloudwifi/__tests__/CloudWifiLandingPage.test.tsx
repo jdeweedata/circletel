@@ -137,14 +137,14 @@ describe("CloudWiFi product page", () => {
 
     for (const tier of [
       ["Essential", "Up to 300 sqm", "1–2 APs", "R1,499", "Up to 2 APs"],
-      ["Professional", "300–800 sqm", "3–5 APs", "R3,499", "Up to 5 APs"],
-      ["Enterprise", "800–2,000 sqm", "6–12 APs", "R7,999", "Up to 12 APs"],
+      ["Professional", "300–800 sqm", "3–5 indoor + 1 outdoor AP", "R3,499", "Up to 5 indoor + 1 outdoor AP"],
+      ["Enterprise", "800–2,000 sqm", "6–12 indoor + 2 outdoor APs", "R7,999", "Up to 12 indoor + 2 outdoor APs"],
       [
         "Campus",
         "Large or multi-building sites",
         "12–30+ APs",
         "R14,999",
-        "Up to 20 APs before custom expansion",
+        "Up to 30 APs; more quoted separately",
       ],
     ]) {
       for (const detail of tier) expect(text).toContain(detail);
@@ -189,7 +189,7 @@ describe("CloudWiFi product page", () => {
       "separate staff and guest networks",
     );
     expect(text).toContain(
-      "Custom portal integrations, advanced analytics, LTE/5G failover and multi-site management are quoted separately.",
+      "Optional features not included in your tier, LTE/5G failover and multi-site management are quoted separately.",
     );
     expect(text).toContain("Managed cloud platform");
     expect(text).toContain("Your internet connection");
@@ -203,7 +203,7 @@ describe("CloudWiFi product page", () => {
     expect(text).toContain("Any installation and once-off charges are listed separately in your quotation.");
     expect(text).toContain(`${getTenantConfig().branding.companyName}-owned Wi-Fi 6 equipment`);
     expect(text).toContain(
-      "CloudWiFi manages the Wi-Fi network inside your space. The Professional retail bundle includes SkyFibre Business 100, subject to coverage.",
+      "CloudWiFi manages the Wi-Fi network inside your space. All tier prices cover the managed Wi-Fi service only. Fibre, SkyFibre and other internet connections are quoted and billed separately.",
     );
     expect(text).toContain("South African team and support");
     expect(text).toContain("Vendor-agnostic design");
@@ -215,7 +215,9 @@ describe("CloudWiFi product page", () => {
     );
     expect(text).not.toContain("SLA-backed support");
     expect(text).not.toContain("Secure and compliant");
-    expect(text).toContain("24-month combined contract");
+    expect(text).toContain("24-month Wi-Fi service contract");
+    expect(text).not.toContain("includes SkyFibre Business 100");
+    expect(text).toContain("Internet connectivity is quoted and billed separately.");
     expect(text).toContain("Business-hours assisted support");
     expect(text).not.toContain("Priority support");
     expect(text).toContain("Do I own the Wi-Fi equipment?");
@@ -230,9 +232,9 @@ describe("CloudWiFi product page", () => {
     expect(includedFeatures).not.toContain("Guest and staff separation");
     expect(pricingTiers.map((tier) => tier.capacity)).toEqual([
       "Up to 2 APs",
-      "Up to 5 APs",
-      "Up to 12 APs",
-      "Up to 20 APs before custom expansion",
+      "Up to 5 indoor + 1 outdoor AP",
+      "Up to 12 indoor + 2 outdoor APs",
+      "Up to 30 APs; more quoted separately",
     ]);
     expect(
       pricingTiers.find((tier) => tier.name === "Campus")?.features,

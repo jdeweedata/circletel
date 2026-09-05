@@ -105,7 +105,7 @@ describe("CloudWifiEstimateModal", () => {
     expect(serialized).toContain("Find your recommended CloudWiFi plan");
     expect(renderedText).toContain("Checking the Professional plan");
     expect(serialized).toContain(
-      "Answer 5 quick questions to see your starting plan and monthly price.",
+      "Answer 5 quick questions to see your starting Wi-Fi plan and monthly price, excluding internet connectivity.",
     );
     expect(serialized).toContain("What internet do you have today?");
     expect(serialized).not.toContain("Ruijie");

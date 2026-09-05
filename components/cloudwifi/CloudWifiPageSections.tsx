@@ -277,7 +277,7 @@ function PricingSection() {
                 Internet connection
               </h4>
               <p className="mt-5 text-base leading-7 text-circleTel-secondaryNeutral">
-                CloudWiFi manages the Wi-Fi network inside your space. The Professional retail bundle includes SkyFibre Business 100, subject to coverage. Other tiers and business fibre are quoted with their connectivity requirements.
+                CloudWiFi manages the Wi-Fi network inside your space. All tier prices cover the managed Wi-Fi service only. Fibre, SkyFibre and other internet connections are quoted and billed separately.
               </p>
               <p className="mt-3 text-base leading-7 text-circleTel-secondaryNeutral">
                 Additional access points are available at extra cost. Optional
@@ -370,7 +370,7 @@ const commercialQuestions = [
   {
     question: "Is internet connectivity included?",
     answer:
-      "The Professional retail bundle includes SkyFibre Business 100, subject to coverage. Business fibre and connectivity for other tiers are quoted separately. Your quotation confirms the connection, monthly charges and any once-off fees before you commit.",
+      "No. All tier prices cover managed Wi-Fi only. Fibre, SkyFibre and other internet connections are quoted and billed separately. Your quotation confirms the connection, monthly charges and any once-off fees before you commit.",
   },
   {
     question: "What support can I expect?",
@@ -380,7 +380,7 @@ const commercialQuestions = [
   {
     question: "Can I access my network remotely?",
     answer:
-      "We check your remote-access requirements during assessment. The standard connection uses shared public addressing (CGNAT), with no static public IP or direct inbound access included. Tell us if your application requires a fixed public address so we can assess an appropriate option before quoting.",
+      "We check your remote-access requirements during assessment. Our standard separately quoted connection uses shared public addressing (CGNAT), with no static public IP or direct inbound access included. Addressing for other connection options is confirmed in the connectivity quotation. Tell us if your application requires a fixed public address so we can assess an appropriate option before quoting.",
   },
   {
     question: "Is the estimate my final quote?",
@@ -395,12 +395,12 @@ const commercialQuestions = [
   {
     question: "What is included in the monthly service?",
     answer:
-        "Every tier provides managed Wi-Fi equipment, guest access, monitoring and maintenance. Installation scope and fees are confirmed in the quotation. Professional retail adds SkyFibre Business 100, separate staff and guest networks, a standard guest portal and business-hours assisted support on a 24-month combined contract.",
+        "Every tier provides managed Wi-Fi equipment, guest access, monitoring and maintenance. Installation scope and fees are confirmed in the quotation. Professional includes separate staff and guest networks, a standard guest portal and business-hours assisted support on a 24-month Wi-Fi service contract. Internet connectivity is quoted and billed separately.",
   },
   {
     question: "What can cost extra?",
     answer:
-        "Published guide prices exclude VAT. Extra access points, cabling beyond the standard allowance, difficult access, after-hours work, travel and any once-off fees are confirmed in your quotation. Custom portal integrations, advanced analytics, LTE/5G failover and multi-site management are quoted separately. Content filtering, advanced traffic policies, LAN optimisation and custom integrations can also be scoped in your quotation. The standard guest portal is included in Professional retail.",
+        "Published guide prices exclude VAT. Extra access points, cabling beyond the standard allowance, difficult access, after-hours work, travel and any once-off fees are confirmed in your quotation. Optional features not included in your tier, LTE/5G failover and multi-site management are quoted separately. Content filtering, advanced traffic policies, LAN optimisation and custom integrations can also be scoped in your quotation. The standard guest portal is included in every tier; custom portal design is included in Enterprise and Campus. Advanced analytics is included in Campus.",
   },
 ] as const;
 

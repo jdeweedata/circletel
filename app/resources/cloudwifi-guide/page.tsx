@@ -261,7 +261,7 @@ export default function CloudWifiGuidePage() {
               Guide prices
             </h2>
             <p className="mt-3 max-w-2xl text-base leading-7 text-circleTel-secondaryNeutral">
-              These starting prices exclude VAT. A site survey confirms the
+              These starting prices cover Wi-Fi only and exclude VAT. Internet connectivity is quoted and billed separately. A site survey confirms the
               final tier and monthly amount.
             </p>
             <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">

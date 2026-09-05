@@ -21,7 +21,7 @@ export const CLOUDWIFI_TIERS = Object.freeze([
     id: 'professional',
     name: 'Professional',
     areaLabel: '300–800 sqm',
-    apRange: '3–5 APs',
+    apRange: '3–5 indoor + 1 outdoor AP',
     startingPrice: 3499,
     includedAccessPoints: 5,
   }),
@@ -29,7 +29,7 @@ export const CLOUDWIFI_TIERS = Object.freeze([
     id: 'enterprise',
     name: 'Enterprise',
     areaLabel: '800–2,000 sqm',
-    apRange: '6–12 APs',
+    apRange: '6–12 indoor + 2 outdoor APs',
     startingPrice: 7999,
     includedAccessPoints: 12,
   }),
@@ -39,21 +39,24 @@ export const CLOUDWIFI_TIERS = Object.freeze([
     areaLabel: 'Large sites and multiple buildings',
     apRange: '12–30+ APs',
     startingPrice: 14999,
-    includedAccessPoints: 20,
+    includedAccessPoints: 30,
   }),
 ] as const) satisfies readonly CloudWifiTier[];
 
 const AREA_UPPER_BOUNDS = [300, 800, 2000] as const;
-const USER_UPPER_BOUNDS = [50, 150, 400] as const;
+// CT-BRD-CLOUDWIFI-2026-001 section 5.3, CW-BH-020 through CW-BH-023.
+const USER_UPPER_BOUNDS = [50, 100, 250] as const;
 const DENSITY_VENUE_TYPES: readonly CloudWifiVenueType[] = [
   'hospitality',
   'retail',
   'education',
 ];
+// Preserve the estimator upper-quartile heuristic within the approved user bands:
+// ceil(lower bound + 0.75 * band width); this is guidance, not a BRD rule.
 const DENSITY_THRESHOLDS: Partial<Record<CloudWifiTierId, number>> = {
   essential: 38,
-  professional: 126,
-  enterprise: 338,
+  professional: 88,
+  enterprise: 213,
 };
 
 function tierForValue(value: number, upperBounds: readonly number[]): CloudWifiTierId {

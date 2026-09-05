@@ -310,7 +310,7 @@ export function CloudWifiTierEstimator({
               {continueLabel}
             </Button>
             <p className="text-sm text-circleTel-secondaryNeutral">
-              A site survey confirms the final tier and price.
+              Wi-Fi service only; internet connectivity is quoted and billed separately. A site survey confirms the final tier and price.
             </p>
           </div>
         )}

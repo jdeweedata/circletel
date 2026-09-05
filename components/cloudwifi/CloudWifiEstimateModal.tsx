@@ -223,7 +223,7 @@ export function CloudWifiEstimateModal() {
             {leadId
               ? `A ${getTenantConfig().branding.companyName} specialist will contact you to schedule the survey.`
               : step === 1
-                ? "Answer 5 quick questions to see your starting plan and monthly price. Then choose whether to request a site survey."
+                ? "Answer 5 quick questions to see your starting Wi-Fi plan and monthly price, excluding internet connectivity. Then choose whether to request a site survey."
                 : "Leave your details so we can book a site survey."}
           </DialogDescription>
         </DialogHeader>

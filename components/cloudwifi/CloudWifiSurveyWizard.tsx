@@ -1562,7 +1562,7 @@ export function CloudWifiSurveyWizard() {
       </section>
 
       <p className="rounded-lg bg-circleTel-lightNeutral p-4 text-circleTel-secondaryNeutral">
-        A site survey confirms the final tier and price. Prices exclude VAT,
+        Wi-Fi service only; internet connectivity is quoted and billed separately. A site survey confirms the final tier and price. Prices exclude VAT,
         fair usage applies, and additional access points may cost extra.
       </p>
     </div>
