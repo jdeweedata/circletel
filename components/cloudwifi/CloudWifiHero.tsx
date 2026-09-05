@@ -52,7 +52,7 @@ export function CloudWifiHero() {
             Reliable Wi-Fi for staff and guests.
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-8 text-white/85">
-            Keep your team connected and give guests a network of their own. CircleTel plans your Wi-Fi around your building, installs the equipment and manages it day to day, with remote monitoring and maintenance.
+            Keep your team connected and give guests a network of their own. {getTenantConfig().branding.companyName} plans your Wi-Fi around your building, installs the equipment and manages it day to day, with remote monitoring and maintenance.
           </p>
 
           <div className="mt-8 grid w-full max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2">

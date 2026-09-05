@@ -1,7 +1,7 @@
 import type { IconBaseProps } from "react-icons";
 import type { ReactNode } from "react";
 
-// Original CircleTel artwork: a shared 32-unit grid and rounded, open silhouettes.
+// Original CloudWiFi artwork: a shared 32-unit grid and rounded, open silhouettes.
 // currentColor keeps the outline readable on both navy and light page surfaces.
 function icon(name: string, drawing: ReactNode) {
   function CloudWifiIcon({ size = "1em", color, title, children, ...props }: IconBaseProps) {

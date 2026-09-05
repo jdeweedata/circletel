@@ -1,3 +1,4 @@
+import { getTenantConfig } from "@/lib/tenant";
 import React from "react";
 import TestRenderer, { act } from "react-test-renderer";
 
@@ -89,7 +90,7 @@ function pageText(renderer: TestRenderer.ReactTestRenderer): string {
     .filter((child): child is string | number =>
       ["string", "number"].includes(typeof child),
     )
-    .join(" ");
+    .join(" ").replace(/\s+/g, " ").trim();
 }
 
 function textOf(node: TestRenderer.ReactTestInstance): string {
@@ -120,7 +121,7 @@ describe("CloudWiFi product page", () => {
       "text-3xl sm:text-4xl md:text-5xl lg:text-6xl",
     );
     expect(text).toContain(
-      "Keep your team connected and give guests a network of their own. CircleTel plans your Wi-Fi around your building, installs the equipment and manages it day to day, with remote monitoring and maintenance.",
+      `Keep your team connected and give guests a network of their own. ${getTenantConfig().branding.companyName} plans your Wi-Fi around your building, installs the equipment and manages it day to day, with remote monitoring and maintenance.`,
     );
 
     for (const venue of [
@@ -171,7 +172,7 @@ describe("CloudWiFi product page", () => {
     expect(text).toContain("Guest Wi-Fi is part of your customer experience.");
     expect(text).toContain("A clear plan for your building’s Wi-Fi.");
     expect(text).toContain(
-      "Give customers a dedicated guest network, with installation and ongoing management handled by CircleTel.",
+      `Give customers a dedicated guest network, with installation and ongoing management handled by ${getTenantConfig().branding.companyName}.`,
     );
     expect(text).toContain(
       "Start with a site survey that considers your layout and usage, backed by ongoing monitoring and maintenance.",
@@ -200,7 +201,7 @@ describe("CloudWiFi product page", () => {
     expect(text).toContain("What your monthly service covers");
     expect(text).toContain("Separate guest access");
     expect(text).toContain("Any installation and once-off charges are listed separately in your quotation.");
-    expect(text).toContain("CircleTel-owned Wi-Fi 6 equipment");
+    expect(text).toContain(`${getTenantConfig().branding.companyName}-owned Wi-Fi 6 equipment`);
     expect(text).toContain(
       "CloudWiFi manages the Wi-Fi network inside your space. The Professional retail bundle includes SkyFibre Business 100, subject to coverage.",
     );
@@ -218,7 +219,7 @@ describe("CloudWiFi product page", () => {
     expect(text).toContain("Business-hours assisted support");
     expect(text).not.toContain("Priority support");
     expect(text).toContain("Do I own the Wi-Fi equipment?");
-    expect(text).toContain("CircleTel owns the equipment supplied under the managed service");
+    expect(text).toContain(`${getTenantConfig().branding.companyName} owns the equipment supplied under the managed service`);
     expect(text).toContain("Your quotation confirms the connection, monthly charges and any once-off fees before you commit.");
     expect(text).toContain("no static public IP or direct inbound access included");
     expect(text).not.toContain("One store. POS, staff and guest Wi-Fi.");
@@ -250,7 +251,7 @@ describe("CloudWiFi product page", () => {
     );
     expect(expert?.props.href).toBe(
       getWhatsAppLink(
-        "Hi CircleTel, I would like to speak to an expert about CloudWiFi.",
+        `Hi ${getTenantConfig().branding.companyName}, I would like to speak to an expert about CloudWiFi.`,
       ),
     );
     expect(expert?.props.target).toBe("_blank");
@@ -357,14 +358,14 @@ describe("CloudWiFi product page", () => {
     expect(metadata).toMatchObject({
       alternates: { canonical: "/products/cloudwifi" },
       openGraph: {
-        title: "CloudWiFi Managed Wi-Fi as a Service | CircleTel",
+        title: `CloudWiFi Managed Wi-Fi as a Service | ${getTenantConfig().branding.companyName}`,
         url: "/products/cloudwifi",
         type: "website",
         images: ["/images/cloudwifi/cloudwifi-hero.jpg"],
       },
       twitter: {
         card: "summary_large_image",
-        title: "CloudWiFi Managed Wi-Fi as a Service | CircleTel",
+        title: `CloudWiFi Managed Wi-Fi as a Service | ${getTenantConfig().branding.companyName}`,
         images: ["/images/cloudwifi/cloudwifi-hero.jpg"],
       },
     });

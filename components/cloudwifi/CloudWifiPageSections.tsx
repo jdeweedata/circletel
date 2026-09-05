@@ -97,8 +97,7 @@ function VenueSection() {
               Guest Wi-Fi is part of your customer experience.
             </h3>
             <p className="mt-4 text-base leading-7 text-circleTel-secondaryNeutral">
-              Give customers a dedicated guest network, with installation and
-              ongoing management handled by CircleTel.
+              {`Give customers a dedicated guest network, with installation and ongoing management handled by ${getTenantConfig().branding.companyName}.`}
             </p>
           </article>
           <article className="rounded-2xl border border-circleTel-navy/10 bg-white p-6 shadow-sm sm:p-8">
@@ -252,7 +251,7 @@ function PricingSection() {
               What your monthly service covers
             </h3>
             <p className="mt-2 max-w-3xl text-base leading-7 text-white/80">
-              CloudWiFi is a managed service: CircleTel designs, installs, owns
+              CloudWiFi is a managed service: {getTenantConfig().branding.companyName} designs, installs, owns
               and looks after the Wi-Fi network.
             </p>
           </div>
@@ -263,7 +262,7 @@ function PricingSection() {
               </h4>
               <CheckList
                 items={[
-                  "CircleTel-owned Wi-Fi 6 equipment",
+                  `${getTenantConfig().branding.companyName}-owned Wi-Fi 6 equipment`,
                   "Separate guest access",
                   "Remote Wi-Fi management",
                   "Maintenance and security updates",
@@ -366,7 +365,7 @@ const commercialQuestions = [
   {
     question: "Do I own the Wi-Fi equipment?",
     answer:
-      "CircleTel owns the equipment supplied under the managed service and looks after its configuration and maintenance. Equipment return and end-of-contract arrangements are set out in your quotation and service agreement.",
+      `${getTenantConfig().branding.companyName} owns the equipment supplied under the managed service and looks after its configuration and maintenance. Equipment return and end-of-contract arrangements are set out in your quotation and service agreement.`,
   },
   {
     question: "Is internet connectivity included?",
