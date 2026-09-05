@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { PiSquaresFourBold } from 'react-icons/pi';
 import { Button } from '@/components/ui/button';
+import { AudienceSelector } from '@/components/navigation/AudienceSelector';
 import {
   Accordion,
   AccordionContent,
@@ -144,6 +145,9 @@ export const MobileMenu = ({ isMenuOpen, setIsMenuOpen }: MobileMenuProps) => {
           <SheetDescription className="text-sm text-white/75">
             Business connectivity, IT support and partner tools.
           </SheetDescription>
+          <div className="pt-3">
+            <AudienceSelector onSelect={() => setIsMenuOpen(false)} />
+          </div>
         </SheetHeader>
 
         <nav className="flex flex-1 flex-col px-4 py-4">
