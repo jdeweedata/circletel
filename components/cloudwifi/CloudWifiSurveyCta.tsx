@@ -10,10 +10,12 @@ import { Button, type ButtonProps } from "@/components/ui/button";
 
 export interface CloudWifiSurveyCtaProps extends Omit<ButtonProps, "asChild"> {
   prefill?: Partial<CloudWifiSurveyDraft["venue"]>;
+  planInterest?: string;
 }
 
 export function CloudWifiSurveyCta({
   prefill,
+  planInterest,
   children,
   onClick,
   type = "button",
@@ -29,7 +31,7 @@ export function CloudWifiSurveyCta({
       onClick={(event) => {
         onClick?.(event);
         if (!event.defaultPrevented)
-          requestSurvey(prefill, event.currentTarget);
+          requestSurvey(prefill, event.currentTarget, planInterest);
       }}
     >
       {children}

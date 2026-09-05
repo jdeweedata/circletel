@@ -408,9 +408,9 @@ describe("CloudWifiSurveyWizard", () => {
     expect(text).toContain("Nandi Dlamini");
     expect(text).toContain("nandi@example.co.za");
     expect(text).toContain("082 123 4567");
-    expect(text).toContain("Professional");
-    expect(text).toContain("R3,499");
-    expect(text).toContain("3–5 APs");
+    expect(text).toContain("Enterprise");
+    expect(text).toContain("R7,999");
+    expect(text).toContain("6–12 indoor + 2 outdoor APs");
     expect(text).toContain("A site survey confirms the final tier and price.");
     const review = renderer.root.findByProps({
       "data-testid": "cloudwifi-review",

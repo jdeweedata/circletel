@@ -157,13 +157,13 @@ describe("CloudWifiTierEstimator", () => {
     setCompleteEstimator(renderer);
 
     const serialized = JSON.stringify(renderer.toJSON());
-    expect(serialized).toContain("Professional");
-    expect(serialized).toContain("R3,499");
+    expect(serialized).toContain("Enterprise");
+    expect(serialized).toContain("R7,999");
     expect(serialized).toContain("from");
     expect(serialized).toContain("/mo excl. VAT");
-    expect(serialized).toContain("3–5 APs");
+    expect(serialized).toContain("6–12 indoor + 2 outdoor APs");
     expect(serialized).toContain(
-      "Floor area and peak users both support the Professional tier.",
+      "Peak users require the Enterprise tier.",
     );
     expect(serialized).toContain("A site survey will confirm");
     expect(serialized).toContain(
@@ -233,7 +233,7 @@ describe("CloudWifiTierEstimator", () => {
   it("removes a stale recommendation after clearing or invalidating a number", () => {
     const renderer = renderHarness(<CloudWifiTierEstimator />);
     setCompleteEstimator(renderer);
-    expect(JSON.stringify(renderer.toJSON())).toContain("Professional");
+    expect(JSON.stringify(renderer.toJSON())).toContain("Enterprise");
 
     const floorArea = renderer.root.findByProps({
       "aria-label": "Usable floor area",
@@ -243,13 +243,13 @@ describe("CloudWifiTierEstimator", () => {
     let serialized = JSON.stringify(renderer.toJSON());
     expect(floorArea.props.value).toBe("");
     expect(serialized).toContain("Select your details to see a recommendation");
-    expect(serialized).not.toContain("Professional");
+    expect(serialized).not.toContain("Enterprise");
     expect(renderer.root.findAllByType("button").map(textOf)).not.toContain(
       "Continue",
     );
 
     act(() => floorArea.props.onChange({ target: { value: "450" } }));
-    expect(JSON.stringify(renderer.toJSON())).toContain("Professional");
+    expect(JSON.stringify(renderer.toJSON())).toContain("Enterprise");
 
     const peakUsers = renderer.root.findByProps({
       "aria-label": "How many people online at once",
@@ -259,7 +259,7 @@ describe("CloudWifiTierEstimator", () => {
     serialized = JSON.stringify(renderer.toJSON());
     expect(peakUsers.props.value).toBe("1.5");
     expect(serialized).toContain("Select your details to see a recommendation");
-    expect(serialized).not.toContain("Professional");
+    expect(serialized).not.toContain("Enterprise");
 
     for (const invalidValue of ["1e3", "Infinity", "-1"]) {
       act(() => peakUsers.props.onChange({ target: { value: invalidValue } }));

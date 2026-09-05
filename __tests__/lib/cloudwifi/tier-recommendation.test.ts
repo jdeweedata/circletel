@@ -35,7 +35,7 @@ describe('CloudWiFi tier recommendation', () => {
           id: 'professional',
           name: 'Professional',
           areaLabel: '300–800 sqm',
-          apRange: '3–5 APs',
+          apRange: '3–5 indoor + 1 outdoor AP',
           startingPrice: 3499,
           includedAccessPoints: 5,
         },
@@ -43,7 +43,7 @@ describe('CloudWiFi tier recommendation', () => {
           id: 'enterprise',
           name: 'Enterprise',
           areaLabel: '800–2,000 sqm',
-          apRange: '6–12 APs',
+          apRange: '6–12 indoor + 2 outdoor APs',
           startingPrice: 7999,
           includedAccessPoints: 12,
         },
@@ -53,7 +53,7 @@ describe('CloudWiFi tier recommendation', () => {
           areaLabel: 'Large sites and multiple buildings',
           apRange: '12–30+ APs',
           startingPrice: 14999,
-          includedAccessPoints: 20,
+          includedAccessPoints: 30,
         },
       ]);
     });
@@ -79,10 +79,10 @@ describe('CloudWiFi tier recommendation', () => {
     it.each([
       [50, 'essential'],
       [51, 'professional'],
-      [150, 'professional'],
-      [151, 'enterprise'],
-      [400, 'enterprise'],
-      [401, 'campus'],
+      [100, 'professional'],
+      [101, 'enterprise'],
+      [250, 'enterprise'],
+      [251, 'campus'],
     ] as const)('maps %i peak users to %s', (peakUsers, expectedTier) => {
       expect(recommendCloudWifiTier({
         venueType: 'property',
@@ -149,10 +149,10 @@ describe('CloudWiFi tier recommendation', () => {
     it.each([
       ['hospitality', 250, 37, 'essential', false],
       ['hospitality', 250, 38, 'professional', true],
-      ['retail', 500, 125, 'professional', false],
-      ['retail', 500, 126, 'enterprise', true],
-      ['education', 1000, 337, 'enterprise', false],
-      ['education', 1000, 338, 'campus', true],
+      ['retail', 500, 87, 'professional', false],
+      ['retail', 500, 88, 'enterprise', true],
+      ['education', 1000, 212, 'enterprise', false],
+      ['education', 1000, 213, 'campus', true],
     ] as const)(
       'maps %s at %i sqm and %i users to %s at the density boundary',
       (venueType, floorArea, peakUsers, expectedTier, isPromoted) => {
@@ -186,7 +186,7 @@ describe('CloudWiFi tier recommendation', () => {
 
     it.each([
       [100, 'professional'],
-      [101, 'enterprise'],
+      [101, 'campus'],
     ] as const)(
       'applies the public-venue promotion only above 100 users (%i)',
       (peakUsers, expectedTier) => {

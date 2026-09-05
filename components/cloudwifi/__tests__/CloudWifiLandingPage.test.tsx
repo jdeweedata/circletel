@@ -1,3 +1,4 @@
+import { getTenantConfig } from "@/lib/tenant";
 import React from "react";
 import TestRenderer, { act } from "react-test-renderer";
 
@@ -50,7 +51,12 @@ jest.mock("@/components/cloudwifi/CloudWifiSurveyProvider", () => ({
   ),
   useCloudWifiSurvey: () => ({
     requestSurvey: jest.fn(),
-    draft: { venue: { venueType: "" }, contact: {}, details: {}, attribution: {} },
+    draft: {
+      venue: { venueType: "" },
+      contact: {},
+      details: {},
+      attribution: {},
+    },
     setDraft: jest.fn(),
     mobileOpen: false,
     setMobileOpen: jest.fn(),
@@ -62,9 +68,12 @@ jest.mock("@/components/cloudwifi/CloudWifiSurveyProvider", () => ({
 jest.mock("@/components/cloudwifi/CloudWifiSurveyCta", () => ({
   CloudWifiSurveyCta: ({
     children,
+    planInterest,
     ...props
-  }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
-    <button type="button" {...props}>
+  }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    planInterest?: string;
+  }) => (
+    <button type="button" data-plan-interest={planInterest} {...props}>
       {children}
     </button>
   ),
@@ -81,7 +90,7 @@ function pageText(renderer: TestRenderer.ReactTestRenderer): string {
     .filter((child): child is string | number =>
       ["string", "number"].includes(typeof child),
     )
-    .join(" ");
+    .join(" ").replace(/\s+/g, " ").trim();
 }
 
 function textOf(node: TestRenderer.ReactTestInstance): string {
@@ -106,10 +115,13 @@ describe("CloudWiFi product page", () => {
 
     expect(h1s).toHaveLength(1);
     expect(h1s[0].children.join("")).toBe(
-      "Find your CloudWiFi tier in minutes.",
+      "Reliable Wi-Fi for staff and guests.",
     );
     expect(h1s[0].props.className).toContain(
       "text-3xl sm:text-4xl md:text-5xl lg:text-6xl",
+    );
+    expect(text).toContain(
+      `Keep your team connected and give guests a network of their own. ${getTenantConfig().branding.companyName} plans your Wi-Fi around your building, installs the equipment and manages it day to day, with remote monitoring and maintenance.`,
     );
 
     for (const venue of [
@@ -125,23 +137,22 @@ describe("CloudWiFi product page", () => {
 
     for (const tier of [
       ["Essential", "Up to 300 sqm", "1–2 APs", "R1,499", "Up to 2 APs"],
-      ["Professional", "300–800 sqm", "3–5 APs", "R3,499", "Up to 5 APs"],
-      ["Enterprise", "800–2,000 sqm", "6–12 APs", "R7,999", "Up to 12 APs"],
+      ["Professional", "300–800 sqm", "3–5 indoor + 1 outdoor AP", "R3,499", "Up to 5 indoor + 1 outdoor AP"],
+      ["Enterprise", "800–2,000 sqm", "6–12 indoor + 2 outdoor APs", "R7,999", "Up to 12 indoor + 2 outdoor APs"],
       [
         "Campus",
         "Large or multi-building sites",
         "12–30+ APs",
         "R14,999",
-        "Up to 20 APs before custom expansion",
+        "Up to 30 APs; more quoted separately",
       ],
     ]) {
       for (const detail of tier) expect(text).toContain(detail);
     }
 
     expect(text).toContain("What drives the price?");
-    expect(text).toContain("Fully managed Wi-Fi, end to end.");
-    expect(text).toContain("Powerful add-ons");
-    expect(text).toContain("Optional enhancements");
+    expect(text).not.toContain("Fully managed Wi-Fi, end to end.");
+    expect(text).not.toContain("Powerful add-ons");
     expect(text).toContain("Prices exclude VAT.");
     expect(text).toContain("Fair-usage terms apply.");
     expect(text).toContain(
@@ -153,27 +164,77 @@ describe("CloudWiFi product page", () => {
       expect(text).toContain(step);
     }
 
-    expect(text).toContain("Request a site survey");
-    expect(text).toContain("Read the CloudWiFi guide");
+    expect(text).toContain("Find my recommended plan");
+    expect(text).toContain(
+      "Find a recommended plan for your space. A site survey confirms the design and final price.",
+    );
+    expect(text).toContain("Talk to a CloudWiFi expert");
+    expect(text).toContain("Guest Wi-Fi is part of your customer experience.");
+    expect(text).toContain("A clear plan for your building’s Wi-Fi.");
+    expect(text).toContain(
+      `Give customers a dedicated guest network, with installation and ongoing management handled by ${getTenantConfig().branding.companyName}.`,
+    );
+    expect(text).toContain(
+      "Start with a site survey that considers your layout and usage, backed by ongoing monitoring and maintenance.",
+    );
+    expect(text).toContain("CloudWiFi questions, answered.");
+    expect(text).toContain("Is the estimate my final quote?");
+    expect(text).toContain(
+      "How is indoor Wi-Fi different from my internet connection?",
+    );
+    expect(text).toContain(
+      "A stronger Wi-Fi signal alone cannot resolve every problem with the incoming internet connection.",
+    );
+    expect(text).toContain(
+      "separate staff and guest networks",
+    );
+    expect(text).toContain(
+      "Optional features not included in your tier, LTE/5G failover and multi-site management are quoted separately.",
+    );
     expect(text).toContain("Managed cloud platform");
     expect(text).toContain("Your internet connection");
     expect(text).not.toContain("Ruijie");
     expect(text).not.toContain("Backhaul capacity");
     expect(text).not.toContain("Open connectivity guide");
-    expect(text).toContain("Let's get your venue's Wi-Fi right.");
-    expect(text).toContain("Talk to an expert");
+    expect(text).toContain("Ready for less Wi-Fi admin?");
+    expect(text).toContain("Talk to a CloudWiFi expert");
+    expect(text).toContain("What your monthly service covers");
+    expect(text).toContain("Separate guest access");
+    expect(text).toContain("Any installation and once-off charges are listed separately in your quotation.");
+    expect(text).toContain(`${getTenantConfig().branding.companyName}-owned Wi-Fi 6 equipment`);
+    expect(text).toContain(
+      "CloudWiFi manages the Wi-Fi network inside your space. All tier prices cover the managed Wi-Fi service only. Fibre, SkyFibre and other internet connections are quoted and billed separately.",
+    );
+    expect(text).toContain("South African team and support");
+    expect(text).toContain("Vendor-agnostic design");
+    expect(text).toContain("Monthly performance reporting");
     expect(text).toContain("Production navigation");
     expect(text).toContain("Production footer");
     expect(text).not.toContain(
       "CloudWiFi for venues that cannot afford messy guest Wi-Fi",
     );
+    expect(text).not.toContain("SLA-backed support");
+    expect(text).not.toContain("Secure and compliant");
+    expect(text).toContain("24-month Wi-Fi service contract");
+    expect(text).not.toContain("includes SkyFibre Business 100");
+    expect(text).toContain("Internet connectivity is quoted and billed separately.");
+    expect(text).toContain("Business-hours assisted support");
+    expect(text).not.toContain("Priority support");
+    expect(text).toContain("Do I own the Wi-Fi equipment?");
+    expect(text).toContain(`${getTenantConfig().branding.companyName} owns the equipment supplied under the managed service`);
+    expect(text).toContain("Your quotation confirms the connection, monthly charges and any once-off fees before you commit.");
+    expect(text).toContain("no static public IP or direct inbound access included");
+    expect(text).not.toContain("One store. POS, staff and guest Wi-Fi.");
+    expect(renderer!.root.findAllByProps({ id: "professional-retail" })).toHaveLength(0);
+    expect(text).not.toContain("R18 138");
+    expect(text).not.toContain("39.5%");
 
     expect(includedFeatures).not.toContain("Guest and staff separation");
     expect(pricingTiers.map((tier) => tier.capacity)).toEqual([
       "Up to 2 APs",
-      "Up to 5 APs",
-      "Up to 12 APs",
-      "Up to 20 APs before custom expansion",
+      "Up to 5 indoor + 1 outdoor AP",
+      "Up to 12 indoor + 2 outdoor APs",
+      "Up to 30 APs; more quoted separately",
     ]);
     expect(
       pricingTiers.find((tier) => tier.name === "Campus")?.features,
@@ -187,17 +248,12 @@ describe("CloudWiFi product page", () => {
     });
 
     const anchors = renderer!.root.findAllByType("a");
-    const toolkit = anchors.find((anchor) =>
-      textOf(anchor).includes("Read the CloudWiFi guide"),
-    );
-    expect(toolkit?.props.href).toBe("/resources/cloudwifi-guide");
-
     const expert = anchors.find((anchor) =>
-      textOf(anchor).includes("Talk to an expert"),
+      textOf(anchor).includes("Talk to a CloudWiFi expert"),
     );
     expect(expert?.props.href).toBe(
       getWhatsAppLink(
-        "Hi CircleTel, I would like to speak to an expert about CloudWiFi.",
+        `Hi ${getTenantConfig().branding.companyName}, I would like to speak to an expert about CloudWiFi.`,
       ),
     );
     expect(expert?.props.target).toBe("_blank");
@@ -229,7 +285,7 @@ describe("CloudWiFi product page", () => {
       if (!labelledBy) continue;
       const heading = renderer!.root.findAll(
         (node) =>
-          (node.type === "h1" || node.type === "h2") &&
+          (node.type === "h1" || node.type === "h2" || node.type === "h3") &&
           node.props.id === labelledBy,
       );
       expect(heading).toHaveLength(1);
@@ -257,14 +313,33 @@ describe("CloudWiFi product page", () => {
 
     const primaryActions = renderer!.root
       .findAllByType("button")
-      .filter((button) => textOf(button).includes("Request a site survey"));
-    expect(primaryActions).toHaveLength(2);
+      .filter((button) => textOf(button).includes("Find my recommended plan"));
+    expect(primaryActions).toHaveLength(3);
     for (const action of primaryActions) {
       expect(action.props.className).toContain(
         "bg-circleTel-orange-accessible",
       );
       expect(action.props.className).not.toContain("bg-circleTel-orange ");
     }
+
+    const planActions = renderer!.root
+      .findAllByType("button")
+      .filter((button) => /^Check .+ fit$/.test(textOf(button)));
+    expect(planActions.map(textOf)).toEqual([
+      "Check Essential fit",
+      "Check Professional fit",
+      "Check Enterprise fit",
+      "Check Campus fit",
+    ]);
+    expect(
+      planActions.map((action) => action.props["data-plan-interest"]),
+    ).toEqual(["Essential", "Professional", "Enterprise", "Campus"]);
+
+    const mobileStickyAction = primaryActions.find((action) =>
+      action.props.className?.includes("fixed"),
+    );
+    expect(mobileStickyAction?.props.className).toContain("bottom-0");
+    expect(mobileStickyAction?.props.className).toContain("lg:hidden");
 
     const processNumbers = renderer!.root.findAll(
       (node) =>
@@ -285,14 +360,14 @@ describe("CloudWiFi product page", () => {
     expect(metadata).toMatchObject({
       alternates: { canonical: "/products/cloudwifi" },
       openGraph: {
-        title: "CloudWiFi Managed Wi-Fi as a Service | CircleTel",
+        title: `CloudWiFi Managed Wi-Fi as a Service | ${getTenantConfig().branding.companyName}`,
         url: "/products/cloudwifi",
         type: "website",
         images: ["/images/cloudwifi/cloudwifi-hero.jpg"],
       },
       twitter: {
         card: "summary_large_image",
-        title: "CloudWiFi Managed Wi-Fi as a Service | CircleTel",
+        title: `CloudWiFi Managed Wi-Fi as a Service | ${getTenantConfig().branding.companyName}`,
         images: ["/images/cloudwifi/cloudwifi-hero.jpg"],
       },
     });

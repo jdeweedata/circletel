@@ -29,6 +29,8 @@ const RESERVED_LEAD_IDS = new Set(["received"]);
 const controlClassName =
   "h-11 border-circleTel-navy/20 focus-visible:ring-circleTel-orange-accessible md:text-base";
 
+const PLAN_INTEREST_PREFIX = "Pricing plan selected: CloudWiFi ";
+
 function buildSimplePayload(draft: CloudWifiSurveyDraft, honeypot: string) {
   return {
     venue: {
@@ -69,6 +71,11 @@ export function CloudWifiEstimateModal() {
   const [submitError, setSubmitError] = useState("");
   const [leadId, setLeadId] = useState("");
   const idempotencyKeyRef = useRef<string | null>(null);
+  const planInterest = draft.details.requirements.startsWith(
+    PLAN_INTEREST_PREFIX,
+  )
+    ? draft.details.requirements.slice(PLAN_INTEREST_PREFIX.length)
+    : "";
 
   function closeModal(open: boolean): void {
     if (open) {
@@ -96,7 +103,9 @@ export function CloudWifiEstimateModal() {
     setSubmitError("");
   }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
+  async function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> {
     event.preventDefault();
     if (submitting || leadId) return;
 
@@ -207,14 +216,14 @@ export function CloudWifiEstimateModal() {
             {leadId
               ? "We have your site survey request"
               : step === 1
-                ? "Estimate your CloudWiFi tier"
+                ? "Find your recommended CloudWiFi plan"
                 : "How should we reach you?"}
           </DialogTitle>
           <DialogDescription className="text-base text-circleTel-secondaryNeutral">
             {leadId
               ? `A ${getTenantConfig().branding.companyName} specialist will contact you to schedule the survey.`
               : step === 1
-                ? "Tell us about the venue. We will recommend a starting tier."
+                ? "Answer 5 quick questions to see your starting Wi-Fi plan and monthly price, excluding internet connectivity. Then choose whether to request a site survey."
                 : "Leave your details so we can book a site survey."}
           </DialogDescription>
         </DialogHeader>
@@ -237,12 +246,23 @@ export function CloudWifiEstimateModal() {
             </Button>
           </div>
         ) : step === 1 ? (
-          <CloudWifiTierEstimator
-            initialVenueType={draft.venue.venueType}
-            initialCity={draft.venue.city}
-            continueLabel="Continue"
-            onContinue={handleEstimateContinue}
-          />
+          <div className="space-y-4">
+            {planInterest ? (
+              <p className="rounded-lg border border-circleTel-orange-accessible/30 bg-circleTel-orange-light px-4 py-3 text-base text-circleTel-navy">
+                <span className="font-semibold">
+                  Checking the {planInterest} plan.
+                </span>{" "}
+                We will compare it with your venue details and recommend a
+                different plan if it is a better fit.
+              </p>
+            ) : null}
+            <CloudWifiTierEstimator
+              initialVenueType={draft.venue.venueType}
+              initialCity={draft.venue.city}
+              continueLabel="Continue to survey request"
+              onContinue={handleEstimateContinue}
+            />
+          </div>
         ) : (
           <form className="space-y-4" onSubmit={handleSubmit}>
             <input
@@ -265,7 +285,10 @@ export function CloudWifiEstimateModal() {
                 onChange={(event) =>
                   setDraft((current) => ({
                     ...current,
-                    contact: { ...current.contact, fullName: event.target.value },
+                    contact: {
+                      ...current.contact,
+                      fullName: event.target.value,
+                    },
                   }))
                 }
                 className={controlClassName}
@@ -341,8 +364,8 @@ export function CloudWifiEstimateModal() {
                 className="mt-1 h-4 w-4"
               />
               <span>
-                I agree that {getTenantConfig().branding.companyName} may contact
-                me about this CloudWiFi site survey.
+                I agree that {getTenantConfig().branding.companyName} may
+                contact me about this CloudWiFi site survey.
               </span>
             </label>
             {submitError ? (

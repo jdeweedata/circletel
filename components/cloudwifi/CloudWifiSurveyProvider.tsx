@@ -67,6 +67,7 @@ export interface CloudWifiSurveyContextValue {
   requestSurvey: (
     prefill?: Partial<CloudWifiSurveyDraft["venue"]>,
     opener?: HTMLElement | null,
+    planInterest?: string,
   ) => void;
   restoreSurveyFocus: () => boolean;
   resetSurvey: () => void;
@@ -236,13 +237,18 @@ export function CloudWifiSurveyProvider({
     (
       prefill?: Partial<CloudWifiSurveyDraft["venue"]>,
       opener?: HTMLElement | null,
+      planInterest?: string,
     ) => {
-      if (prefill) {
-        setDraft((current) => ({
-          ...current,
-          venue: { ...current.venue, ...prefill },
-        }));
-      }
+      setDraft((current) => ({
+        ...current,
+        venue: prefill ? { ...current.venue, ...prefill } : current.venue,
+        details: {
+          ...current.details,
+          requirements: planInterest
+            ? `Pricing plan selected: CloudWiFi ${planInterest}`
+            : "",
+        },
+      }));
 
       surveyOpenerRef.current = opener ?? null;
       setMobileOpen(true);

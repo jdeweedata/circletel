@@ -23,6 +23,7 @@ function useIsCompactViewport() {
 
 // Pages where sticky CTA should NOT appear
 const EXCLUDED_PATHS = [
+  '/products/cloudwifi', // Page provides its own plan enquiry action
   '/coverage',           // Already on coverage page
   '/order',              // In order flow
   '/checkout',           // In checkout

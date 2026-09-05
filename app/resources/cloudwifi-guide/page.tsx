@@ -42,8 +42,8 @@ export const metadata: Metadata = {
 };
 
 const includedFeatureIcons = {
-  "Site survey and Wi-Fi design": PiClipboardTextBold,
-  "Professional installation": PiWrenchBold,
+  "Wi-Fi design based on your site survey": PiClipboardTextBold,
+  "Professional installation — scope and fees quoted": PiWrenchBold,
   "Enterprise Wi-Fi 6 access points": PiWifiHighBold,
   "Guest network": PiUserSwitchBold,
   "Managed cloud platform": PiCloudBold,
@@ -209,10 +209,10 @@ export default function CloudWifiGuidePage() {
               What you get
             </h2>
             <p className="mt-3 max-w-2xl text-base leading-7 text-circleTel-secondaryNeutral">
-              Every tier includes design, installation, Wi-Fi 6 access points, a
+              Every tier includes design, Wi-Fi 6 access points, a
               guest network, and a vendor-neutral managed cloud platform. We
               choose hardware that fits the site. You are not locked to one
-              brand.
+              brand. Installation scope and once-off fees are confirmed in your quote.
             </p>
             <ul className="mt-8 grid gap-3 sm:grid-cols-2">
               {includedFeatures.map((feature) => {
@@ -261,7 +261,7 @@ export default function CloudWifiGuidePage() {
               Guide prices
             </h2>
             <p className="mt-3 max-w-2xl text-base leading-7 text-circleTel-secondaryNeutral">
-              These starting prices exclude VAT. A site survey confirms the
+              These starting prices cover Wi-Fi only and exclude VAT. Internet connectivity is quoted and billed separately. A site survey confirms the
               final tier and monthly amount.
             </p>
             <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
