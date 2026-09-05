@@ -1,25 +1,28 @@
 import type { IconType } from "react-icons";
 import {
-  PiBlueprintBold,
-  PiBuildingsBold,
-  PiClipboardTextBold,
-  PiCloudBold,
-  PiDoorOpenBold,
-  PiGaugeBold,
-  PiGraduationCapBold,
-  PiHeartbeatBold,
-  PiMapPinAreaBold,
-  PiShieldCheckBold,
-  PiStorefrontBold,
-  PiUsersBold,
-  PiUsersThreeBold,
-  PiUserSwitchBold,
-  PiWallBold,
-  PiWifiHighBold,
-  PiWrenchBold,
-} from "react-icons/pi";
+  DesignIcon as PiBlueprintBold,
+  BuildingIcon as PiBuildingsBold,
+  SurveyIcon as PiClipboardTextBold,
+  CloudIcon as PiCloudBold,
+  HospitalityIcon as PiDoorOpenBold,
+  SpeedIcon as PiGaugeBold,
+  EducationIcon as PiGraduationCapBold,
+  HealthIcon as PiHeartbeatBold,
+  AreaIcon as PiMapPinAreaBold,
+  SupportIcon as PiShieldCheckBold,
+  RetailIcon as PiStorefrontBold,
+  UsersIcon as PiUsersBold,
+  CrowdIcon as PiUsersThreeBold,
+  NetworksIcon as PiUserSwitchBold,
+  WallIcon as PiWallBold,
+  WifiIcon as PiWifiHighBold,
+  InstallIcon as PiWrenchBold,
+} from "@/components/cloudwifi/CloudWifiIcons";
 
-import type { CloudWifiBackhaul, CloudWifiVenueType } from "@/lib/cloudwifi/types";
+import type {
+  CloudWifiBackhaul,
+  CloudWifiVenueType,
+} from "@/lib/cloudwifi/types";
 
 export interface VenueTypeContent {
   readonly value: CloudWifiVenueType;
@@ -36,6 +39,9 @@ export interface PricingTierContent {
   readonly apRange: string;
   readonly price: string;
   readonly capacity: string;
+  readonly term: string;
+  readonly internet: string;
+  readonly support: string;
   readonly features: readonly string[];
   readonly accentClassName: string;
 }
@@ -100,6 +106,9 @@ export const venueTypes = [
 export const pricingTiers = [
   {
     name: "Essential",
+    term: "24 months",
+    internet: "Quoted separately",
+    support: "Standard support; hours confirmed in quote",
     guide: "Up to 300 sqm",
     apRange: "1–2 APs",
     price: "R1,499",
@@ -114,34 +123,43 @@ export const pricingTiers = [
   },
   {
     name: "Professional",
+    term: "24 months",
+    internet: "Retail: SkyFibre Business 100, subject to coverage",
+    support: "Business-hours assisted support",
     guide: "300–800 sqm",
     apRange: "3–5 APs",
     price: "R3,499",
     capacity: "Up to 5 APs",
     features: [
-      "Everything in Essential",
-      "Guest and staff separation",
-      "Multi-zone Wi-Fi design",
-      "Priority support",
+      "Retail: SkyFibre Business 100",
+      "Separate staff and guest networks",
+      "Standard guest portal",
+      "Business-hours assisted support",
     ],
     accentClassName: "border-t-circleTel-navy",
   },
   {
     name: "Enterprise",
+    term: "36 months",
+    internet: "Quoted separately",
+    support: "Support scope confirmed in quote",
     guide: "800–2,000 sqm",
     apRange: "6–12 APs",
     price: "R7,999",
     capacity: "Up to 12 APs",
     features: [
-      "Everything in Professional",
+      "Managed Wi-Fi and guest access",
       "Higher-density AP design",
       "Advanced segmentation",
-      "SLA-backed support",
+      "Proactive maintenance",
     ],
     accentClassName: "border-t-circleTel-charcoal",
   },
   {
     name: "Campus",
+    term: "36 months",
+    internet: "Quoted separately",
+    support: "Dedicated support; hours confirmed in quote",
     guide: "Large or multi-building sites",
     apRange: "12–30+ APs",
     price: "R14,999",
@@ -182,8 +200,8 @@ export const priceDrivers = [
 ] as const satisfies readonly IconContent[];
 
 export const includedFeatures = [
-  "Site survey and Wi-Fi design",
-  "Professional installation",
+  "Wi-Fi design based on your site survey",
+  "Professional installation — scope and fees quoted",
   "Enterprise Wi-Fi 6 access points",
   "Guest network",
   "Managed cloud platform",
@@ -194,11 +212,11 @@ export const includedFeatures = [
 ] as const;
 
 export const addOns = [
-  "Captive portal",
+  "Custom portal integrations",
   "Advanced analytics and insights",
   "Content filtering",
   "LTE/5G failover",
-  "Bandwidth shaping",
+  "Advanced traffic policies",
   "LAN and Wi-Fi optimisation",
   "Multi-site management",
   "Custom integrations",
@@ -237,7 +255,7 @@ export const processSteps = [
 
 export const serviceAssurances = [
   { title: "Wi-Fi 6 access points", icon: PiWifiHighBold },
-  { title: "Guest and staff separation", icon: PiUserSwitchBold },
+  { title: "Guest network included", icon: PiUserSwitchBold },
   { title: "Managed cloud platform", icon: PiCloudBold },
   { title: "Managed support", icon: PiShieldCheckBold },
 ] as const satisfies readonly {

@@ -20,7 +20,9 @@ jest.mock("@/components/ui/dialog", () => ({
   }: {
     open: boolean;
     children: React.ReactNode;
-  }) => <section data-testid="estimate-dialog">{open ? children : null}</section>,
+  }) => (
+    <section data-testid="estimate-dialog">{open ? children : null}</section>
+  ),
   DialogContent: ({
     children,
     ...props
@@ -31,7 +33,9 @@ jest.mock("@/components/ui/dialog", () => ({
   DialogTitle: ({
     children,
     ...props
-  }: React.HTMLAttributes<HTMLHeadingElement>) => <h2 {...props}>{children}</h2>,
+  }: React.HTMLAttributes<HTMLHeadingElement>) => (
+    <h2 {...props}>{children}</h2>
+  ),
   DialogDescription: ({ children }: { children: React.ReactNode }) => (
     <p>{children}</p>
   ),
@@ -56,13 +60,16 @@ function textOf(
 }
 
 describe("CloudWifiEstimateModal", () => {
-  it("opens from a survey CTA with the two-step estimate heading", () => {
+  it("opens from a plan-specific CTA and preserves the plan through the enquiry draft", () => {
     let renderer: TestRenderer.ReactTestRenderer;
     act(() => {
       renderer = TestRenderer.create(
         <CloudWifiSurveyProvider>
-          <CloudWifiSurveyCta prefill={{ venueType: "hospitality" }}>
-            Request a site survey
+          <CloudWifiSurveyCta
+            prefill={{ venueType: "hospitality" }}
+            planInterest="Professional"
+          >
+            Check Professional fit
           </CloudWifiSurveyCta>
           <CloudWifiEstimateModal />
           <ContextProbe />
@@ -76,7 +83,9 @@ describe("CloudWifiEstimateModal", () => {
 
     const cta = renderer!.root
       .findAllByType("button")
-      .find((candidate) => textOf(candidate).includes("Request a site survey"));
+      .find((candidate) =>
+        textOf(candidate).includes("Check Professional fit"),
+      );
     expect(cta).toBeDefined();
 
     act(() =>
@@ -88,8 +97,16 @@ describe("CloudWifiEstimateModal", () => {
 
     expect(surveyContext.mobileOpen).toBe(true);
     expect(surveyContext.draft.venue.venueType).toBe("hospitality");
+    expect(surveyContext.draft.details.requirements).toBe(
+      "Pricing plan selected: CloudWiFi Professional",
+    );
     const serialized = JSON.stringify(renderer!.toJSON());
-    expect(serialized).toContain("Estimate your CloudWiFi tier");
+    const renderedText = textOf(renderer!.root);
+    expect(serialized).toContain("Find your recommended CloudWiFi plan");
+    expect(renderedText).toContain("Checking the Professional plan");
+    expect(serialized).toContain(
+      "Answer 5 quick questions to see your starting plan and monthly price.",
+    );
     expect(serialized).toContain("What internet do you have today?");
     expect(serialized).not.toContain("Ruijie");
     expect(serialized).not.toContain("Backhaul capacity");

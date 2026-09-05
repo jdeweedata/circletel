@@ -2,25 +2,22 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { PiArrowRightBold, PiCheckBold, PiChatCircleDotsBold } from "react-icons/pi";
 import {
-  PiArrowRightBold,
-  PiCheckBold,
-  PiChatCircleDotsBold,
-  PiGlobeHemisphereWestBold,
-  PiMapTrifoldBold,
-  PiShieldCheckBold,
-} from "react-icons/pi";
+  BuildingIcon as PiBuildingsBold,
+  GlobeIcon as PiGlobeHemisphereWestBold,
+  MapIcon as PiMapTrifoldBold,
+  ShieldIcon as PiShieldCheckBold,
+  RetailIcon as PiStorefrontBold,
+} from "@/components/cloudwifi/CloudWifiIcons";
 
 import { CloudWifiSurveyCta } from "@/components/cloudwifi/CloudWifiSurveyCta";
 import { useCloudWifiSurvey } from "@/components/cloudwifi/CloudWifiSurveyProvider";
 import {
-  addOns,
-  includedFeatures,
   priceDrivers,
   pricingTiers,
   processSteps,
   venueTypes,
-  whyProvider,
 } from "@/components/cloudwifi/content";
 import { Button } from "@/components/ui/button";
 import { getWhatsAppLink } from "@/lib/constants/contact";
@@ -86,9 +83,38 @@ function VenueSection() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <SectionIntro
           id="cloudwifi-venues-heading"
-          eyebrow="Built for every venue"
-          title="Great Wi-Fi experiences for your visitors and teams."
+          eyebrow="For retail and property teams"
+          title="Managed Wi-Fi built around the spaces you look after."
         />
+
+        <div className="mt-10 grid gap-6 lg:grid-cols-2">
+          <article className="rounded-2xl border border-circleTel-navy/10 bg-white p-6 shadow-sm sm:p-8">
+            <PiStorefrontBold
+              aria-hidden="true"
+              className="h-10 w-10 text-circleTel-orange-accessible"
+            />
+            <h3 className="mt-5 font-heading text-2xl font-bold text-circleTel-navy">
+              Guest Wi-Fi is part of your customer experience.
+            </h3>
+            <p className="mt-4 text-base leading-7 text-circleTel-secondaryNeutral">
+              Give customers a dedicated guest network, with installation and
+              ongoing management handled by CircleTel.
+            </p>
+          </article>
+          <article className="rounded-2xl border border-circleTel-navy/10 bg-white p-6 shadow-sm sm:p-8">
+            <PiBuildingsBold
+              aria-hidden="true"
+              className="h-10 w-10 text-circleTel-navy"
+            />
+            <h3 className="mt-5 font-heading text-2xl font-bold text-circleTel-navy">
+              A clear plan for your building’s Wi-Fi.
+            </h3>
+            <p className="mt-4 text-base leading-7 text-circleTel-secondaryNeutral">
+              Start with a site survey that considers your layout and usage,
+              backed by ongoing monitoring and maintenance.
+            </p>
+          </article>
+        </div>
 
         <div
           id="venues"
@@ -188,69 +214,97 @@ function PricingSection() {
               <p className="mt-2 text-base font-medium tabular-nums text-circleTel-navy">
                 {tier.capacity}
               </p>
+              <p className="mt-2 text-sm font-medium text-circleTel-secondaryNeutral">Excl. VAT · {tier.term}</p>
+              <dl className="mt-5 divide-y divide-circleTel-navy/10 border-y border-circleTel-navy/10 text-sm">
+                {[
+                  ["Access points", tier.capacity],
+                  ["Internet", tier.internet],
+                  ["Support", tier.support],
+                  ["Contract", tier.term],
+                ].map(([label, value]) => (
+                  <div key={label} className="py-3">
+                    <dt className="font-semibold text-circleTel-navy">{label}</dt>
+                    <dd className="mt-1 leading-6 text-circleTel-secondaryNeutral">{value}</dd>
+                  </div>
+                ))}
+              </dl>
               <CheckList items={tier.features} />
               <CloudWifiSurveyCta
                 variant="outline"
+                planInterest={tier.name}
                 className="mt-auto min-h-11 border-circleTel-navy/20 pt-0 text-base font-semibold text-circleTel-navy hover:bg-circleTel-lightNeutral"
               >
-                Survey required
+                {`Check ${tier.name} fit`}
               </CloudWifiSurveyCta>
             </article>
           ))}
         </div>
 
-        <p className="mx-auto mt-8 max-w-4xl text-center text-base leading-7 text-circleTel-secondaryNeutral">
-          Prices exclude VAT. Fair-usage terms apply. Additional access points
-          are available at extra cost. A site survey confirms the final tier and
-          price.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-function ManagedServiceDetail() {
-  return (
-    <section
-      aria-labelledby="cloudwifi-managed-heading"
-      className="border-t border-ui-border pt-16"
-    >
-      <div className="grid overflow-hidden rounded-lg border border-ui-border bg-white md:grid-cols-2 xl:grid-cols-4">
-        <div className="p-6 xl:p-7">
-          <h2
-            id="cloudwifi-managed-heading"
-            className="font-heading text-2xl font-bold text-circleTel-navy"
-          >
-            Fully managed Wi-Fi, end to end.
-          </h2>
-          <p className="mt-4 text-base leading-7 text-circleTel-secondaryNeutral">
-            We take care of every stage so your team can focus on the venue.
+        <section
+          aria-labelledby="cloudwifi-commercial-heading"
+          className="mt-8 overflow-hidden rounded-2xl border border-circleTel-navy/10 bg-white shadow-sm"
+        >
+          <div className="border-b border-circleTel-navy/10 bg-circleTel-navy px-6 py-5 text-white sm:px-8">
+            <h3
+              id="cloudwifi-commercial-heading"
+              className="font-heading text-2xl font-bold"
+            >
+              What your monthly service covers
+            </h3>
+            <p className="mt-2 max-w-3xl text-base leading-7 text-white/80">
+              CloudWiFi is a managed service: CircleTel designs, installs, owns
+              and looks after the Wi-Fi network.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3">
+            <div className="p-6 sm:p-8">
+              <h4 className="font-heading text-lg font-bold text-circleTel-navy">
+                Included in every tier
+              </h4>
+              <CheckList
+                items={[
+                  "CircleTel-owned Wi-Fi 6 equipment",
+                  "Separate guest access",
+                  "Remote Wi-Fi management",
+                  "Maintenance and security updates",
+                ]}
+              />
+              <p className="mt-4 text-sm leading-6 text-circleTel-secondaryNeutral">
+                Site assessment confirms your installation scope. Any installation and once-off charges are listed separately in your quotation.
+              </p>
+            </div>
+            <div className="border-t border-circleTel-navy/10 p-6 sm:p-8 md:border-l md:border-t-0">
+              <h4 className="font-heading text-lg font-bold text-circleTel-navy">
+                Internet connection
+              </h4>
+              <p className="mt-5 text-base leading-7 text-circleTel-secondaryNeutral">
+                CloudWiFi manages the Wi-Fi network inside your space. The Professional retail bundle includes SkyFibre Business 100, subject to coverage. Other tiers and business fibre are quoted with their connectivity requirements.
+              </p>
+              <p className="mt-3 text-base leading-7 text-circleTel-secondaryNeutral">
+                Additional access points are available at extra cost. Optional
+                enhancements are quoted separately. A site survey confirms the
+                final tier and price.
+              </p>
+            </div>
+            <div className="border-t border-circleTel-navy/10 p-6 sm:p-8 md:border-l md:border-t-0">
+              <h4 className="font-heading text-lg font-bold text-circleTel-navy">
+                Built for ongoing confidence
+              </h4>
+              <CheckList
+                items={[
+                  "South African team and support",
+                  "Vendor-agnostic design",
+                  "Proactive monitoring and maintenance",
+                  "Monthly performance reporting",
+                ]}
+              />
+            </div>
+          </div>
+          <p className="border-t border-circleTel-navy/10 px-6 py-4 text-center text-base leading-7 text-circleTel-secondaryNeutral sm:px-8">
+            Prices exclude VAT. Fair-usage terms apply. A site survey confirms
+            the final design, tier and price.
           </p>
-        </div>
-        <div className="border-t border-ui-border p-6 md:border-l md:border-t-0 xl:p-7">
-          <h3 className="font-heading text-lg font-bold text-circleTel-navy">
-            Included in every tier
-          </h3>
-          <CheckList items={includedFeatures} />
-        </div>
-        <div className="border-t border-ui-border p-6 xl:border-l xl:border-t-0 xl:p-7">
-          <p className="font-heading text-sm font-bold uppercase tracking-[0.12em] text-circleTel-orange-accessible">
-            Optional enhancements
-          </p>
-          <h3 className="mt-2 font-heading text-lg font-bold text-circleTel-navy">
-            Powerful add-ons
-          </h3>
-          <p className="mt-2 text-base text-circleTel-secondaryNeutral">
-            Quoted separately from the base tier.
-          </p>
-          <CheckList items={addOns} />
-        </div>
-        <div className="border-t border-ui-border p-6 md:border-l xl:border-t-0 xl:p-7">
-          <h3 className="font-heading text-lg font-bold text-circleTel-navy">
-            {`Why ${getTenantConfig().branding.companyName.trim()}?`}
-          </h3>
-          <CheckList items={whyProvider} />
-        </div>
+        </section>
       </div>
     </section>
   );
@@ -308,6 +362,90 @@ function ProcessSection() {
   );
 }
 
+const commercialQuestions = [
+  {
+    question: "Do I own the Wi-Fi equipment?",
+    answer:
+      "CircleTel owns the equipment supplied under the managed service and looks after its configuration and maintenance. Equipment return and end-of-contract arrangements are set out in your quotation and service agreement.",
+  },
+  {
+    question: "Is internet connectivity included?",
+    answer:
+      "The Professional retail bundle includes SkyFibre Business 100, subject to coverage. Business fibre and connectivity for other tiers are quoted separately. Your quotation confirms the connection, monthly charges and any once-off fees before you commit.",
+  },
+  {
+    question: "What support can I expect?",
+    answer:
+      "Professional includes business-hours assisted support, remote monitoring, maintenance and security updates. Monitoring is not a promise of 24/7 staffed support. Your service agreement confirms support hours and response commitments.",
+  },
+  {
+    question: "Can I access my network remotely?",
+    answer:
+      "We check your remote-access requirements during assessment. The standard connection uses shared public addressing (CGNAT), with no static public IP or direct inbound access included. Tell us if your application requires a fixed public address so we can assess an appropriate option before quoting.",
+  },
+  {
+    question: "Is the estimate my final quote?",
+    answer:
+      "No. The estimator suggests a starting plan and monthly guide price. A site survey confirms the final design, tier and price.",
+  },
+  {
+    question: "How is indoor Wi-Fi different from my internet connection?",
+    answer:
+      "CloudWiFi distributes your internet connection through access points inside your space. A stronger Wi-Fi signal alone cannot resolve every problem with the incoming internet connection.",
+  },
+  {
+    question: "What is included in the monthly service?",
+    answer:
+        "Every tier provides managed Wi-Fi equipment, guest access, monitoring and maintenance. Installation scope and fees are confirmed in the quotation. Professional retail adds SkyFibre Business 100, separate staff and guest networks, a standard guest portal and business-hours assisted support on a 24-month combined contract.",
+  },
+  {
+    question: "What can cost extra?",
+    answer:
+        "Published guide prices exclude VAT. Extra access points, cabling beyond the standard allowance, difficult access, after-hours work, travel and any once-off fees are confirmed in your quotation. Custom portal integrations, advanced analytics, LTE/5G failover and multi-site management are quoted separately. Content filtering, advanced traffic policies, LAN optimisation and custom integrations can also be scoped in your quotation. The standard guest portal is included in Professional retail.",
+  },
+] as const;
+
+function CommercialFaq() {
+  return (
+    <section
+      aria-labelledby="cloudwifi-faq-heading"
+      className="border-t border-ui-border pt-16 md:pt-20"
+    >
+      <header className="max-w-2xl">
+        <p className="font-heading text-sm font-bold uppercase tracking-[0.14em] text-circleTel-orange-accessible">
+          Before you enquire
+        </p>
+        <h2
+          id="cloudwifi-faq-heading"
+          className="mt-3 font-heading text-3xl font-bold text-circleTel-navy"
+        >
+          CloudWiFi questions, answered.
+        </h2>
+      </header>
+      <div className="mt-8 divide-y divide-circleTel-navy/10 overflow-hidden rounded-2xl border border-circleTel-navy/10 bg-white">
+        {commercialQuestions.map((item, index) => (
+          <details key={item.question} className="group" open={index === 0}>
+            <summary className="cursor-pointer list-none px-6 py-5 font-heading text-lg font-bold text-circleTel-navy outline-none marker:content-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-circleTel-orange-accessible sm:px-8">
+              <span className="flex items-center justify-between gap-4">
+                {item.question}
+                <span
+                  aria-hidden="true"
+                  className="text-2xl font-normal text-circleTel-orange-accessible group-open:rotate-45"
+                >
+                  +
+                </span>
+              </span>
+            </summary>
+            <p className="px-6 pb-6 text-base leading-7 text-circleTel-secondaryNeutral sm:px-8">
+              {item.answer}
+            </p>
+          </details>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function LowerInformationSection() {
   return (
     <section
@@ -357,8 +495,8 @@ function LowerInformationSection() {
             environment, final tier and price.
           </p>
 
-          <ManagedServiceDetail />
           <ProcessSection />
+          <CommercialFaq />
         </div>
       </div>
     </section>
@@ -369,7 +507,7 @@ function FinalCtaSection() {
   const trustMarkers = [
     { label: "Local experts", icon: PiMapTrifoldBold },
     { label: "Nationwide support", icon: PiGlobeHemisphereWestBold },
-    { label: "Secure and compliant", icon: PiShieldCheckBold },
+    { label: "Monthly reporting", icon: PiShieldCheckBold },
   ] as const;
 
   return (
@@ -384,11 +522,11 @@ function FinalCtaSection() {
               id="cloudwifi-final-cta-heading"
               className="font-heading text-3xl font-bold md:text-4xl"
             >
-              Let&apos;s get your venue&apos;s Wi-Fi right.
+              Ready for less Wi-Fi admin?
             </h2>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-white/80">
-              A site survey is the best first step to reliable, secure and
-              high-performing Wi-Fi.
+              Start with a plan estimate for your store or property. Your site
+              survey then confirms the final design and price.
             </p>
             <ul className="mt-7 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:gap-x-8">
               {trustMarkers.map((marker) => {
@@ -415,7 +553,7 @@ function FinalCtaSection() {
               size="xl"
               className="min-h-12 w-full rounded-xl bg-circleTel-orange-accessible hover:bg-circleTel-orange-accessible hover:brightness-90 focus-visible:ring-white"
             >
-              Request a site survey
+              Find my recommended plan
               <PiArrowRightBold aria-hidden="true" />
             </CloudWifiSurveyCta>
             <Button
@@ -430,11 +568,11 @@ function FinalCtaSection() {
                 rel="noopener noreferrer"
               >
                 <PiChatCircleDotsBold aria-hidden="true" />
-                Talk to an expert
+                Talk to a CloudWiFi expert
               </Link>
             </Button>
             <p className="text-center text-base text-white/75">
-              Takes two minutes. No commitment.
+              Answer 5 quick questions. No commitment.
             </p>
           </div>
         </div>
@@ -443,13 +581,32 @@ function FinalCtaSection() {
   );
 }
 
+function MobileEstimateAction() {
+  const { mobileOpen } = useCloudWifiSurvey();
+
+  if (mobileOpen) return null;
+
+  return (
+    <CloudWifiSurveyCta
+      variant="cta"
+      size="lg"
+      aria-label="Find my recommended CloudWiFi plan"
+      className="fixed inset-x-3 bottom-0 z-40 mb-[calc(0.75rem+env(safe-area-inset-bottom))] min-h-12 w-auto rounded-xl bg-circleTel-orange-accessible px-6 text-base shadow-2xl hover:bg-circleTel-orange-accessible hover:brightness-90 focus-visible:ring-circleTel-orange-accessible focus-visible:ring-offset-2 lg:hidden print:hidden"
+    >
+      Find my recommended plan
+      <PiArrowRightBold aria-hidden="true" />
+    </CloudWifiSurveyCta>
+  );
+}
+
 export function CloudWifiPageSections() {
   return (
-    <>
-      <VenueSection />
+    <div className="pb-24 lg:pb-0">
       <PricingSection />
+      <VenueSection />
       <LowerInformationSection />
       <FinalCtaSection />
-    </>
+      <MobileEstimateAction />
+    </div>
   );
 }
