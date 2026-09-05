@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>02 Composer A — canvas</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Manrope:wght@800&family=Inter:wght@400;600&display=swap" />
+  <link rel="stylesheet" href="kit.css" />
+</head>
+<body class="admin">
+  <div class="artboard">
+    <div class="composer composer-a" style="grid-template-columns:220px 1fr 280px;height:900px">
+      <header class="composer-top" style="grid-column:1/-1">
+        <div>
+          <h2>Winter 5G <span class="slug">/p/winter-5g · draft</span></h2>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="devices">
+            <button class="on">Desktop</button>
+            <button>Mobile</button>
+          </div>
+          <button class="btn btn-ghost" style="min-height:36px">Preview</button>
+          <button class="btn btn-accent" style="min-height:36px">Publish</button>
+        </div>
+      </header>
+      <aside class="pane">
+        <div class="pane-h">Sections</div>
+        <div class="kit-item"><span class="ico">H</span> Hero</div>
+        <div class="kit-item"><span class="ico">D</span> Deal grid <span class="live-chip">live</span></div>
+        <div class="kit-item"><span class="ico">C</span> Coverage CTA</div>
+        <div class="kit-item"><span class="ico">T</span> Text</div>
+        <div class="kit-item"><span class="ico">F</span> FAQ</div>
+        <div class="kit-item"><span class="ico">Q</span> Quote form</div>
+        <p style="padding:12px 14px;font-size:12px;color:var(--pm-muted);line-height:1.45">
+          Drag onto the canvas. Drop on the orange line. Prices come from the catalogue — do not type rands here.
+        </p>
+      </aside>
+      <div class="canvas-wrap">
+        <div class="canvas">
+          <div class="block-hit selected">
+            <span class="tag">Hero · click to edit</span>
+            <div style="padding:48px 40px 32px;font-family:Manrope,sans-serif">
+              <p class="editable" style="margin:0;font-size:36px;font-weight:800;color:#1B2A4A;line-height:1.1">Winter 5G.<br>Router included.</p>
+              <p style="margin:12px 0 0;font-family:Inter,sans-serif;color:#4B5563;font-size:16px">Promo to 30 Sep. Check coverage first.</p>
+              <button class="m-cta" style="margin-top:20px">Check coverage</button>
+            </div>
+          </div>
+          <div class="insert on"></div>
+          <div class="block-hit">
+            <div style="padding:24px 40px 40px;display:grid;grid-template-columns:1fr 1fr;gap:12px;font-family:Inter,sans-serif">
+              <div style="border:1px solid #E5E7EB;border-radius:12px;padding:16px">
+                <div class="live-chip">service_packages</div>
+                <h3 style="margin:8px 0 0;font-family:Manrope,sans-serif;color:#1B2A4A">5G 60 + Huawei</h3>
+                <div style="color:#E87A1E;font-weight:800;font-size:22px;margin-top:6px">R649 <span class="m-was">R699</span></div>
+              </div>
+              <div style="border:1px solid #E5E7EB;border-radius:12px;padding:16px">
+                <div class="live-chip">service_packages</div>
+                <h3 style="margin:8px 0 0;font-family:Manrope,sans-serif;color:#1B2A4A">Uncapped 20</h3>
+                <div style="color:#E87A1E;font-weight:800;font-size:22px;margin-top:6px">R549 <span class="m-was">R599</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="pane pane-right">
+        <div class="pane-h">Inspector</div>
+        <div class="inspector">
+          <div class="field">
+            <label>Headline</label>
+            <textarea rows="2">Winter 5G. Router included.</textarea>
+          </div>
+          <div class="field">
+            <label>Subcopy</label>
+            <input value="Promo to 30 Sep. Check coverage first." />
+          </div>
+          <div class="field">
+            <label>Primary CTA</label>
+            <select><option>/coverage — Check coverage</option></select>
+          </div>
+          <p style="font-size:12px;color:var(--pm-muted);margin:0;line-height:1.45">
+            CTA is locked to coverage. Checkout and payments stay in code.
+          </p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</body>
+</html>

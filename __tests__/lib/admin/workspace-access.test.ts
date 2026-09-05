@@ -70,6 +70,28 @@ describe('RBAC template roles (accountant) vs 4-value AdminRole union', () => {
   });
 });
 
+describe('RBAC template roles (marketing) vs 4-value AdminRole union', () => {
+  const marketingRoles = ['marketing_manager', 'content_manager', 'content_editor', 'blog_writer'] as const;
+
+  it.each([...marketingRoles])(
+    '%s reaches dashboard, products, marketing, cms, and inbox — not finance or admin',
+    (role) => {
+      expect(canAccessAdminPath(role, '/admin')).toBe(true);
+      expect(canAccessAdminPath(role, '/admin/dashboard')).toBe(true);
+      expect(canAccessAdminPath(role, '/admin/products')).toBe(true);
+      expect(canAccessAdminPath(role, '/admin/marketing')).toBe(true);
+      expect(canAccessAdminPath(role, '/admin/cms')).toBe(true);
+      expect(canAccessAdminPath(role, '/admin/inbox/sales')).toBe(true);
+      expect(canAccessAdminPath(role, '/admin/billing')).toBe(false);
+      expect(canAccessAdminPath(role, '/admin/payments')).toBe(false);
+      expect(canAccessAdminPath(role, '/admin/settings')).toBe(false);
+      expect(canAccessAdminPath(role, '/admin/users')).toBe(false);
+      expect(canAccessAdminPath(role, '/admin/integrations')).toBe(false);
+      expect(canAccessAdminPath(role, '/admin/network/health')).toBe(false);
+    }
+  );
+});
+
 describe('workspaceDenyLanding', () => {
   it('does not redirect executive paths (breaks ?denied=executive loops)', () => {
     expect(workspaceDenyLanding('/admin/dashboard')).toBeNull();

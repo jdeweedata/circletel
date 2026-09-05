@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>03 Composer B — section kit</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Manrope:wght@800&family=Inter:wght@400;600&display=swap" />
+  <link rel="stylesheet" href="kit.css" />
+</head>
+<body class="admin">
+  <div class="artboard">
+    <div class="composer composer-b" style="height:900px">
+      <header class="composer-top" style="grid-column:1/-1">
+        <div>
+          <h2>Winter 5G <span class="slug">/p/winter-5g · recommended direction</span></h2>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="devices">
+            <button class="on">Desktop</button>
+            <button>Mobile</button>
+          </div>
+          <button class="btn btn-ghost" style="min-height:36px">Preview</button>
+          <button class="btn btn-accent" style="min-height:36px">Publish</button>
+        </div>
+      </header>
+      <aside class="pane">
+        <div class="pane-h">CircleTel sections</div>
+        <div class="kit-item"><span class="ico">+</span> Hero</div>
+        <div class="kit-item"><span class="ico">+</span> Deal grid <span class="live-chip">live</span></div>
+        <div class="kit-item"><span class="ico">+</span> Coverage CTA</div>
+        <div class="kit-item"><span class="ico">+</span> FAQ</div>
+        <div class="kit-item"><span class="ico">+</span> Testimonials</div>
+        <div class="kit-item"><span class="ico">+</span> Form</div>
+        <p style="padding:14px;font-size:12px;color:var(--pm-muted);line-height:1.5">
+          Reorder sections. You cannot place free pixels. Deal cards always bind SKUs from <strong>service_packages</strong>.
+        </p>
+      </aside>
+      <div class="canvas-wrap">
+        <div class="stack">
+          <article class="section selected">
+            <div class="section-bar"><span class="grip">⠿</span> Hero <span class="live-chip" style="margin-left:auto">on-page copy</span></div>
+            <div style="padding:28px 28px 32px;font-family:Manrope,sans-serif">
+              <p style="margin:0;font-size:32px;font-weight:800;color:#1B2A4A;line-height:1.1">Winter 5G.<br>Router included.</p>
+              <p style="margin:10px 0 0;font-family:Inter,sans-serif;color:#4B5563">Promo to 30 Sep. Ts&amp;Cs apply.</p>
+              <button class="m-cta" style="margin-top:16px">Check coverage</button>
+            </div>
+          </article>
+          <article class="section">
+            <div class="section-bar"><span class="grip">⠿</span> Deal grid <span class="live-chip" style="margin-left:auto">2 SKUs · catalogue</span></div>
+            <div style="padding:16px 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:12px;font-family:Inter,sans-serif">
+              <div class="sku" style="margin:0">
+                <img src="../../../public/images/hardware/cpe/huawei-h155-386.png" alt="" />
+                <div>
+                  <h4>CC-5G-CON-060</h4>
+                  <p>R649 pm · 24-month + router</p>
+                </div>
+              </div>
+              <div class="sku" style="margin:0">
+                <img src="../../../public/images/hardware/cpe/huawei-h155-386.png" alt="" />
+                <div>
+                  <h4>CC-OP-UNC-20</h4>
+                  <p>R549 pm · 24-month + router</p>
+                </div>
+              </div>
+            </div>
+          </article>
+          <article class="section">
+            <div class="section-bar"><span class="grip">⠿</span> Coverage CTA</div>
+            <div style="padding:20px 28px 24px;font-family:Inter,sans-serif;color:#1B2A4A">
+              Locked destination <strong>/coverage</strong>. Button label is the only copy field.
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
