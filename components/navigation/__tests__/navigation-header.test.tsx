@@ -50,22 +50,20 @@ describe('navigation header', () => {
     );
   });
 
-  it('collapses the header chrome into a compact nav after scroll', () => {
+  it('compacts the two-row header after scroll', () => {
     expect(getNavbarPresentation(false, false)).toEqual(
       expect.objectContaining({
         isCompact: false,
-        helpBarClassName: expect.stringContaining('opacity-100'),
         navShellClassName: expect.stringContaining('py-2'),
-        logoClassName: '',
+        logoClassName: expect.stringContaining('lg:max-h-16'),
       })
     );
 
     expect(getNavbarPresentation(true, false)).toEqual(
       expect.objectContaining({
         isCompact: true,
-        helpBarClassName: expect.stringContaining('max-h-0'),
         navShellClassName: expect.stringContaining('py-1.5'),
-        logoClassName: expect.stringContaining('max-h-14'),
+        logoClassName: expect.stringContaining('max-h-12'),
       })
     );
   });
@@ -74,9 +72,8 @@ describe('navigation header', () => {
     expect(getNavbarPresentation(true, true)).toEqual(
       expect.objectContaining({
         isCompact: false,
-        helpBarClassName: expect.stringContaining('opacity-100'),
         navShellClassName: expect.stringContaining('py-2'),
-        logoClassName: '',
+        logoClassName: expect.stringContaining('lg:max-h-16'),
       })
     );
   });
