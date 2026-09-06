@@ -41,7 +41,7 @@ export function StageBadge({
         style={{ background: colour.fg }}
         aria-hidden="true"
       />
-      {definition.label}
+      {stage === 'live' ? 'Live' : definition.label}
     </span>
   );
 }

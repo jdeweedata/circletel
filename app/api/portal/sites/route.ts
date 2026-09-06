@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requirePortalCapability } from '@/lib/portal/require-portal-user';
+import { billedSiteIdSet } from '@/lib/portal/dashboard-kpis';
 import { deriveStage, submissionRank } from '@/lib/portal/onboarding-stage';
 import { indexInstallEvidence } from '@/lib/portal/count-onboarding-stages';
 
@@ -105,6 +106,10 @@ export async function GET() {
   }
 
   const customerIds = Array.from(customerBySite.values());
+  const linkedCustomerRows = (linkedCustomers ?? []).map((c) => ({
+    id: c.id,
+    corporate_site_id: c.corporate_site_id,
+  }));
 
   const bestSubmission: Record<
     string,
@@ -112,18 +117,34 @@ export async function GET() {
   > = {};
   const linkSent = new Set<string>();
 
+  type SiteServiceRow = {
+    customer_id: string;
+    billing_start_date: string | null;
+    status: string | null;
+    active: boolean | null;
+  };
+
+  let siteServices: SiteServiceRow[] = [];
+
   if (customerIds.length > 0) {
-    const [{ data: submissions }, { data: tokens }] = await Promise.all([
-      adminDb
-        .from('onboarding_submissions')
-        .select('customer_id, status, rejection_reason, submitted_at')
-        .in('customer_id', customerIds),
-      adminDb
-        .from('onboarding_tokens')
-        .select('customer_id, sent_at')
-        .in('customer_id', customerIds)
-        .not('sent_at', 'is', null),
-    ]);
+    const [{ data: submissions }, { data: tokens }, { data: services }] =
+      await Promise.all([
+        adminDb
+          .from('onboarding_submissions')
+          .select('customer_id, status, rejection_reason, submitted_at')
+          .in('customer_id', customerIds),
+        adminDb
+          .from('onboarding_tokens')
+          .select('customer_id, sent_at')
+          .in('customer_id', customerIds)
+          .not('sent_at', 'is', null),
+        adminDb
+          .from('customer_services')
+          .select('customer_id, billing_start_date, status, active')
+          .in('customer_id', customerIds),
+      ]);
+
+    siteServices = (services ?? []) as SiteServiceRow[];
 
     // A customer can hold several submissions (drafts plus an approved one) —
     // keep the most advanced, breaking ties on the later submitted_at.
@@ -139,6 +160,8 @@ export async function GET() {
 
     for (const t of tokens ?? []) linkSent.add(t.customer_id);
   }
+
+  const billedSiteIds = billedSiteIdSet(linkedCustomerRows, siteServices);
 
   const { data: installOrders } = await adminDb
     .from('unjani_install_orders')
@@ -157,6 +180,7 @@ export async function GET() {
     return {
       ...site,
       customer_id: customerId,
+      billed: billedSiteIds.has(site.id),
       health: site.ruijie_device_sn ? healthMap[site.ruijie_device_sn] ?? null : null,
       stage: deriveStage({
         siteStatus: site.status,

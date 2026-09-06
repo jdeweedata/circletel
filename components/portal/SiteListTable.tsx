@@ -2,12 +2,18 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
 import {
   PmButton,
   RuledTable,
 } from '@/components/portal/modernist/PortalModernistShell';
-import { StageBadge } from '@/components/portal/modernist/StageIndicators';
+import {
+  StageBadge,
+  StageStrip,
+} from '@/components/portal/modernist/StageIndicators';
+import { emptyStageCounts, type StageClinicRef } from '@/lib/portal/count-onboarding-stages';
+import { spendNote } from '@/lib/portal/dashboard-kpis';
+import { pipelineOverviewRows } from '@/lib/portal/dashboard-overview';
+import type { StageKey } from '@/lib/portal/onboarding-stage';
 import {
   formatClinicShortName,
   formatSiteCode,
@@ -18,26 +24,19 @@ import {
   type PortalSite,
 } from '@/lib/portal/site-format';
 import { usePortalApp } from '@/lib/portal/portal-app-context';
-import type { StageClinicRef } from '@/lib/portal/count-onboarding-stages';
-import type { StageKey } from '@/lib/portal/onboarding-stage';
-import {
-  parseSiteListFilter,
-  pipelineClinicsForFilter,
-  pipelineSiteListRows,
-  sitesForListFilter,
-  type SiteListFilter,
-} from '@/lib/portal/dashboard-overview';
 
-type Filter = SiteListFilter;
+type Filter = 'all' | 'onboarding' | 'live';
 
-type ListRow = {
+type ClinicRow = {
   key: string;
-  site: PortalSite | null;
   name: string;
   stage: StageKey;
+  siteId?: string;
   location: string;
   technology: string | null;
-  siteId?: string;
+  code: string | null;
+  monthlyFee: number | string | null;
+  site: PortalSite | null;
 };
 
 const PAGE_SIZE = 10;
@@ -46,41 +45,51 @@ function siteProvince(site: PortalSite): string | null {
   return site.province || siteAddress(site).province || null;
 }
 
-function rowProvince(row: ListRow): string | null {
-  if (row.site) return siteProvince(row.site);
-  return row.location === '—' ? null : row.location;
+function rowMatchesQuery(row: ClinicRow, q: string): boolean {
+  if (!q) return true;
+  const hay = [row.name, row.code ?? '', row.location, formatTechnology(row.technology)]
+    .join(' ')
+    .toLowerCase();
+  return hay.includes(q);
 }
 
 export default function SiteListTable() {
-  const { href } = usePortalApp();
-  const router = useRouter();
-  const pathname = usePathname();
+  const { href, isUnjani } = usePortalApp();
   const [sites, setSites] = useState<PortalSite[]>([]);
+  const [stageCounts, setStageCounts] = useState(emptyStageCounts);
   const [stageClinics, setStageClinics] = useState<StageClinicRef[]>([]);
-  const [filter, setFilter] = useState<Filter>(() =>
-    parseSiteListFilter(
-      typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get('filter')
-    )
-  );
+  const [filter, setFilter] = useState<Filter>('all');
+  const [stageFilter, setStageFilter] = useState<StageKey | null>(null);
   const [query, setQuery] = useState('');
   const [province, setProvince] = useState('all');
   const [page, setPage] = useState(1);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
-    Promise.all([
-      fetch('/api/portal/sites').then((r) => r.json()),
-      fetch('/api/portal/dashboard').then((r) => r.json()),
-    ])
+    const sitesReq = fetch('/api/portal/sites').then((r) => r.json());
+    const dashboardReq = isUnjani
+      ? fetch('/api/portal/dashboard').then((r) => r.json())
+      : Promise.resolve(null);
+
+    Promise.all([sitesReq, dashboardReq])
       .then(([sitesData, summaryData]) => {
         if (!mounted) return;
         const next = (sitesData.sites ?? []) as PortalSite[];
-        const clinics = (summaryData?.stageClinics ?? []) as StageClinicRef[];
         setSites(next);
-        setStageClinics(clinics);
-        if (next[0]) setSelectedId(next[0].id);
+        if (next[0]) setSelectedKey(next[0].id);
+        if (summaryData && !summaryData.error && summaryData.stageCounts) {
+          setStageCounts(summaryData.stageCounts);
+          setStageClinics(summaryData.stageClinics ?? []);
+        } else {
+          const counts = emptyStageCounts();
+          for (const site of next) {
+            counts[site.stage] = (counts[site.stage] ?? 0) + 1;
+          }
+          setStageCounts(counts);
+          setStageClinics([]);
+        }
       })
       .catch(console.error)
       .finally(() => {
@@ -89,40 +98,25 @@ export default function SiteListTable() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [isUnjani]);
 
-  const applyFilter = (next: Filter) => {
-    setFilter(next);
-    const params = new URLSearchParams(
-      typeof window === 'undefined' ? '' : window.location.search
-    );
-    if (next === 'all') params.delete('filter');
-    else params.set('filter', next);
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-  };
-
-  const counts = useMemo(() => {
-    if (stageClinics.length > 0) {
-      return {
-        all: sites.length,
-        onboarding: pipelineClinicsForFilter(stageClinics, 'onboarding').length,
-        live: pipelineClinicsForFilter(stageClinics, 'live').length,
-      };
-    }
-    return {
+  const counts = useMemo(
+    () => ({
       all: sites.length,
-      onboarding: sitesForListFilter(sites, 'onboarding').length,
-      live: sitesForListFilter(sites, 'live').length,
-    };
-  }, [sites, stageClinics]);
-
-  const liveSpend = useMemo(
-    () =>
-      sites
-        .filter((s) => s.stage === 'live')
-        .reduce((sum, s) => sum + Number(s.monthly_fee ?? 0), 0),
+      onboarding: sites.filter((s) => s.stage !== 'live').length,
+      live: sites.filter((s) => s.stage === 'live').length,
+    }),
     [sites]
+  );
+
+  const billedSites = useMemo(
+    () => sites.filter((s) => s.stage === 'live' && s.billed),
+    [sites]
+  );
+
+  const billedSpend = useMemo(
+    () => billedSites.reduce((sum, s) => sum + Number(s.monthly_fee ?? 0), 0),
+    [billedSites]
   );
 
   const provinces = useMemo(() => {
@@ -134,51 +128,69 @@ export default function SiteListTable() {
     return [...set].sort();
   }, [sites]);
 
-  const rows = useMemo<ListRow[]>(() => {
-    if (filter !== 'all' && stageClinics.length > 0) {
-      const siteById = new Map(sites.map((site) => [site.id, site]));
-      return pipelineSiteListRows({ filter, clinics: stageClinics, sites }).map((row) => ({
-        key: row.key,
-        site: row.siteId ? siteById.get(row.siteId) ?? null : null,
-        name: row.name,
-        stage: row.stage,
-        location: row.location,
-        technology: row.technology,
-        siteId: row.siteId,
-      }));
-    }
-    return sitesForListFilter(sites, filter).map((site) => ({
-      key: site.id,
-      site,
-      name: formatClinicShortName(site.site_name),
-      stage: site.stage,
-      location: formatSiteLocation(site),
-      technology: site.technology,
-      siteId: site.id,
-    }));
-  }, [filter, sites, stageClinics]);
-
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return rows.filter((row) => {
-      if (province !== 'all' && rowProvince(row) !== province) return false;
-      if (!q) return true;
-      const hay = [
-        row.name,
-        row.site?.site_name,
-        row.site ? formatSiteCode(row.site) ?? '' : '',
-        row.location,
-        formatTechnology(row.technology),
-      ]
-        .join(' ')
-        .toLowerCase();
-      return hay.includes(q);
-    });
-  }, [rows, province, query]);
+    const siteById = new Map(sites.map((site) => [site.id, site]));
+
+    if (stageFilter) {
+      return pipelineOverviewRows({
+        stage: stageFilter,
+        clinics: stageClinics,
+        sites,
+      })
+        .map((row): ClinicRow => {
+          const site = row.siteId ? siteById.get(row.siteId) ?? null : null;
+          return {
+            key: row.key,
+            name: row.name,
+            stage: row.stage,
+            siteId: row.siteId,
+            location: row.location,
+            technology: row.technology,
+            code: site ? formatSiteCode(site) : null,
+            monthlyFee: site?.monthly_fee ?? null,
+            site,
+          };
+        })
+        .filter((row) => {
+          if (province !== 'all') {
+            const siteProv = row.site ? siteProvince(row.site) : null;
+            if (siteProv) {
+              if (siteProv !== province) return false;
+            } else if (!row.location.toLowerCase().includes(province.toLowerCase())) {
+              return false;
+            }
+          }
+          return rowMatchesQuery(row, q);
+        });
+    }
+
+    return sites
+      .filter((site) => {
+        if (filter === 'live' && site.stage !== 'live') return false;
+        if (filter === 'onboarding' && site.stage === 'live') return false;
+        if (province !== 'all' && siteProvince(site) !== province) return false;
+        return true;
+      })
+      .map(
+        (site): ClinicRow => ({
+          key: site.id,
+          name: formatClinicShortName(site.site_name),
+          stage: site.stage,
+          siteId: site.id,
+          location: formatSiteLocation(site),
+          technology: site.technology,
+          code: formatSiteCode(site),
+          monthlyFee: site.monthly_fee,
+          site,
+        })
+      )
+      .filter((row) => rowMatchesQuery(row, q));
+  }, [sites, stageClinics, filter, stageFilter, province, query]);
 
   useEffect(() => {
     setPage(1);
-  }, [filter, query, province]);
+  }, [filter, stageFilter, query, province]);
 
   const totalPages = Math.max(1, Math.ceil(visible.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -188,7 +200,7 @@ export default function SiteListTable() {
   }, [visible, currentPage]);
 
   const selected =
-    visible.find((row) => row.key === selectedId) ?? paged[0] ?? null;
+    visible.find((row) => row.key === selectedKey) ?? paged[0] ?? null;
 
   if (loading) {
     return (
@@ -198,7 +210,7 @@ export default function SiteListTable() {
     );
   }
 
-  if (sites.length === 0 && stageClinics.length === 0) {
+  if (sites.length === 0) {
     return (
       <div className="py-16 text-center text-sm" style={{ color: 'var(--pm-body)' }}>
         No sites found for your organisation.
@@ -237,12 +249,15 @@ export default function SiteListTable() {
             },
           ] as const
         ).map((card) => {
-          const on = filter === card.key;
+          const on = filter === card.key && !stageFilter;
           return (
             <button
               key={card.key}
               type="button"
-              onClick={() => applyFilter(card.key)}
+              onClick={() => {
+                setStageFilter(null);
+                setFilter(card.key);
+              }}
               className="rounded-xl bg-white px-4 py-4 text-left shadow-sm ring-1 ring-black/[0.06] transition-opacity hover:opacity-90"
               style={{
                 borderBottom: `3px solid ${card.accent}`,
@@ -286,16 +301,40 @@ export default function SiteListTable() {
               className="mt-1 text-2xl font-extrabold tabular-nums"
               style={{ color: 'var(--pm-navy)' }}
             >
-              {formatZar(liveSpend)}
+              {formatZar(billedSpend)}
             </p>
             <p className="mt-1 text-xs" style={{ color: '#6B7280' }}>
-              Live sites · excl VAT
+              {spendNote(billedSites.length, billedSpend)}
             </p>
           </div>
         </Link>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,1fr)]">
+      {isUnjani && (
+        <section className="!mt-10">
+          <div className="flex items-center justify-between gap-3">
+            <p
+              className="text-[10px] font-extrabold tracking-[0.08em] uppercase"
+              style={{ color: 'var(--pm-navy)' }}
+            >
+              Pipeline by stage
+            </p>
+            <p className="text-xs" style={{ color: '#6B7280' }}>
+              Click a stage to filter
+            </p>
+          </div>
+          <StageStrip
+            counts={stageCounts}
+            selected={stageFilter}
+            onSelect={(key) => {
+              setStageFilter(key);
+              if (key) setFilter('all');
+            }}
+          />
+        </section>
+      )}
+
+      <div className="pt-12 grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,1fr)]">
         <section>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <input
@@ -347,21 +386,20 @@ export default function SiteListTable() {
                 <td
                   colSpan={6}
                   className="px-4 py-8 text-center text-sm"
-                  style={{ color: 'var(--pm-body)' }}
+                  style={{ color: '#6B7280' }}
                 >
-                  {filter === 'onboarding'
-                    ? 'No clinics in the onboarding pipeline.'
-                    : 'No clinics match this filter.'}
+                  {stageFilter
+                    ? 'No clinics in this stage.'
+                    : 'No clinics match these filters.'}
                 </td>
               </tr>
             ) : (
               paged.map((row) => {
                 const on = row.key === selected?.key;
-                const code = row.site ? formatSiteCode(row.site) : null;
                 return (
                   <tr
                     key={row.key}
-                    onClick={() => setSelectedId(row.key)}
+                    onClick={() => setSelectedKey(row.key)}
                     className="cursor-pointer"
                     style={{
                       borderBottom: '1px solid var(--pm-divider)',
@@ -377,9 +415,9 @@ export default function SiteListTable() {
                       >
                         {row.name}
                       </span>
-                      {code && (
+                      {row.code && (
                         <span className="block text-xs" style={{ color: '#6B7280' }}>
-                          {code}
+                          {row.code}
                         </span>
                       )}
                     </td>
@@ -396,9 +434,7 @@ export default function SiteListTable() {
                       className="px-4 py-3 text-right text-sm tabular-nums"
                       style={{ color: 'var(--pm-body)' }}
                     >
-                      {row.stage === 'live' && row.site
-                        ? formatZar(row.site.monthly_fee)
-                        : '—'}
+                      {row.stage === 'live' ? formatZar(row.monthlyFee) : '—'}
                     </td>
                     <td className="px-4 py-3">
                       {row.siteId ? (
@@ -410,7 +446,16 @@ export default function SiteListTable() {
                             View
                           </PmButton>
                         </Link>
-                      ) : null}
+                      ) : (
+                        <Link
+                          href={href('/coverage')}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <PmButton variant="secondary" className="whitespace-nowrap">
+                            Coverage
+                          </PmButton>
+                        </Link>
+                      )}
                     </td>
                   </tr>
                 );
@@ -459,9 +504,9 @@ export default function SiteListTable() {
               <p className="mt-1 text-sm" style={{ color: 'var(--pm-body)' }}>
                 {selected.location}
               </p>
-              {selected.site && formatSiteCode(selected.site) && (
+              {selected.code && (
                 <p className="mt-1 text-xs" style={{ color: '#6B7280' }}>
-                  {formatSiteCode(selected.site)}
+                  {selected.code}
                 </p>
               )}
               <div className="mt-3">
@@ -471,8 +516,8 @@ export default function SiteListTable() {
                 <li>Technology — {formatTechnology(selected.technology)}</li>
                 <li>
                   Monthly —{' '}
-                  {selected.stage === 'live' && selected.site
-                    ? formatZar(selected.site.monthly_fee)
+                  {selected.stage === 'live'
+                    ? formatZar(selected.monthlyFee)
                     : 'Not billed yet'}
                 </li>
                 {selected.site?.site_contact_name && (
@@ -485,13 +530,17 @@ export default function SiteListTable() {
                   <li>{selected.site.site_contact_email}</li>
                 )}
               </ul>
-              {selected.siteId ? (
-                <div className="mt-4">
+              <div className="mt-4">
+                {selected.siteId ? (
                   <Link href={href(`/sites/${selected.siteId}`)}>
                     <PmButton variant="cta">View site</PmButton>
                   </Link>
-                </div>
-              ) : null}
+                ) : (
+                  <Link href={href('/coverage')}>
+                    <PmButton variant="secondary">Open coverage</PmButton>
+                  </Link>
+                )}
+              </div>
             </div>
           ) : (
             <div className="rounded-xl bg-white p-4 text-sm shadow-sm ring-1 ring-black/[0.06]"

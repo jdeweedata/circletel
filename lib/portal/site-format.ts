@@ -34,6 +34,8 @@ export interface PortalSite {
   status: string | null;
   technology: string | null;
   monthly_fee: number | string | null;
+  /** True when an active customer_service is billable today (billing_start_date). */
+  billed: boolean;
   installed_at: string | null;
   job_card_number: string | null;
   ruijie_device_sn: string | null;
