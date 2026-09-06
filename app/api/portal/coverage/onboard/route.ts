@@ -1,11 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Resend } from 'resend';
 import { requireUnjaniCapability } from '@/lib/portal/require-portal-user';
 import { openDeskTicketForPortal } from '@/lib/portal/create-desk-ticket';
+import { sendUnjaniIntroductionEmail } from '@/lib/portal/unjani-introduction-email';
+import {
+  nurseFirstName,
+  unjaniNominationDeskDepartmentId,
+  withNominationFlags,
+} from '@/lib/portal/unjani-nomination';
+import { apiLogger } from '@/lib/logging/logger';
 
 /**
- * Proceed to onboard after a coverage check (PDF steps 1–3).
- * Creates an activation_request ticket (no site_id) and emails onboarding@.
+ * Nominate a clinic after coverage check (PDF steps 1–3).
+ *
+ * 1. Marks the coverage check as nominated (admin pipeline / KPIs)
+ * 2. Creates portal activation_request ticket (Admin → Nominations queue)
+ * 3. Opens Zoho Desk ticket in Sales for CircleTel to attend
+ * 4. Sends Unjani Connect introduction email to the nurse (Ruth + ops CC)
  */
 export async function POST(request: NextRequest) {
   const auth = await requireUnjaniCapability('coverage.write');
@@ -33,15 +43,27 @@ export async function POST(request: NextRequest) {
       notes?: string;
     };
 
-    if (!clinic_name?.trim() || !address?.trim() || !contact_name?.trim() || !contact_mobile?.trim()) {
+    if (
+      !clinic_name?.trim() ||
+      !address?.trim() ||
+      !contact_name?.trim() ||
+      !contact_mobile?.trim() ||
+      !contact_email?.trim()
+    ) {
       return NextResponse.json(
         {
           error:
-            'clinic_name, address, contact_name, and contact_mobile are required',
+            'clinic_name, address, contact_name, contact_mobile, and contact_email are required',
         },
         { status: 400 }
       );
     }
+
+    const clinicName = clinic_name.trim();
+    const contactName = contact_name.trim();
+    const contactEmail = contact_email.trim().toLowerCase();
+    const contactMobile = contact_mobile.trim();
+    const serviceAddress = address.trim();
 
     let coverageResults: Record<string, unknown> | null = null;
     let coverageLat: number | null = null;
@@ -64,6 +86,32 @@ export async function POST(request: NextRequest) {
       coverageResults = check.results as Record<string, unknown>;
       coverageLat = check.latitude;
       coverageLng = check.longitude;
+
+      const nominatedAt = new Date().toISOString();
+      const { error: nominateError } = await adminDb
+        .from('b2b_coverage_checks')
+        .update({
+          results: withNominationFlags(coverageResults, {
+            nominatedAt,
+            nominatedBy: portalUser.id,
+          }),
+          clinic_name: clinicName,
+          address: serviceAddress,
+        })
+        .eq('id', coverage_check_id)
+        .eq('organisation_id', portalUser.organisation_id);
+
+      if (nominateError) {
+        apiLogger.warn('[Portal /coverage/onboard] failed to mark nominated', {
+          coverage_check_id,
+          error: nominateError.message,
+        });
+      } else {
+        coverageResults = withNominationFlags(coverageResults, {
+          nominatedAt,
+          nominatedBy: portalUser.id,
+        });
+      }
     }
 
     const summary = coverageResults?.summary as
@@ -71,13 +119,13 @@ export async function POST(request: NextRequest) {
       | undefined;
 
     const description = [
-      `ONBOARDING REQUEST (nomination → go-live step 1–3)`,
+      `UNJANI CONNECT NOMINATION (Sales — attend to onboard)`,
       ``,
-      `Clinic: ${clinic_name.trim()}`,
-      `Service address: ${address.trim()}`,
-      `On-site contact: ${contact_name.trim()}`,
-      `Mobile: ${contact_mobile.trim()}`,
-      contact_email ? `Email: ${contact_email.trim()}` : null,
+      `Clinic: ${clinicName}`,
+      `Service address: ${serviceAddress}`,
+      `On-site contact: ${contactName}`,
+      `Mobile: ${contactMobile}`,
+      `Email: ${contactEmail}`,
       coverageLat != null && coverageLng != null
         ? `Coordinates: ${coverageLat}, ${coverageLng}`
         : null,
@@ -91,11 +139,12 @@ export async function POST(request: NextRequest) {
       ``,
       `Submitted by: ${portalUser.display_name} (${portalUser.email})`,
       `Organisation: ${portalUser.organisation_name}`,
+      `Action: Confirm details, send onboarding link, schedule installation.`,
     ]
       .filter(Boolean)
       .join('\n');
 
-    const subject = `Onboard clinic: ${clinic_name.trim()}`;
+    const subject = `Unjani nomination: ${clinicName}`;
 
     const { data: ticket, error: insertError } = await adminDb
       .from('b2b_support_tickets')
@@ -105,26 +154,33 @@ export async function POST(request: NextRequest) {
         submitted_by: portalUser.id,
         subject,
         description,
-        priority: 'medium',
+        priority: 'high',
         ticket_type: 'activation_request',
       })
       .select('id, subject, status, ticket_type, created_at')
       .single();
 
     if (insertError || !ticket) {
-      return NextResponse.json({ error: insertError?.message || 'Failed to create ticket' }, { status: 500 });
+      return NextResponse.json(
+        { error: insertError?.message || 'Failed to create ticket' },
+        { status: 500 }
+      );
     }
 
+    let zohoTicketNumber: string | null = null;
     try {
       const deskTicket = await openDeskTicketForPortal({
-        subject: `[${portalUser.organisation_name}] ${subject}`,
+        subject: `[Sales · Unjani] ${subject}`,
         description: `${description}\n\n---\nPortal ticket: ${ticket.id}`,
-        customerEmail: portalUser.email,
-        customerName: portalUser.display_name,
-        priority: 'medium',
+        customerEmail: contactEmail,
+        customerName: contactName,
+        phone: contactMobile,
+        priority: 'high',
         ticketType: 'activation_request',
+        departmentId: unjaniNominationDeskDepartmentId(),
       });
       if (deskTicket) {
+        zohoTicketNumber = deskTicket.ticketNumber;
         await adminDb
           .from('b2b_support_tickets')
           .update({
@@ -135,27 +191,39 @@ export async function POST(request: NextRequest) {
           .eq('id', ticket.id);
       }
     } catch (deskError) {
-      console.error('[Portal /coverage/onboard] Zoho Desk create failed:', deskError);
+      apiLogger.error('[Portal /coverage/onboard] Zoho Desk create failed', {
+        ticketId: ticket.id,
+        error: deskError instanceof Error ? deskError.message : String(deskError),
+      });
     }
 
-    if (process.env.RESEND_API_KEY) {
-      try {
-        const resend = new Resend(process.env.RESEND_API_KEY);
-        await resend.emails.send({
-          from:
-            process.env.RESEND_FROM_EMAIL ||
-            'noreply@notifications.circletelsa.co.za',
-          to: ['onboarding@circletel.co.za', 'contactus@circletel.co.za'],
-          replyTo: portalUser.email,
-          subject: `[Portal Onboarding] ${subject} — ${portalUser.organisation_name}`,
-          text: description + `\n\n---\nTicket ID: ${ticket.id}`,
-        });
-      } catch (emailError) {
-        console.error('[Portal /coverage/onboard] Email error:', emailError);
-      }
+    const intro = await sendUnjaniIntroductionEmail({
+      to: contactEmail,
+      clinicName,
+      nurseName: nurseFirstName(contactName),
+      cc: [portalUser.email],
+    });
+
+    if (!intro.success) {
+      apiLogger.warn('[Portal /coverage/onboard] intro email failed', {
+        ticketId: ticket.id,
+        to: contactEmail,
+        error: intro.error,
+      });
     }
 
-    return NextResponse.json({ ticket }, { status: 201 });
+    return NextResponse.json(
+      {
+        ticket,
+        introductionEmail: {
+          sent: intro.success,
+          messageId: intro.messageId ?? null,
+          error: intro.success ? null : intro.error ?? 'send_failed',
+        },
+        zohoTicketNumber,
+      },
+      { status: 201 }
+    );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: message }, { status: 500 });

@@ -327,7 +327,9 @@ export default function CoverageExplorer({
           ? data.order?.stock_status === 'reserved'
             ? 'Install order placed and kit reserved. Book the visit against technician workload below.'
             : 'Install order placed. Kit is on order (5 business days). Booking stays blocked until stock is reserved.'
-          : `Onboarding request submitted (ticket ${String(data.ticket.id).slice(0, 8)}…). CircleTel will coordinate installation.`
+          : data.introductionEmail?.sent
+            ? `Clinic nominated. Introduction email sent to ${contactEmail.trim()}. Sales has a Zoho Desk ticket to attend.`
+            : `Clinic nominated and logged for Sales${data.zohoTicketNumber ? ` (Desk #${data.zohoTicketNumber})` : ''}. Introduction email could not be sent — CircleTel will follow up.`
       );
       setShowOnboard(false);
       onOrderCreated?.();
@@ -701,7 +703,8 @@ export default function CoverageExplorer({
             />
             <input
               type="email"
-              placeholder="Contact email (optional)"
+              required
+              placeholder="Contact email (required for introduction email)"
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
               className="min-h-11 px-3 py-2 text-sm"
