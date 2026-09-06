@@ -31,6 +31,8 @@ const EXCLUDED_PATHS = [
   '/admin',              // Admin pages
   '/partners',           // Partner portal
   '/dashboard',          // Customer dashboard
+  '/portal',             // B2B customer portal
+  '/unjani',             // Unjani Connect portal
 ];
 
 export function StickyMobileCTA() {

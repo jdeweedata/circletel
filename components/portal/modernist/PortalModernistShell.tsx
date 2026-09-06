@@ -94,7 +94,7 @@ export function AlertBand({
   const peach = tone === 'peach';
   return (
     <div
-      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 py-3 mt-6 rounded-xl"
+      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 py-3 !mt-8 rounded-xl"
       style={
         peach
           ? { background: '#FBEEDA', color: 'var(--pm-navy)' }
