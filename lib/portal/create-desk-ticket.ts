@@ -14,6 +14,9 @@ export async function openDeskTicketForPortal(input: {
   customerName: string;
   priority: string;
   ticketType?: string;
+  /** Override Desk department (e.g. Sales for Unjani nominations). */
+  departmentId?: string;
+  phone?: string;
 }): Promise<{ id: string; ticketNumber: string } | null> {
   const desk = await createMintedZohoDeskService();
   const result = await desk.createTicket({
@@ -23,6 +26,8 @@ export async function openDeskTicketForPortal(input: {
     customerName: input.customerName,
     priority: mapPortalPriorityToDesk(input.priority),
     category: deskCategoryForTicketType(input.ticketType),
+    departmentId: input.departmentId,
+    phone: input.phone,
   });
 
   if (!result.success || !result.ticket?.id) {
