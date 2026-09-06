@@ -1,21 +1,22 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePortalAuth } from '@/lib/portal/portal-auth-provider';
 import { usePortalApp } from '@/lib/portal/portal-app-context';
 import {
   PortalModernistShell,
   PageHeader,
-  KpiStrip,
+  FilterChips,
   RuledTable,
   PmButton,
 } from '@/components/portal/modernist/PortalModernistShell';
 import { formatClinicShortName, formatZar } from '@/lib/portal/site-format';
 import { usePortalCapability } from '@/lib/portal/use-portal-capability';
-import type { InvoiceBucket } from '@/lib/portal/billing-summary';
-
-export type BillingKpiMetric = 'monthly-billed' | 'unpaid' | 'paid' | 'deferred-live';
+import {
+  formatMonthLabel,
+  invoiceMonthKey,
+} from '@/lib/portal/billing-period';
 
 interface LineItem {
   description?: string;
@@ -36,120 +37,65 @@ interface Invoice {
   line_items: LineItem[] | null;
   status: string;
   clinic_name?: string | null;
-  bucket?: InvoiceBucket;
+  corporate_site_id?: string | null;
 }
 
-interface BilledService {
-  name: string;
-  monthlyFee: number;
-  billingStartDate?: string | null;
+function openInvoicePdf(invoiceId: string) {
+  window.open(
+    `/api/portal/billing/${invoiceId}/download?disposition=inline`,
+    '_blank',
+    'noopener,noreferrer'
+  );
 }
 
-interface BillingSummary {
-  billedCount: number;
-  monthlySpend: number;
-  unpaidCount: number;
-  unpaidTotal: number;
-  paidCount: number;
-  paidTotal: number;
-}
-
-const META: Record<
-  BillingKpiMetric,
-  { label: string; title: string; subtitle: string; accent: string; valueColor?: string }
-> = {
-  'monthly-billed': {
-    label: 'Monthly billed',
-    title: 'Monthly billed',
-    subtitle: 'Active Unjani Connect services on a collectable bill this month.',
-    accent: '#13274A',
-  },
-  unpaid: {
-    label: 'Unpaid',
-    title: 'Unpaid invoices',
-    subtitle: 'Open invoices that are still collectable.',
-    accent: '#F5841E',
-  },
-  paid: {
-    label: 'Paid',
-    title: 'Paid invoices',
-    subtitle: 'Settled invoices for this organisation.',
-    accent: '#2F9E5E',
-    valueColor: '#2F9E5E',
-  },
-  'deferred-live': {
-    label: 'Deferred live',
-    title: 'Live — not billed this month',
-    subtitle: 'Live clinics whose billing start date is still in the future.',
-    accent: '#13274A',
-  },
-};
-
-function formatDay(iso: string | null | undefined) {
-  if (!iso) return '—';
-  return iso.slice(0, 10);
-}
-
-export function PortalBillingKpiPage({ metric }: { metric: BillingKpiMetric }) {
+export default function PortalBillingInvoicesPage() {
   const { user } = usePortalAuth();
   const { href } = usePortalApp();
   const { allowed } = usePortalCapability('billing.read');
-  const meta = META[metric];
   const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [billedServices, setBilledServices] = useState<BilledService[]>([]);
-  const [deferredLive, setDeferredLive] = useState<BilledService[]>([]);
-  const [summary, setSummary] = useState<BillingSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [month, setMonth] = useState('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [downloading, setDownloading] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetch('/api/portal/billing')
       .then((r) => r.json())
       .then((data) => {
-        setInvoices(data.invoices ?? []);
-        setBilledServices(data.billedServices ?? []);
-        setDeferredLive(data.deferredLive ?? []);
-        setSummary(data.summary ?? null);
+        const rows: Invoice[] = data.invoices ?? [];
+        const npc = rows.filter((inv) => inv.corporate_site_id == null);
+        setInvoices(npc.length > 0 ? npc : rows);
       })
-      .catch(console.error)
+      .catch((err) => {
+        console.error(err);
+        setError('Failed to load invoices');
+      })
       .finally(() => setLoading(false));
   }, []);
 
+  const monthOptions = useMemo(() => {
+    const keys = new Set<string>();
+    for (const inv of invoices) {
+      const key = invoiceMonthKey(inv.period_start) ?? invoiceMonthKey(inv.period_end);
+      if (key) keys.add(key);
+    }
+    return Array.from(keys).sort((a, b) => b.localeCompare(a));
+  }, [invoices]);
+
+  const visible = useMemo(() => {
+    if (month === 'all') return invoices;
+    return invoices.filter((inv) => {
+      const key = invoiceMonthKey(inv.period_start) ?? invoiceMonthKey(inv.period_end);
+      return key === month;
+    });
+  }, [invoices, month]);
+
   if (!user || !allowed) return null;
 
-  const value =
-    metric === 'monthly-billed'
-      ? formatZar(summary?.monthlySpend ?? 0)
-      : metric === 'unpaid'
-        ? formatZar(summary?.unpaidTotal ?? 0)
-        : metric === 'paid'
-          ? formatZar(summary?.paidTotal ?? 0)
-          : String(deferredLive.length);
-  const note =
-    metric === 'monthly-billed'
-      ? `${summary?.billedCount ?? 0} active services`
-      : metric === 'unpaid'
-        ? `${summary?.unpaidCount ?? 0} open invoices`
-        : metric === 'paid'
-          ? `${summary?.paidCount ?? 0} settled`
-          : deferredLive.length > 0
-            ? 'Billed from 1 Sep'
-            : 'None';
-
-  const visibleInvoices = invoices.filter((invoice) => invoice.bucket === metric);
-  const services = metric === 'monthly-billed' ? billedServices : deferredLive;
-
-  function handleView(invoice: Invoice) {
-    window.open(
-      `/api/portal/billing/${invoice.id}/download?disposition=inline`,
-      '_blank',
-      'noopener,noreferrer'
-    );
-  }
-
   async function handleDownload(invoice: Invoice) {
-    setDownloading(invoice.id);
+    setBusyId(invoice.id);
+    setError('');
     try {
       const res = await fetch(
         `/api/portal/billing/${invoice.id}/download?disposition=attachment`
@@ -163,94 +109,74 @@ export function PortalBillingKpiPage({ metric }: { metric: BillingKpiMetric }) {
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('Download error:', err);
+      console.error(err);
+      setError('Could not download invoice PDF');
     } finally {
-      setDownloading(null);
+      setBusyId(null);
     }
   }
 
   return (
     <PortalModernistShell>
       <PageHeader
-        eyebrow="Billing · Receivables"
-        title={meta.title}
-        subtitle={meta.subtitle}
+        eyebrow="Billing · Invoices"
+        title="Invoices by month"
+        subtitle={`NPC tax invoices for ${user.organisation_name}`}
         actions={
-          <Link
-            href={href('/billing')}
-            className="text-sm font-semibold underline underline-offset-2"
-            style={{ color: 'var(--pm-navy)' }}
-          >
-            Billing
-          </Link>
+          <>
+            <Link href={href('/billing')}>
+              <PmButton variant="ghost">Billing hub</PmButton>
+            </Link>
+            <Link href={href('/billing/statement')}>
+              <PmButton variant="secondary">Account statement</PmButton>
+            </Link>
+          </>
         }
       />
 
-      <div className="mb-6">
-        <KpiStrip
-          variant="cards"
-          items={[
-            {
-              label: meta.label,
-              value,
-              note,
-              accent: meta.accent,
-              valueColor: meta.valueColor,
-            },
+      <div className="mt-6">
+        <FilterChips
+          value={month}
+          onChange={setMonth}
+          options={[
+            { value: 'all', label: 'All months' },
+            ...monthOptions.map((key) => ({
+              value: key,
+              label: formatMonthLabel(key),
+            })),
           ]}
         />
       </div>
 
+      {error && (
+        <p className="mt-4 text-sm" style={{ color: '#DC2626' }}>
+          {error}
+        </p>
+      )}
+
       {loading ? (
         <div className="py-16 text-center text-sm" style={{ color: 'var(--pm-body)' }}>
-          Loading billing…
+          Loading invoices…
         </div>
-      ) : metric === 'monthly-billed' || metric === 'deferred-live' ? (
-        <RuledTable headers={['Clinic', 'Monthly fee excl VAT', 'Billing start']}>
-          {services.length === 0 ? (
-            <tr>
-              <td colSpan={3} className="px-4 py-8 text-center" style={{ color: 'var(--pm-body)' }}>
-                No clinics in this list.
-              </td>
-            </tr>
-          ) : (
-            services.map((service) => (
-              <tr key={service.name} style={{ borderBottom: '1px solid var(--pm-divider)' }}>
-                <td className="px-4 py-3 font-extrabold" style={{ color: 'var(--pm-navy)' }}>
-                  {formatClinicShortName(service.name)}
-                </td>
-                <td className="px-4 py-3 tabular-nums" style={{ color: 'var(--pm-body)' }}>
-                  {formatZar(service.monthlyFee)}
-                </td>
-                <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
-                  {formatDay(service.billingStartDate)}
-                </td>
-              </tr>
-            ))
-          )}
-        </RuledTable>
-      ) : visibleInvoices.length === 0 ? (
+      ) : visible.length === 0 ? (
         <div className="py-16 text-center text-sm" style={{ color: 'var(--pm-body)' }}>
-          {metric === 'unpaid' ? 'No unpaid invoices.' : 'No paid invoices.'}
+          No invoices for this month.
         </div>
       ) : (
-        <RuledTable headers={['Invoice', 'Clinic', 'Period', 'Total', 'Due', 'Status', 'Actions']}>
-          {visibleInvoices.map((inv) => {
+        <RuledTable headers={['Invoice', 'Period', 'Total', 'Due', 'Status', 'Actions']}>
+          {visible.map((inv) => {
             const expanded = expandedId === inv.id;
             const lines = inv.line_items ?? [];
             return (
               <React.Fragment key={inv.id}>
-                <tr
-                  style={{
-                    borderBottom: '1px solid var(--pm-divider)',
-                    borderLeft: inv.status === 'overdue' ? '3px solid #DC2626' : undefined,
-                  }}
-                >
+                <tr style={{ borderBottom: '1px solid var(--pm-divider)' }}>
                   <td className="px-4 py-3 font-extrabold" style={{ color: 'var(--pm-navy)' }}>
                     {inv.invoice_number}
-                  </td>
-                  <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
-                    {formatClinicShortName(inv.clinic_name)}
+                    {inv.clinic_name ? (
+                      <span className="ml-2 text-xs font-normal opacity-70">
+                        {formatClinicShortName(inv.clinic_name)}
+                      </span>
+                    ) : null}
                   </td>
                   <td className="px-4 py-3" style={{ color: 'var(--pm-body)' }}>
                     {inv.period_start && inv.period_end
@@ -274,22 +200,25 @@ export function PortalBillingKpiPage({ metric }: { metric: BillingKpiMetric }) {
                       >
                         {expanded ? 'Hide lines' : 'Lines'}
                       </PmButton>
-                      <PmButton variant="secondary" onClick={() => handleView(inv)}>
+                      <PmButton
+                        variant="secondary"
+                        onClick={() => openInvoicePdf(inv.id)}
+                      >
                         View
                       </PmButton>
                       <PmButton
                         variant="secondary"
-                        disabled={downloading === inv.id}
+                        disabled={busyId === inv.id}
                         onClick={() => handleDownload(inv)}
                       >
-                        {downloading === inv.id ? '…' : 'Download'}
+                        {busyId === inv.id ? '…' : 'Download'}
                       </PmButton>
                     </div>
                   </td>
                 </tr>
                 {expanded && (
                   <tr style={{ borderBottom: '1px solid var(--pm-divider)' }}>
-                    <td colSpan={7} className="px-4 py-3" style={{ background: 'var(--pm-surface)' }}>
+                    <td colSpan={6} className="px-4 py-3" style={{ background: 'var(--pm-surface)' }}>
                       {lines.length === 0 ? (
                         <p className="text-sm opacity-70">No line items on this invoice.</p>
                       ) : (

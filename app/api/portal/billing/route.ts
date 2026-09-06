@@ -31,7 +31,8 @@ export async function GET() {
       invoice_type,
       status,
       paid_at,
-      customer_id
+      customer_id,
+      corporate_site_id
     `)
     .eq('corporate_account_id', portalUser.organisation_id)
     .order('invoice_date', { ascending: false });
