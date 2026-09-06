@@ -102,9 +102,14 @@ export default function PortalBillingPage() {
         title="Billing"
         subtitle={`Unjani Connect billing for ${user.organisation_name}`}
         actions={
-          <Link href={href('/billing/statement')}>
-            <PmButton variant="secondary">Account statement</PmButton>
-          </Link>
+          <>
+            <Link href={href('/billing/invoices')}>
+              <PmButton variant="secondary">Invoices by month</PmButton>
+            </Link>
+            <Link href={href('/billing/statement')}>
+              <PmButton variant="secondary">Account statement</PmButton>
+            </Link>
+          </>
         }
       />
 

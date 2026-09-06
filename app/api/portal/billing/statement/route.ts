@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requirePortalCapability } from '@/lib/portal/require-portal-user';
 import { assembleCorporateStatementData } from '@/lib/billing/corporate-statement-data';
-import type { StatementOptions } from '@/lib/billing/statement-data';
+import { parsePortalStatementOptions } from '@/lib/portal/billing-period';
 
 export async function GET(request: NextRequest) {
   const auth = await requirePortalCapability('billing.read');
@@ -9,21 +9,7 @@ export async function GET(request: NextRequest) {
 
   // Site users can view org billing (existing portal behaviour); Super User + site_user
   const { portalUser, adminDb } = auth;
-  const { searchParams } = new URL(request.url);
-
-  const options: StatementOptions = {};
-  const period = searchParams.get('period');
-  const from = searchParams.get('from');
-  const to = searchParams.get('to');
-
-  if (from && to) {
-    options.from = from;
-    options.to = to;
-  } else if (period === '3m' || period === '6m' || period === '12m' || period === 'all') {
-    options.period = period;
-  } else {
-    options.period = '12m';
-  }
+  const options = parsePortalStatementOptions(new URL(request.url).searchParams);
 
   try {
     const { statement, organisationName } = await assembleCorporateStatementData(
